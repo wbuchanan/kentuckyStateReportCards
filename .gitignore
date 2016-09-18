@@ -1,0 +1,9 @@
+*.xlsx
+*.xls
+*.dta
+*.pdf
+.Rhistory
+*.csv
+*.json
+
+
