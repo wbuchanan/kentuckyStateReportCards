@@ -14,11 +14,8 @@ prog def kdecombo
 
 	// Load first year of data	
 	qui: import excel using raw/`: word 1 of `years''/`filenm'.xlsx, 		 ///   
-	first case(l) clear  sheet(`"`: word 1 of `sheets''"')
+	first case(l) clear  sheet(`"`: word 1 of `sheets''"') allstring
 	
-	// Calls the mkstr subroutine
-	mkstr
-
 	// For values 2 through the total number of values passed to the years parameter
 	forv y = 2/`: word count `years'' {
 
@@ -32,10 +29,7 @@ prog def kdecombo
 			// make all variable names lower cased, clear data from memory, and 
 			// pull the correct word for this file to identify the worksheet
 			import excel using raw/`: word `y' of `years''/`filenm'.xlsx, 	 ///   
-			first case(l) clear sheet(`"`: word `y' of `sheets''"')
-			
-			// Call the mkstr sub routine
-			mkstr
+			first case(l) clear sheet(`"`: word `y' of `sheets''"') allstring
 			
 			// Save the data to the tempfile
 			qui: save `x`y''.dta, replace
@@ -49,18 +43,5 @@ prog def kdecombo
 	} // Move to the next value
 
 // End of program	
-end
-
-
-// Defines the mkstr subroutine
-prog def mkstr
-
-	// Gets the names of all variables that are numeric types
-	qui: ds, not(type string)
-	
-	// Convert all of those values to string values
-	qui: tostring `r(varlist)', replace
-	
-// End of subroutine	
 end
 

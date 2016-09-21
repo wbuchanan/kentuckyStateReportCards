@@ -169,9 +169,7 @@ qui: save clean/acctSummary.dta, replace
 /*******************************************************************************
  * Accountability System ACT data											   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_ACT.xlsx, first case(lower) clear sheet(`"Public Schools"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_ACT.xlsx, first case(lower) clear sheet(`"Public Schools"') allstring
 tempfile act1
 qui: save `act1'.dta, replace
 kdecombo ASSESSMENT_ACT, sheets(`"`"Public Alternative Programs"' `"ACT Data"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
@@ -189,9 +187,7 @@ qui: save clean/assessACT.dta, replace
 /*******************************************************************************
  * Accountability System Explore data										   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_EXPLORE.xlsx, first case(lower) clear sheet(`"Public Alternate Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_EXPLORE.xlsx, first case(lower) clear sheet(`"Public Alternate Programs"') allstring
 tempfile explore
 qui: save `explore'.dta, replace
 kdecombo ASSESSMENT_EXPLORE, sheets(`"`"Public Schools"' `"EXPLORE Data"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -201,9 +197,7 @@ qui: save clean/assessExplore.dta, replace
 /*******************************************************************************
  * Accountability System Plan data	   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_PLAN.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_PLAN.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile plan
 qui: save `plan'.dta, replace
 kdecombo ASSESSMENT_PLAN, sheets(`"`"Public Schools"' `"PLAN Data"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -213,9 +207,7 @@ qui: save clean/assessPlan.dta, replace
 /*******************************************************************************
  * Accountability System KPREP End of Course Assessment Data				   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_KPREP_EOC.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_KPREP_EOC.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile keoc
 qui: save `keoc'.dta, replace
 kdecombo ASSESSMENT_KPREP_EOC, sheets(`"`"Public Schools"' `"Assessment KPREP-EOC"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -247,9 +239,7 @@ qui: save clean/assessEOC.dta, replace
 /*******************************************************************************
  * Accountability System KPREP Grade Level Assessment Data					   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_KPREP_GRADE.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_KPREP_GRADE.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile kgr
 qui: save `kgr'.dta, replace
 kdecombo ASSESSMENT_KPREP_GRADE, sheets(`"`"Public Schools"' `"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -280,9 +270,7 @@ qui: save clean/assessKPREPgr.dta, replace
 /*******************************************************************************
  * Accountability System KPREP Educational Level Assessment Data			   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_KPREP_LEVEL.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_KPREP_LEVEL.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile klev
 qui: save `klev'.dta, replace
 kdecombo ASSESSMENT_KPREP_LEVEL, sheets(`"`"Public Schools"' `"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -320,9 +308,7 @@ qui: save clean/kprep.dta, replace
 /*******************************************************************************
  * Accountability System NRT Assessment Data	   *
  ******************************************************************************/
-import excel using raw/2012/ASSESSMENT_NRT.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ASSESSMENT_NRT.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile nrt
 qui: save `nrt'.dta, replace
 kdecombo ASSESSMENT_NRT, sheets(`"`"Public Schools"' `"SAT-NRT"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
@@ -342,7 +328,6 @@ foreach v of var pctile* {
 destring pctile* grade* testnm schyr, replace
 reshape long pctile, i(distid schid schyr grade) j(content)
 la def content 1 "Language Mechanics" 2 "Mathematics" 3 "Reading" 4 "Science" 5 "Social Studies" 6 "Writing" 7 "Algebra II" 8 "Biology" 9 "English II" 10 "U.S. History", modify
-
 
 qui: save clean/assessNRT.dta, replace
 
@@ -422,13 +407,9 @@ qui: save clean/programReview.dta, replace
  * Accountability System Participation Rates								   *
  ******************************************************************************/
 tempfile part12 part13
-import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"') allstring
 qui: save `part12'.dta, replace
-import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"') allstring
 qui: save `part13'.dta, replace
 kdecombo ACCOUNTABILITY_FEDERAL_DATA_PARTICIPATION_RATE, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
 append using `part12'.dta
@@ -439,13 +420,9 @@ save clean/participationRates.dta, replace
  * Accountability System Daily Attendance Rates								   *
  ******************************************************************************/
 tempfile oth12 oth13
-import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"') allstring
 qui: save `oth12'.dta, replace
-import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"')
-qui: ds, not(type string)
-qui: tostring `r(varlist)', replace
+import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"') allstring
 qui: save `oth13'.dta, replace
 kdecombo ACCOUNTABILITY_FEDERAL_DATA_ATTENDANCE, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
 append using `oth12'.dta
