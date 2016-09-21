@@ -21,6 +21,9 @@ prog def kdestandardize
 	// Defines local macro to test for growth null records
 	loc growvars tested grorla gromth groboth
 	
+	la def kstype .u "Unknown" 0 "Any" 1 "Child Care" 2 "Head Start" 		 ///   
+					3 "Home" 4 "Other" 5 "State Funded", modify
+
 	// Drop any variables ID'd by user before constructing variable list
 	if `"`dropvars'"' != "" cap drop `dropvars'
 
@@ -32,6 +35,10 @@ prog def kdestandardize
 	
 	// Define missing value label for NRT percentiles
 	la def pctiles .s "***", modify
+
+	// Define value labels for delivery target types
+	la def target 1 "Actual Score" 2 "Target" 3 "Numerator" 4 "Denominator"  ///   
+	5 "Met Target" 
 
 	// Define grade span level value labels
 	la def level 1 "Elementary School" 2 "Middle School" 3 "High School", modify
@@ -54,6 +61,20 @@ prog def kdestandardize
 
 	// Define value labels for whether or not AMOs are met			 
 	la def amomet 0 "Did not meet AMOs" 1 "Met AMOs", modify
+
+	// Perkins grant goal measures
+	la def prknsmeasure 	1 "Academic Attainment - Reading"				 ///   
+							2 "Academic Attainment - Mathematics"			 ///   
+							3 "Technical Skill Attainment"					 ///   
+							4 "Secondary School Completion"					 ///   
+							5 "Student Graduation Rate"						 ///   
+							6 "Secondary Placement"							 ///   
+							7 "Non-Traditional Participation"				 ///   
+							8 "Non-Traditional Completion", modify
+
+	// Perkins grant goal status
+	la def prknsgoal 		0 "Did Not Meet Perkins Grant Goal"				 ///   
+							1 "Met Perkins Grant Goal", modify
 
 	// Define value labels for school classification variable
 	la def classification 	1 `"Needs Improvement"'							 ///    
@@ -145,6 +166,10 @@ prog def kdestandardize
 		la def wllev 0 "Needs Improvement" 1 "Proficient" 2 "Distinguished"  ///   
 					 .n "N/A"	
 		
+		// Program Review Target Types
+		la def prtargettype 1 "Number Proficient/Distinguished"				 ///   
+						2 "Percent Proficient/Distinguished", modify
+						
 	} // End of value label definitions
 	
 	// Get the list of variable names
@@ -1230,8 +1255,119 @@ prog def kdestandardize
 		qui: destring ccrpct, replace ignore("*,-R %")
 		la var ccrpct "Total % of College AND Career Ready Students"
 	}	 
-	 
+	
+	if `: list posof "performance_measure" in x' != 0 {
+		qui: g prknsmeasure = performance_measure
+		qui: replace prknsmeasure = cond(regexm(prknsmeasure, "Read"), "1",	 ///   
+									cond(regexm(prknsmeasure, "Math"), "2",  ///   
+									cond(regexm(prknsmeasure, "Technical"), "3", ///   
+									cond(regexm(prknsmeasure, "Scho"), "4",  ///   
+									cond(regexm(prknsmeasure, "Grad"), "5",	 ///   
+									cond(regexm(prknsmeasure, "Place"), "6", ///   
+									cond(regexm(prknsmeasure, "Partic"), "7", ///   
+									cond(regexm(prknsmeasure, "Compl"), "8", ""))))))))
 
+		qui: destring prknsmeasure, replace
+		la val prknsmeasure prknsmeasure
+		la var prknsmeasure "Perkins Grant Performance Measures"
+	}
+
+	if `: list posof "benchmark_students" in x' != 0 {
+		qui: rename benchmark_students bnchmrkprkns
+		qui: destring bnchmrkprkns, replace ignore("*,-R %")
+		la var bnchmrkprkns "Number of Students in Perkins Grant Benchmarks"
+	}	
+
+	if `: list posof "performance_goal" in x' != 0 {
+		qui: rename performance_goal prknsgoal
+		qui: replace prknsgoal = cond(prknsgoal == "Not Met", "0",			 ///   
+								 cond(prknsgoal == "Met", "1", ""))
+		qui: destring prknsgoal, replace ignore("*,-R %")
+		la val prknsgoal prknsgoal
+		la var prknsgoal "Was the Perkins Grant Goal Met?"
+	}
+
+	if `: list posof "total_enrollment" in x' != 0 {
+		qui: rename total_enrollment prknsenr
+		qui: destring prknsenr, replace ignore("*,-R %")
+		la var prknsenr "Total Number of Students Enrolled"
+	}	
+
+	
+	// Handles instances of the  variable
+	if `: list posof "target_level" in x' != 0 {
+		loc tl target_level
+		qui: replace target_level = cond(`rx'(`cl', "elem.*", 1) == 1, "1", ///   
+									 cond(`rx'(`cl', "mid.*", 1) == 1, "2", "3"))
+		qui: rename target_level level
+		qui: destring level, replace ignore("*,-R %")
+		la val level level
+		la var level "Educational Level" 
+	
+	} // End of handling of the  variable
+	
+	// Handles instances of the  variable
+	if `: list posof "target_type" in x' != 0 {
+		qui: rename target_type target
+		qui: replace target = 	cond(target == "Actual Score", "1",			 ///    
+								cond(target == "Target", "2",				 ///   
+								cond(target == "Numerator", "3",			 ///   
+								cond(target == "Denominator", "4",			 ///   
+								cond(target == "Met Target", "5", ""))))) 
+
+	} // End of handling of the  variable
+	
+	if `: list posof "prior_setting" in x' != 0 {
+		qui: rename prior_setting kstype
+		qui: replace kstype = 	cond(kstype == "Unknown", ".u",				 ///   
+								cond(kstype == "Any", "0",					 ///   
+								cond(kstype == "Child Care", "1",			 ///   
+								cond(kstype == "Head Start", "2",			 ///   
+								cond(kstype == "Home", "3",					 ///   
+								cond(kstype == "Other", "4",				 ///   
+								cond(kstype == "State Funded", "5", "")))))))
+		qui: destring kstype, replace ignore("*,-R %")
+		la val kstype kstype
+		la var kstype "Kindergarten Screening Prior Setting Type"
+	}
+
+	// Kindergarten screening targets by year
+	if `: list posof "kscreen_2013" in x' != 0 {
+		qui: rename kscreen_# kscreen#
+		foreach v of var kscreen* {
+			loc yr "`= substr("`v'", -4, 4)'"
+			qui: drop if inlist(`v', "No", "Yes")
+			qui: destring `v', replace ignore("*,-R %")
+			la var `v' "Kindergarten Readiness Screening Target for `yr'"
+		}	
+		qui: egen nullrecord = rowmiss(kscreen*)
+		qui: ds kscreen*
+		qui: drop if nullrecord == `: word count `r(varlist)''
+		qui: drop nullrecord
+	}
+	
+	// Handles Program Review Delivery Targets
+	if `: list posof "pr_type" in x' != 0 {
+		qui: rename pr_type prtargettype
+		qui: replace prtargettype = cond(prtargettype == "NUMBER_PD", "1",	 ///   
+									cond(prtargettype == "PERCENT_PD", "2", ""))
+		qui: destring prtargettype, replace ignore("*,-R %")
+		la val prtargettype prtargettype
+		la var prtargettype "Program Review Delivery Target Type"
+		qui: rename pr_# progrev#
+		foreach v of var progrev* {
+			loc yr "`= substr("`v'", -4, 4)'"
+			qui: drop if inlist(`v', "No", "Yes")
+			qui: destring `v', replace ignore("*,-R %")
+			la var `v' "Program Review Target for `yr'"
+		}	
+		qui: egen nullrecord = rowmiss(progrev*)
+		qui: ds progrev*
+		qui: drop if nullrecord == `: word count `r(varlist)''
+		qui: drop nullrecord
+	}
+
+	
 	
 	// Handles instances of the  variable
 	if `: list posof "" in x' != 0 {
