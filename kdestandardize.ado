@@ -170,6 +170,15 @@ prog def kdestandardize
 		la def prtargettype 1 "Number Proficient/Distinguished"				 ///   
 						2 "Percent Proficient/Distinguished", modify
 						
+		// Define Equity Measures
+		la def equmeas 1 `"Community Support and Involment Composite"'       ///
+					   2 `"Managing Student Conduct Composite"'              ///
+					   3 `"Overall Effectiveness of School Teachers and Leaders"' ///
+					   4 `"Overall Student Growth Rating of Teachers and Leaders"' ///
+					   5 `"Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers"' ///
+					   6 `"Percentage of Teacher Turnover"'                  ///
+					   7 `"School Leadership Composite"', modify
+
 	} // End of value label definitions
 	
 	// Get the list of variable names
@@ -1369,10 +1378,26 @@ prog def kdestandardize
 
 	
 	
-	// Handles instances of the  variable
-	if `: list posof "" in x' != 0 {
-	
-	} // End of handling of the  variable
+	// Handles instances of the  variable EQUITY_MEASURE
+	if `: list posof "equity_measure" in x' != 0 {
+	//Recodes equity measure variable with numeric values
+		qui: replace equity_measure=cond(`rx'(equity_measure, "Community Support and Involvement Composite", 1), "1", ///
+									cond(equity_measure=="Managing Student Conduct Composite","2",  ///
+									cond(equity_measure=="Overall Effectiveness of School Teachers and Leaders","3",  ///
+									cond(equity_measure=="Overall Student Growth Rating of Teachers and Leaders","4", ///
+									cond(equity_measure=="Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers","5", ///
+									cond(equity_measure=="Percentage of Teacher Turnover","6", ///
+									cond(equity_measure=="School Leadership Composite","7")))))) ///
+	//Rename Equity_Measure variable
+	qui: rename equity_measure equmeas
+	//Recasts the values to numeric types
+	qui: destring equmeas,replace ignore("*,-R %")
+	//Applies value labels to the variable
+	la val equmeas equmeas
+	//Applies variable label to the variable
+	la var equmeas "Equity Measure"
+									
+	} // End of handling of the Equity_Measure  variable
 	
 	// Handles instances of the  variable
 	if `: list posof "" in x' != 0 {
