@@ -179,7 +179,20 @@ prog def kdestandardize
 					   6 `"Percentage of Teacher Turnover"'                  ///
 					   7 `"School Leadership Composite"', modify
 
+	   // Define EQ_LABEL
+	   la def eqlabel 1`"Exemplary/Accomplished"'                            ///
+					  2`"High/Expected"'                                     ///
+					  3`"School-Level"'                                      ///
+					  4`"Strongly Agree/Agree"'                              ///
+					  5`" "', modify
+					  
+	   // Define PROGRAM_TYPE
+	   la def prgmtp 1`"English Language Learners (ELL)"'                    ///
+					 2`"Migrant"'                                            ///
+					 3`"Special Education"'                                  ///
+					 4`"Gifted and Talented"', modify
 	} // End of value label definitions
+	
 	
 	// Get the list of variable names
 	qui: ds
@@ -1387,7 +1400,7 @@ prog def kdestandardize
 									cond(equity_measure=="Overall Student Growth Rating of Teachers and Leaders","4", ///
 									cond(equity_measure=="Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers","5", ///
 									cond(equity_measure=="Percentage of Teacher Turnover","6", ///
-									cond(equity_measure=="School Leadership Composite","7")))))) ///
+									cond(equity_measure=="School Leadership Composite","7"))))))) ///
 	//Rename Equity_Measure variable
 	qui: rename equity_measure equmeas
 	//Recasts the values to numeric types
@@ -1399,18 +1412,51 @@ prog def kdestandardize
 									
 	} // End of handling of the Equity_Measure  variable
 	
-	// Handles instances of the  variable
-	if `: list posof "" in x' != 0 {
+	// Handles instances of the EQ_LABEL variable
+	if `: list posof "EQ_LABEL" in x' != 0 {
+		qui: replace EQ_LABEL=cond(`rx'(EQ_LABEL, "Exemplary/ Accomplished", 1), "1", ///
+							  cond(EQ_LABEL=="High/Expect","2",              ///
+							  cond(EQ_LABEL=="School-Level","3",             ///
+							  cond(EQ_LABEL=="Strongly Agree/Agree","4"      ///
+							  cond(EQ_LABEL==" ","5")))))                    ///
+		qui: rename EQ_LABEL eqlabel
+		qui: destring eqlabel,replace ignore("*,-R %")
+		la val eqlabel eqlabel
+		la var eqlabel Equity Label
+	} // End of handling of the EQ_LABEL variable
 	
-	} // End of handling of the  variable
+	// Handles instances of the EQ_PCT variable
+	if `: list posof "EQ_PCT" in x' != 0 {
+	qui: rename EQ_PCT eqpct
+		qui: destring eqpct, replace ignore("*,-R %")
+		la var eqpct "Equity Percent"
+	} // End of handling of the EQ_PCT variable
 	
-	// Handles instances of the  variable
-	if `: list posof "" in x' != 0 {
+	// Handles instances of the PROGRAM_TYPE variable
+	if `: list posof "PROGRAM_TYPE" in x' != 0 {
+	qui: replace PROGRAM_TYPE=cond(`rx'(PROGRAM_TYPE, "English Language Learners (ELL)", 1), "1", ///
+							  cond(PROGRAM_TYPE=="Migrant","2",              ///
+							  cond(PROGRAM_TYPE=="Special Education","3",    ///
+							  cond(PROGRAM_TYPE=="Gifted and Talented","4")))) ///
+	qui: rename PROGRAM_TYPE prgmtp
+	qui: desting prgmtp,replace ignore("*,-R %")
+	la val prgmtp prgmtp
+	la var prgmtp Program Type
+	} // End of handling of the PROGRAM_TYPE variable
 	
-	} // End of handling of the  variable
+	// Handles instances of the TOTAL_CNT variable
+	if `: list posof "TOTAL_CNT" in x' != 0 {
+	qui: rename TOTAL_CNT ttlcnt
+	qui: destring ttlcnt, replace ignore("*,-R %")
+	la var ttlcnt "Total Student Count"
+	} // End of handling of the TOTAL_CNT varial
 	
-	
-	  
+	// Handles instances of the TOTAL_PCT variable
+	if `: list posof "TOTAL_PCT" in x' != 0 {
+	qui: rename TOTAL_PCT ttlPCt
+	qui: destring ttlpct, replace ignore("*,-R %")
+	la var ttlpct "Total Student Percent"
+	} // End of handling of the TOTAL_PCT varial
 	
 	// Used to test for null records in the HS level CCR file
 	if `: list ccrhs in x' != 0 {
