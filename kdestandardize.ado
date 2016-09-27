@@ -200,6 +200,38 @@ prog def kdestandardize
 					 6`"Discipline Resolutions"'                             ///
 					 7`"Discipline-Resolutions"'                             ///
 					 8`"Legal Sanctions"', modify
+					 
+					 
+	   // Define TEACHING_METHOD
+	   la def method 1`"Credit Recovery - Digital Learning Povider"'         ///
+					 2`"Credit Recovery - Direct Instruction"'				 ///
+					 3`"Digital Learning Provider"'						     ///
+					 4`"Direct Instruction"'								 ///
+					 5`"District Provided Self Study"'						 ///
+					 6`"Dual Credit - College Offered"'					 	 ///
+					 7`"Dual Credit - District Offered"'					 ///
+					 8`"NAF Academy Course"'								 ///
+					 9`"NAF Academy Dual Credit - District Offered"'		 ///
+					 10`"Third Pary Contract"'								 ///
+					 11`"Transitional Course - KDE Curriculum"', modify
+					 
+	   // Define FINANCE_TYPE
+	   la def fintype 1`"FINANCIAL SUMMARY"'								 ///
+					  2`"SALARIES"'											 ///
+					  3`"SEEK"'												 ///
+					  4`"TAX"', modify
+					  
+	   // Define CAREER_PATHWAY_DESC
+	   la def path 1`"ADMINISTRATION SUPPORT"'         						 ///
+				   2`"AGRIBIOTECHNOLOGY"'									 ///
+				   3`"ANIMAL SYSTEMS"'						 			     ///
+				   4`"BUSINESS TECHNOLOGY"'									 ///
+				   5`"COMPUTER PROGRAMMING"'								 ///
+				   6`"CONSUMER AND FAMILY MANAGEMENT"'					 	 ///
+				   7`"FINANCE"'												 ///
+				   8`"HORTICULTURE AND PLANT SERVICES"'						 ///
+				   9`"INFORMATION SUPPORT AND SERVICES"'		 			 ///
+				   10`"TECHNOLOGY"', modify
 	}  // End of value label definitions
 	
 	
@@ -1404,12 +1436,12 @@ prog def kdestandardize
 	if `: list posof "equity_measure" in x' != 0 {
 	//Recodes equity measure variable with numeric values
 		qui: replace equity_measure=cond(`rx'(equity_measure, "Community Support and Involvement Composite", 1), "1", ///
-									cond(equity_measure=="Managing Student Conduct Composite", "2",  ///
-									cond(equity_measure=="Overall Effectiveness of School Teachers and Leaders", "3",  ///
-									cond(equity_measure=="Overall Student Growth Rating of Teachers and Leaders", "4", ///
-									cond(equity_measure=="Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers", "5", ///
-									cond(equity_measure=="Percentage of Teacher Turnover", "6", ///
-									cond(equity_measure=="School Leadership Composite", "7", ""))))))) ///
+									cond(equity_measure == "Managing Student Conduct Composite", "2",  ///
+									cond(equity_measure == "Overall Effectiveness of School Teachers and Leaders", "3",  ///
+									cond(equity_measure == "Overall Student Growth Rating of Teachers and Leaders", "4", ///
+									cond(equity_measure == "Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers", "5", ///
+									cond(equity_measure == "Percentage of Teacher Turnover", "6", ///
+									cond(equity_measure == "School Leadership Composite", "7", ""))))))) ///
 	//Rename Equity_Measure variable
 	qui: rename equity_measure equmeas
 	//Recasts the values to numeric types
@@ -1424,13 +1456,13 @@ prog def kdestandardize
 	// Handles instances of the EQ_LABEL variable
 	if `: list posof "EQ_LABEL" in x' != 0 {
 		qui: replace eq_label=cond(`rx'(eq_label, "Exemplary/ Accomplished.*", 1), "1", ///
-							  cond(eq_label=="High/Expect.*","2",              ///
-							  cond(eq_label=="School-Level.*","3",             ///
-							  cond(eq_label=="Strongly Agree/Agree.*","4"))))  ///
+							  cond(eq_label == "High/Expect.*","2",              ///
+							  cond(eq_label == "School-Level.*","3",             ///
+							  cond(eq_label == "Strongly Agree/Agree.*","4"))))  ///
 		qui: rename eq_label eqlabel
 		qui: destring eqlabel,replace ignore("*,-R %")
 		la val eqlabel eqlabel
-		la var eqlabel Equity Label
+		la var eqlabel "Equity Label"
 	} // End of handling of the EQ_LABEL variable
 	
 	// Handles instances of the EQ_PCT variable
@@ -1443,121 +1475,121 @@ prog def kdestandardize
 	// Handles instances of the PROGRAM_TYPE variable
 	if `: list posof "program_type" in x' != 0 {
 	qui: replace program_type=cond(`rx'(program_type, "English Language Learners (ELL)", 1), "1", ///
-							  cond(program_type=="Migrant","2",              ///
-							  cond(program_type=="Special Education","3",    ///
-							  cond(program_type=="Gifted and Talented","4")))) ///
+							  cond(program_type == "Migrant","2",              ///
+							  cond(program_type == "Special Education","3",    ///
+							  cond(program_type == "Gifted and Talented","4")))) ///
 	qui: rename program_type progtype
 	qui: desting progtype,replace ignore("*,-R %")
 	la val progtype progtype
-	la var progtype Program Type
+	la var progtype "Program Type"
 	} // End of handling of the PROGRAM_TYPE variable
 	
 	// Handles instances of the TOTAL_CNT variable
 	if `: list posof "total_cnt" in x' != 0 {
 	qui: rename total_cnt ttlcnt
 	qui: destring ttlcnt, replace ignore("*,-R %")
-	la var ttlcnt "Tot Membership"
+	la var ttlcnt "Total Student Membership"
 	} // End of handling of the TOTAL_CNT variable
 	
 	// Handles instances of the TOTAL_PCT variable
 	if `: list posof "total_pct" in x' != 0 {
-	qui: rename total_pct ttlpct
-	qui: destring ttlpct, replace ignore("*,-R %")
-	la var ttlpct "Tot Membership Percent"
+	qui: rename total_pct totpct
+	qui: destring totpct, replace ignore("*,-R %")
+	la var totpct "Total Percent of Students"
 	} // End of handling of the TOTAL_PCT variable
 	
 	//Handles instances of the WHITE_CNT variable
 	if `: list posof "white_cnt" in x' != 0 {
-	qui: rename white_cnt whtcnt
-	qui: destring whtcnt, replace ignore("*,-R %")
-	la var whtcnt "White Student Involvemnt Count"
+	qui: rename white_cnt nwhite
+	qui: destring nwhite, replace ignore("*,-R %")
+	la var nwhite "Number of White Students"
 	} // End of handling of the WHITE_CNT variable
 	
 	//Handles instances of the BLACK_CNT variable
 	if `: list posof "black_cnt" in x' != 0 {
-	qui: rename black_cnt blkcnt
-	qui: destring blkcnt, replace ignore("*,-R %")
-	la var blkcnt "Black Student Involvemnt Count"
+	qui: rename black_cnt nblack
+	qui: destring nblack, replace ignore("*,-R %")
+	la var nblack "Number of Black Students"
 	} // End of handling of the BLACK_CNT variable
 	
 	//Handles instances of the HISPANIC_CNT variable
 	if `: list posof "hispanic_cnt" in x' != 0 {
-	qui: rename hispanic_cnt hspcnt
-	qui: destring hspcnt, replace ignore("*,-R %")
-	la var hspcnt "Hispanic Student Involvemnt Count"
+	qui: rename hispanic_cnt nhisp
+	qui: destring nhisp, replace ignore("*,-R %")
+	la var nhisp "Number of Hispanic/Latino(a) Students"
 	} // End of handling of the HISPANIC_CNT variable
 	
 	//Handles instances of the Asian_CNT variable
 	if `: list posof "asian_cnt" in x' != 0 {
-	qui: rename asian_cnt asicnt
-	qui: destring asicnt, replace ignore("*,-R %")
-	la var asicnt "Asian Student Involvemnt Count"
+	qui: rename asian_cnt nasian
+	qui: destring nasian, replace ignore("*,-R %")
+	la var nasian "Number of Asian Students"
 	} // End of handling of the Asian_CNT variable
 	
 	//Handles instances of the AIAN_CNT variable
 	if `: list posof "aian_cnt" in x' != 0 {
-	qui: rename aian_cnt amindcnt
-	qui: destring amincnt, replace ignore("*,-R %")
-	la var amindcnt "American Indian Student Involvemnt Count"
+	qui: rename aian_cnt nnatam
+	qui: destring nnatam, replace ignore("*,-R %")
+	la var nnatam "Number of American Indian/Alaskan Native Students"
 	} // End of handling of the AIAN_CNT variable
 	
 	//Handles instances of the HAWAIIAN_CNT variable
 	if `: list posof "hawaiian_cnt" in x' != 0 {
-	qui: rename hawaiian_cnt hawcnt
-	qui: destring hawcnt, replace ignore("*,-R %")
-	la var hawcnt "Hawaiian Student Involvemnt Count"
+	qui: rename hawaiian_cnt npacisl
+	qui: destring npacisl, replace ignore("*,-R %")
+	la var npacisl "Number of Native Hawaiian/Pacific Islander Students"
 	} // End of handling of the HAWAIIAN_CNT variable
 	
 	//Handles instances of the OTHER_CNT variable
 	if `: list posof "other_cnt" in x' != 0 {
-	qui: rename other_cnt othcnt
-	qui: destring othcnt, replace ignore("*,-R %")
-	la var othcnt "Other Student Involvemnt Count"
-	} // End of handling of the HISPANIC_CNT variable
+	qui: rename other_cnt nmulti
+	qui: destring nmulti, replace ignore("*,-R %")
+	la var nmulti "Number of Multiracial Students"
+	} // End of handling of the OTHER_CNT variable
 	
 	//Handles instances of the MALE_CNT variable
 	if `: list posof "male_cnt" in x' != 0 {
-	qui: rename male_cnt malecnt
-	qui: destring malecnt, replace ignore("*,-R %")
-	la var malecnt "Male Student Involvemnt Count"
+	qui: rename male_cnt nmale
+	qui: destring nmale, replace ignore("*,-R %")
+	la var nmale "Number of Male Students"
 	} // End of handling of the MALE_CNT variable
 	
 	//Handles instances of the FEMALE_CNT variable
 	if `: list posof "female_cnt" in x' != 0 {
-	qui: rename female_cnt femalecnt
-	qui: destring femalecnt, replace ignore("*,-R %")
-	la var femalecnt "Female Student Involvemnt Count"
+	qui: rename female_cnt nfemale
+	qui: destring nfemale, replace ignore("*,-R %")
+	la var nfemale "Number of Female Students"
 	} // End of handling of the FEMALE_CNT variable
 	
 	//Handles instances of the TOTAL_STDNT_CNT variable
 	if `: list posof "total_stdnt_cnt" in x' != 0 {
 	qui: rename total_stdnt_cnt totstdcnt
 	qui: destring totstdcnt, replace ignore("*,-R %")
-	la var totstdcnt "Total Student Involvemnt Count"
+	la var totstdcnt "Total Membership"
 	} // End of handling of the TOTAL_STDNT_CNT variable
 	
 	//Handles instances of the TOTAL_UNIQUE_EVENT_CNT variable
 	if `: list posof "total_unique_event_cnt" in x' != 0 {
-	qui: rename total_unique_event_cnt totunqevntcnt
-	qui: destring totunqevntcnt, replace ignore("*,-R %")
-	la var totunqevntcnt "Total Unique Event Count"
+	qui: rename total_unique_event_cnt totevents
+	qui: destring totevents, replace ignore("*,-R %")
+	la var totevents "Total Unique Event Count"
 	} // End of handling of the TOTAL_UNIQUE_EVENT_CNT variable
 	
 	//Handles instances of the RPT_HEADER variable
 	if `: list posof "rpt_header" in x' != 0 {
-	qui: replace rpt_header=cond(`rx'(rpt_header, "Behavior Events", 1), "1", ///
-							  cond(rpt_header=="Behavior Events by Context", "2",        ///
-							  cond(rpt_header=="Behavior Events by Grade Level", "3",    ///
-							  cond(rpt_header=="Behavior Events by Locations"," 4",      ///
-							  cond(rpt_header=="Behavior Events by Socio-Economic Status", "5",  ///
-							  cond(rpt_header=="Discipline Resolutions", "6",            ///
-							  cond(rpt_header=="Discipline-Resolutions", "7",            ///
-							  cond(rpt_header=="Legal Sanctions", "8", ""))))))))        ///
+	qui: replace rpt_header = cond(rpt_header == "Behavior Events", 1), "1", ///
+							  cond(rpt_header == "Behavior Events by Context", "2",        ///
+							  cond(rpt_header == "Behavior Events by Grade Level", "3",    ///
+							  cond(rpt_header == "Behavior Events by Locations"," 4",      ///
+							  cond(rpt_header == "Behavior Events by Socio-Economic Status", "5",  ///
+							  cond(rpt_header == "Discipline Resolutions", "6",            ///
+							  cond(rpt_header == "Discipline-Resolutions", "7",            ///
+							  cond(rpt_header == "Legal Sanctions", "8", ""))))))))        ///
 							  
 	qui: rename rpt_header rpthdr
 	qui: desting rpthdr,replace ignore("*,-R %")
 	la val rpthdr rpthdr
-	la var rpthdr Report Header
+	la var rpthdr "Report Header"
 	} // End of handling of the RPT_HEADER variable
 	
 	//Handles instances of the RPT_HEADER_ORDER variable
@@ -1576,94 +1608,367 @@ prog def kdestandardize
 	
 	//Handles instance of the SPENDING_PER_STDNT variable
 	if `: list posof "spending_per_stdnt" in x' !=0 {
-	qui: rename spending_per_stdnt spndprstdnt
-	qui: destring spndprstdnt, replace ignore("*,-R %")
-	la var spndprstdnt "Spending Per Student"
+	qui: rename spending_per_stdnt ppe
+	qui: destring ppe, replace ignore("*,-R %")
+	la var ppe "Per-Pupil Expenditure"
 	} // End of handling of the SPENDING_PER_STDNT variable
 	
 	//Handles instance of the AVG_DAILY_ATTENDANCE variable
 	if `: list posof "avg_daily_attendance" in x' !=o {
-	qui: rename avg_daily_attendance avgdlyatnd
-	qui: destring avgdlyatnd, replace ignore("*,-R %")
-	la var avgdlyatnd "Average Daily Attendance"
+	qui: rename avg_daily_attendance ada
+	qui: destring ada, replace ignore("*,-R %")
+	la var ada "Average Daily Attendance"
 	} // End of handling of the AVG_DAILY_ATTENDANCE variable
 	
 	//Handles instance of the MEMBERSHIP_TOTAL variable
 	if `: list posof "membership_total" in x' !=0 {
-	qui: rename membership_total membrshptot
-	qui: destring membershptot, replace ignore("*,-R %")
-	la var membershptot "Membership total"
+	qui: rename membership_total membership
+	qui: destring membership, replace ignore("*,-R %")
+	la var membership "Total Student Membership"
 	} // End of handling of the MEMBERSHIP_TOTAL variable
 	
 	//Handles instance of the MEMBERSHIP_MALE_CNT variable
 	if `: list posof "membership_male_cnt" in x' !=0 {
-	qui: rename membership_male_cnt membrshpmalecnt
-	qui: destring membershpmalecnt, replace ignore("*m-R %")
-	la var membershpmalecnt "Membership Male Count"
+	qui: rename membership_male_cnt namle
+	qui: destring nmale, replace ignore("*,-R %")
+	la var nmale "Number of Male Students"
 	} // End of handling of the MEMBERSHIP_MALE_CNT variable
 	
 	//Handles instance of the MEMBERSHIP_MALE_PCT variable
 	if `: list posof "membership_male_pct" in x' !=0 {
-	qui: rename membership_male_pct membrshpmalepct
-	qui: destring membershpmalepct, replace ignore("*m-R %")
-	la var membershpmalepct "Membership Male Percent"
+	qui: rename membership_male_pct pctmale
+	qui: destring pctmale, replace ignore("*,-R %")
+	la var pctmale "% of Male Students"
 	} // End of handling of the MEMBERSHIP_MALE_PCT variable
 	
 	//Handles instance of the MEMBERSHIP_FEMALE_CNT variable
 	if `: list posof "membership_female_cnt" in x' !=0 {
-	qui: rename membership_female_cnt membrshpfemalecnt
-	qui: destring membershpfemalecnt, replace ignore("*m-R %")
-	la var membershpfemalecnt "Membership Female Count"
+	qui: rename membership_female_cnt nfemale
+	qui: destring nfemale, replace ignore("*,-R %")
+	la var nfemale "Number of Female Students"
 	} // End of handling of the MEMBERSHIP_FEMALE_CNT variable
 	
 	//Handles instance of the MEMBERSHIP_FEMALE_PCT variable
 	if `: list posof "membership_female_pct" in x' !=0 {
-	qui: rename membership_female_pct membrshpfemalepct
-	qui: destring membershpfemalepct, replace ignore("*m-R %")
-	la var membershpfemalepct "Membership Female Percent"
+	qui: rename membership_female_pct pctfemale
+	qui: destring pctfemale, replace ignore("*,-R %")
+	la var pctfemale "% of Female Students"
 	} // End of handling of the MEMBERSHIP_FEMALE_PCT variable
 	
 	//Handles instance of the MEMBERSHIP_WHITE_CNT variable
 	if `: list posof "membership_white_cnt" in x' !=0 {
-	qui: rename membership_white_cnt membrshpwhtcnt
-	qui: destring membershpwhtcnt, replace ignore("*m-R %")
-	la var membershpwhtcnt "Membership White Count"
+	qui: rename membership_white_cnt nwhite
+	qui: destring nwhite, replace ignore("*,-R %")
+	la var nwhite "Number of White Students"
 	} // End of handling of the MEMBERSHIP_WHITE_CNT variable
 	
 	//Handles instance of the MEMBERSHIP_WHITE_PCT variable
 	if `: list posof "membership_white_pct" in x' !=0 {
-	qui: rename membership_white_pct membrshpwhtpct
-	qui: destring membershpwhtpct, replace ignore("*m-R %")
-	la var membershpwhtpct "Membership White Percent"
+	qui: rename membership_white_pct pctwhite
+	qui: destring pctwhite, replace ignore("*,-R %")
+	la var pctwhite "% of White Students"
 	} // End of handling of the MEMBERSHIP_WHITE_PCT variable
 	
 	//Handles instance of the MEMBERSHIP_BLACK_CNT variable
 	if `: list posof "membership_black_cnt" in x' !=0 {
-	qui: rename membership_black_cnt membrshpblkcnt
-	qui: destring membershpblkcnt, replace ignore("*m-R %")
-	la var membershpblkcnt "Membership Black Count"
+	qui: rename membership_black_cnt nblack
+	qui: destring nblack, replace ignore("*,-R %")
+	la var nblack "Number of Black Students"
 	} // End of handling of the MEMBERSHIP_BLACK_CNT variable
 	
 	//Handles instance of the MEMBERSHIP_BLACK_PCT variable
 	if `: list posof "membership_black_pct" in x' !=0 {
-	qui: rename membership_black_pct membrshpblkpct
-	qui: destring membershpblkpct, replace ignore("*m-R %")
-	la var membershpblkpct "Membership Black Percent"
+	qui: rename membership_black_pct pctblack
+	qui: destring pctblack, replace ignore("*,-R %")
+	la var pctblack "% of Black Students"
 	} // End of handling of the MEMBERSHIP_BLACK_PCT variable
 	
 	//Handles instance of the MEMBERSHIP_HISPANIC_CNT variable
 	if `: list posof "membership_hispanic_cnt" in x' !=0 {
-	qui: rename membership_hispanic_cnt membrshphiscnt
-	qui: destring membershphiscnt, replace ignore("*m-R %")
-	la var membershphiscnt "Membership Hispanic Count"
+	qui: rename membership_hispanic_cnt nhisp
+	qui: destring nhisp, replace ignore("*,-R %")
+	la var nhisp "Number of Hispanic/Latino(a) Students"
 	} // End of handling of the MEMBERSHIP_HISPANIC_CNT variable
 	
 	//Handles instance of the MEMBERSHIP_HISPANIC_PCT variable
 	if `: list posof "membership_hispanic_pct" in x' !=0 {
-	qui: rename membership_hispanic_pct membrshphispct
-	qui: destring membershphispct, replace ignore("*m-R %")
-	la var membershphispct "Membership Hispanic Percent"
+	qui: rename membership_hispanic_pct pcthisp
+	qui: destring pcthisp, replace ignore("*,-R %")
+	la var pcthisp "% of Hispanic/Latino(a) Students"
 	} // End of handling of the MEMBERSHIP_HISPANIC_PCT variable
+	
+	//Handles instance of the MEMBERSHIP_ASAIN_CNT variable
+	if `: list posof "membership_asian_cnt" in x' !=0 {
+	qui: rename membership_asian_cnt nasian
+	qui: destring nasian, replace ignore("*,-R %")
+	la var naisn "Number of Asian Students"
+	} // End of handling of the MEMBERSHIP_ASIAN_CNT variable
+	
+	//Handles instance of the MEMBERSHIP_ASIAN_PCT variable
+	if `: list posof "membership_asian_pct" in x' !=0 {
+	qui: rename membership_asian_pct pctasian
+	qui: destring pctasian, replace ignore("*,-R %")
+	la var pctasian "% of Asian Students"
+	} // End of handling of the MEMBERSHIP_ASIAN_PCT variable
+	
+	//Handles instance of the MEMBERSHIP_AIAN_CNT variable
+	if `: list posof "membership_aian_cnt" in x' !=0 {
+	qui: rename membership_aian_cnt natam
+	qui: destring natam, replace ignore("*,-R %")
+	la var natam "Number of American Indian/Alaskan Native Students"
+	} // End of handling of the MEMBERSHIP_AIAN_CNT variable
+	
+	//Handles instance of the MEMBERSHIP_AIAN_PCT variable
+	if `: list posof "membership_aian_pct" in x' !=0 {
+	qui: rename membership_aian_pct pctaian
+	qui: destring pctain, replace ignore("*,-R %")
+	la var pcthisp "% of American Indian/Alaskan Native Students"
+	} // End of handling of the MEMBERSHIP_AIAN_PCT variable
+	
+	//Handles instance of the MEMBERSHIP_HAWAIIAN_CNT variable
+	if `: list posof "membership_hawaiian_cnt" in x' !=0 {
+	qui: rename membership_hawaiian_cnt npacisl
+	qui: destring npacisl, replace ignore("*,-R %")
+	la var napacisl "Number of Native Hawwaiian/Pacific Islander Students"
+	} // End of handling of the MEMBERSHIP_HAWAIIAN_CNT variable
+	
+	//Handles instance of the MEMBERSHIP_HAWAIIAN_PCT variable
+	if `: list posof "membership_hawaiian_pct" in x' !=0 {
+	qui: rename membership_hawaiian_pct pctpacisl
+	qui: destring pctpacisl, replace ignore("*,-R %")
+	la var pctpacisl "% of Native Hawwaiian/Pacific Islander Students"
+	} // End of handling of the MEMBERSHIP_AIAN_PCT variable
+	
+	//Handles instance of the MEMBERSHIP_TWO_OR_MORE_CNT variable
+	if `: list posof "membership_two_or_more_cnt" in x' !=0 {
+	qui: rename membership_two_or_more_cnt nmulti
+	qui: destring nmulti, replace ignore("*,-R %")
+	la var nmulti "Number of Multiracial Students"
+	} // End of handling of the MEMBERSHIP_TWO_OR_MORE_CNT variable
+	
+	//Handles instance of the MEMBERSHIP_TWO_OR_MORE_PCT variable
+	if `: list posof "membership_two_or_more_pct" in x' !=0 {
+	qui: rename membership_two_or_more_pct pctmulti
+	qui: destring pctmulti, replace ignore("*,-R %")
+	la var pctmulti "% of Multiracial Students"
+	} // End of handling of the MEMBERSHIP_AIAN_PCT variable
+	
+	//Handles instance of the ENROLLMENT_FREE_LUNCH_CNT variable
+	if `: list posof "enrollment_free_lunch_cnt" in x' !=0 {
+	qui: rename enrollment_free_lunch_cnt nfree
+	qui: destring nfree, replace ignore("*,-R %")
+	la var nfree "Number of Free Lunch Students"
+	} // End of handling of the ENROLLMENT_FREE_LUNCH_CNT variable
+	
+	//Handles instance of the ENROLLMENT_FREE_LUNCH_PCT variable
+	if `: list posof "enrollment_free_lunch_pct" in x' !=0 {
+	qui: rename enrollment_free_lunch_pct pctfree
+	qui: destring pctfree, replace ignore("*,-R %")
+	la var pctfree "% of Free Lunch Students"
+	} // End of handling of the ENROLLMENT_FREE_LUNCH_PCT variable
+	
+	//Handles instance of the ENROLLMENT_REDUCED_LUNCH_CNT variable
+	if `: list posof "enrollment_reduced_lunch_cnt" in x' !=0 {
+	qui: rename enrollment_reduced_lunch_cnt nred
+	qui: destring nred, replace ignore("*,-R %")
+	la var nfree "Number of Reduced Lunch Students"
+	} // End of handling of the ENROLLMENT_REDUCED_LUNCH_CNT variable
+	
+	//Handles instance of the ENROLLMENT_REDUCED_LUNCH_PCT variable
+	if `: list posof "enrollment_reduced_lunch_pct" in x' !=0 {
+	qui: rename enrollment_reduced_lunch_pct pctred
+	qui: destring pctred, replace ignore("*,-R %")
+	la var pctred "% of Reduced Lunch Students"
+	} // End of handling of the ENROLLMENT_REDUCED_LUNCH_PCT variable
+	
+	//Handles instance of the ATTENDANCE_RATE variable
+	if `: list posof "attendance_rate" in x' !=0 {
+	qui: rename attendance_rate attrte
+	qui: destring attrte, replace ignore("*,-R %")
+	la var attrte "Attendance Rate"
+	} // End of handling of the ATTENDANCE_RATE variable
+	
+	//Handles instance of the RETENTION_RATE variable
+	if `: list posof "retention_rate" in x' !=0 {
+	qui: rename retention_rate rtnrte
+	qui: destring rtnrte, replace ignore("*,-R %")
+	la var rtnrte "Retention Rate"
+	} // End of handling of the RETENTION_RATE variable
+	
+	//Handles instance of the DROPOUT_RATE variable
+	if `: list posof "dropout_rate" in x' !=0 {
+	qui: rename dropout_rate drprte
+	qui: destring drprte, replace ignore("*,-R %")
+	la var drprte "Dropout Rate"
+	} // End of handling of the DROPOUT_RATE variable
+	
+	//Handles instance of the GRADUATION_RATE variable
+	if `: list posof "graduation_rate" in x' !=0 {
+	qui: rename graduation_rate gradrte
+	qui: destring gradrte, replace ignore("*,-R %")
+	la var gradrte "Graduation Rate"
+	} // End of handling of the GRADUATION_RATE variable
+	
+	//Handles instance of the TRANSITION_COLLEGE_INOUT_CNT
+	if `: list posof "transition_college_inout_cnt" in x' !=0 {
+	qui: rename transition_college_inout_cnt ninout
+	qui: destring ninout, replace ignore("*,-R %")
+	la var ninout "Number of Students Enrolled in College In/Out of State"
+	} //End of handling of the TRANSITION_COLLEGE_INOUT_CNT
+	
+	//Handles instance of the TRANSITION_COLLEGE_INOUT_PCT
+	if `: list posof "transition_college_inout_pct" in x' !=0 {
+	qui: rename transition_college_inout_pct pctinout
+	qui: destring pctinout, replace ignore("*,-R %")
+	la var ninout "% of Students Enrolled in College In/Out of State"
+	} //End of handling of the TRANSITION_COLLEGE_INOUT_PCT
+	
+	//Handles instance of the TRANSITION_COLLEGE_IN_CNT
+	if `: list posof "transition_college_in_cnt" in x' !=0 {
+	qui: rename transition_college_in_cnt nin
+	qui: destring nin, replace ignore("*,-R %")
+	la var nin "Number of Students Enrolled in College In State"
+	} //End of handling of the TRANSITION_COLLEGE_IN_CNT
+	
+	//Handles instance of the TRANSITION_COLLEGE_IN_PCT
+	if `: list posof "transition_college_in_pct" in x' !=0 {
+	qui: rename transition_college_in_pct pctin
+	qui: destring pctin, replace ignore("*,-R %")
+	la var nin "% of Students Enrolled in College In State"
+	} //End of handling of the TRANSITION_COLLEGE_IN_PCT
+	
+	//Handles instance of the TRANSITION_COLLEGE_OUT_CNT
+	if `: list posof "transition_college_out_cnt" in x' !=0 {
+	qui: rename transition_college_out_cnt nout
+	qui: destring nout, replace ignore("*,-R %")
+	la var nout "Number of Students Enrolled in College Out of State"
+	} //End of handling of the TRANSITION_COLLEGE_OUT_CNT
+	
+	//Handles instance of the TRANSITION_COLLEGE_OUT_PCT
+	if `: list posof "transition_college_out_pct" in x' !=0 {
+	qui: rename transition_college_out_pct pctout
+	qui: destring pctout, replace ignore("*,-R %")
+	la var pctout "% of Students Enrolled in College Out of State"
+	} //End of handling of the TRANSITION_COLLEGE_OUT_PCT
+	
+	// Handles instances of the TEACHING_METHOD variable
+	if `: list posof "teaching_method" in x' != 0 {
+	qui: rename teaching_method method
+	qui: replace method = cond(method == `"Credit Recovery - Digital Learning Provider"', "1", 	 ///
+			cond(method == `"Credit Recovery - Direct Instruction"', "2",    ///
+			cond(method == `"Digital Learning Provider"', "3", 				 ///
+			cond(method == `"Direct Instruction"', "4", 	 				 ///
+			cond(method == `"District Provided Self Study"', "5", 			 ///
+			cond(method == `"Dual Credit - College Offered"', "6", 		 	 ///
+			cond(method == `"Dual Credit - District Offered"', "7", 		 ///
+			cond(method == `"NAF Academy Course"', "8", 					 ///
+			cond(method == `"NAF Academy Dual Credit - District Offered"', "9", 				 ///
+			cond(mehtod == `"Third Party Contract"', "10", 					 ///
+			cond(method == `"Transitional Course - KDE Curriculum"', "11", "")))))))))))		///
+	qui: desting method,replace ignore("*,-R %")
+	la val method method
+	la var method "Teaching Method"
+	} // End of handling of the TEACHING_METHOD variable
+	
+	//Handles instance of the ONSITE_CLASSROOM_CNT variable
+	if `: list posof "onsite_classroom_cnt" in x' !=0 {
+	qui: rename onsite_classroom_cnt nonstcls
+	qui: destring numoncls, replace ignore ("*-R %")
+	la var numoncls "Number of Onsite Classrooms"
+	} //End of handling of the ONSITE_CLASSROOM_CNT variable
+	
+	//Handles instance of the OFFSITE_CTE_CNT variable
+	if `: list posof "offsite_cte_cnt" in x' !=0 {
+	qui: rename offsite_cte_cnt noffstcte
+	qui: destring noffstcte, replace ignore ("*-R %")
+	la var noffstcte "Number of Offsite Career/Technical Education Classes"
+	} //End of handling of the OFFSITE_CTE_CNT variable
+	
+	//Handles instance of the OFFSITE_COLLEGE_CNT variable
+	if `: list posof "offsite_college_cnt" in x' !=0 {
+	qui: rename offsite_college_cnt noffstcol
+	qui: destring noffstcol, replace ignore ("*-R %")
+	la var noffstcol "Number of Offsite College Classes"
+	} //End of handling of the OFFSITE_COLLEGE_CNT variable
+	
+	//Handles instance of the HOME_HOSPITAL_CNT variable
+	if `: list posof "home_hospital_count" in x' !=0 {
+	qui: rename home_hospital_count nhosp
+	qui: destring nhosp, replace ignore ("*-R %")
+	la var nhosp "Number of Home Hospital Classes"
+	} //End of handling of the HOME_HOSPITAL_CNT variable
+	
+	//Handles instance of the ONLINE_CNT varialbe
+	if `: list posof "online_cnt" in x' !=0 {
+	qui: rename online_cnt nonline
+	qui: destring nonline, replace ignore ("*-R %")
+	la var nonline "Number of Online Classes"
+	} //End of handling of the ONLINE_CNT variable
+	
+	//Handles instance of the FINANACE_TYPE variable
+	if `list posof "finance_type" in x' !=0 {
+	qui: rename finance_type fintype
+	qui: replace fintype = cond(fintype == "FINANCIAL SUMMARY", "1",		 ///
+						   cond(fintype == "SALARIES", "2",					 ///
+						   cond(fintype == "SEEK", "3",						 ///
+						   cond(fintype == "TAX", "4", ""))))				 ///
+	qui: destring fintype, replace ignore ("*-R %")
+	la val fintype fintype
+	la var fintype "Finance Type"
+	} //End of handling of the FINANCE_TYPE variable
+	
+	//Handles instance of the FINANACE_LABEL variable
+	if `list posof "finance_label" in x' !=0 {
+	qui: rename finance_label finlabel
+	qui: desting finlabel, replace ignore ("*-R %")
+	la var fintype "Finance Lable"
+	} //End of handling of the FINANCE_LABEL variable
+	
+	//Handles instance of the FINANACE_VALUE variable
+	if `list posof "finance_value" in x' !=0 {
+	qui: rename finance_value finvalue
+	qui: desting finvalue, replace ignore ("*-R %")
+	la var finvalue "Finance Value"
+	} //End of handling of the FINANCE_VALUE variable
+	
+	//Handles instance of the FINANACE_RANK variable
+	if `list posof "finance_rank" in x' !=0 {
+	qui: rename finance_rank finrank
+	qui: desting finrank, replace ignore ("*-R %")
+	la var finrank "Finance Rank"
+	} //End of handling of the FINANCE_RANK variable
+	
+	//Handles instance of the ENROLLMENT_CNT variable
+	if `list posof "enrollment_cnt" in x' !=0 {
+	qui: rename enrollment_cnt enrollcnt
+	qui: destring enrollcnt, replace ignore ("*-R %")
+	la var enrollcnt "Total Enrollment"
+	} //End of handling of the ENROLLMENT_CNT variable
+	
+	//Handles instance of the CERTIFICATION_CNT variable
+	if `list posof "certification_cnt" in x' !=0 {
+	qui: rename certification_cnt certcnt
+	qui: destring certcnt, replace ignore ("*-R %")
+	la var certcnt "Number of Certifications"
+	} //End of handling of the CERTIFICATION_CNT variable
+	
+	// Handles instances of the CAREER_PATHWAY_DESC variable
+	if `: list posof "career_pathway_desc" in x' != 0 {
+	qui: rename career_pathway_desc path
+	qui: replace path = cond(path == `"ADMINISTRATION SUPPORT"', "1", 	 	 ///
+			cond(path == `"AGRIBIOTECHNOLOGY"', "2",    					 ///
+			cond(path == `"ANIMAL SYSTEMS"', "3", 				 		 ///
+			cond(path == `"BUSINESS TECHNOLOGY"', "4", 	 				 ///
+			cond(path == `"COMPUTER PROGRAMMING"', "5", 			 	 	 ///
+			cond(path == `"CONSUMER AND FAMILY MANAGEMENT"', "6", 		 ///
+			cond(path == `"FINANCE"', "7", 		 						 ///
+			cond(path == `"HORTICULTURE AND PLANT SCIENCES"', "8", 		 ///
+			cond(path == `"INFORMATION SUPPORT AND SERVICES"', "9", 		 ///
+			cond(path == `"TECHNOLOGY"', "10", "")))))))))) 					
+	qui: desting path,replace ignore("*,-R %")
+	la val path path
+	la var path "Career Pathways"
+	} // End of handling of the CAREER_PATHWAY_DESC variable
 	
 	// Used to test for null records in the HS level CCR file
 	if `: list ccrhs in x' != 0 {
