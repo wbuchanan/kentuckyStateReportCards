@@ -2003,7 +2003,8 @@ prog def kdestandardize
 		qui: drop growmiss
 	}
 	
-	testpk `primarykey'
+	// Check for primary key if user passed values to the parameter
+	if `"`primarykey'"' != "" testpk `primarykey'
 		
 end		
 
