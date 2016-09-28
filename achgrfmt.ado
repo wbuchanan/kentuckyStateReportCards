@@ -1,4 +1,4 @@
-cap prog drop achgrfmt
+ cap prog drop achgrfmt
 prog def achgrfmt
 
 	version 14.1
