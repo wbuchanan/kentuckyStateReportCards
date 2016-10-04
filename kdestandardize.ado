@@ -4,8 +4,8 @@ prog def kdestandardize
 
 	version 14
 	
-	syntax [, 	DROPVars(string asis) noGRade SCHYRLab(integer 0) 			 ///   
-				PRIMARYKey(string asis) ]
+	syntax [, 	DROPVars(string asis) GRade(integer 0) SCHYRLab(integer 0) 	 ///   
+				PRIMARYKey(string asis) Metricvars(string asis) ]
 	
 	// Defines local macro to use to shorten command lengths
 	loc rx ustrregexm
@@ -172,7 +172,7 @@ prog def kdestandardize
 						2 "Percent Proficient/Distinguished", modify
 						
 		// Define Equity Measures
-		la def equmeas 1 `"Community Support and Involment Composite"'       ///
+		la def eqmeasure 1 `"Community Support and Involment Composite"'     ///
 					   2 `"Managing Student Conduct Composite"'              ///
 					   3 `"Overall Effectiveness of School Teachers and Leaders"' ///
 					   4 `"Overall Student Growth Rating of Teachers and Leaders"' ///
@@ -384,13 +384,12 @@ prog def kdestandardize
 	
 	// If grade_level doesn't exist in the file
 	else {
-	
-		if `"`grade'"' != "nograde" qui: g grade = "99"
-		else qui: g grade = "100"
-		qui: destring grade, replace ignore("*,-R %$")
-		la val grade grade
-		la var grade "Accountability Grade Level" 
-	}
+		if `grade' != 0 {
+			qui: g grade = `grade'
+			la val grade grade
+			la var grade "Accountability Grade Level" 
+		}
+	}	
 	
 	// Handles instances of the reward_recognition variable
 	if `: list posof "reward_recognition" in x' != 0 {
@@ -1295,7 +1294,7 @@ prog def kdestandardize
 		qui: destring industrycert, replace ignore("*,-R %$")
 		la var industrycert "Number of Students Passing Industry Certification Exams"
 	}	
-
+	
 	if `: list posof "kossa" in x' != 0 {
 		qui: destring kossa, replace ignore("*,-R %$")
 		la var kossa "Number of Students Score or Higher on the KOSSA Exam"
@@ -1373,13 +1372,30 @@ prog def kdestandardize
 	if `: list posof "target_type" in x' != 0 {
 		qui: rename target_type target
 		qui: replace target = 	cond(target == "Actual Score", "1",			 ///    
-								cond(target == "Target", "2",				 ///   
+								cond(inlist(target, "Target", "Delivery Target"), "2", ///   
 								cond(target == "Numerator", "3",			 ///   
 								cond(target == "Denominator", "4",			 ///   
 								cond(target == "Met Target", "5", ""))))) 
+		qui: destring target, replace ignore("*,-R %$")
+		la val target target
+		la var target "Accountability Component Targets"
 
 	} // End of handling of the  variable
+
+	// Handles instances of the  variable
+	if `: list posof "target_label" in x' != 0 {
+		qui: rename target_label target
+		qui: replace target = 	cond(target == "Actual Score", "1",			 ///    
+								cond(inlist(target, "Target", "Delivery Target"), "2", ///   
+								cond(target == "Numerator", "3",			 ///   
+								cond(target == "Denominator", "4",			 ///   
+								cond(target == "Met Target", "5", ""))))) 
+		qui: destring target, replace ignore("*,-R %$")
+		la val target target
+		la var target "Accountability Component Targets"
+	} // End of handling of the  variable
 	
+
 	if `: list posof "prior_setting" in x' != 0 {
 		qui: rename prior_setting kstype
 		qui: replace kstype = 	cond(kstype == "Unknown", ".u",				 ///   
@@ -1443,13 +1459,13 @@ prog def kdestandardize
 									cond(equity_measure == "Percentage of Teacher Turnover", "6", ///
 									cond(equity_measure == "School Leadership Composite", "7", ""))))))) ///
 	//Rename Equity_Measure variable
-	qui: rename equity_measure equmeas
+	qui: rename equity_measure eqmeasure
 	//Recasts the values to numeric types
-	qui: destring equmeas,replace ignore("*,-R %$")
+	qui: destring eqmeasure,replace ignore("*,-R %$")
 	//Applies value labels to the variable
-	la val equmeas equmeas
+	la val eqmeasure eqmeasure
 	//Applies variable label to the variable
-	la var equmeas "Equity Measure"
+	la var eqmeasure "Equity Measure"
 									
 	} // End of handling of the Equity_Measure  variable
 	
@@ -1600,9 +1616,9 @@ prog def kdestandardize
 	
 	//Handles instance of the RPT_LINE_ORDER variable
 	if `: list posof "rpt_line_order" in x' != 0 {
-	qui: rename rpt_line_order rptlnodr
-	qui: destring rptlnodr, replace ignore("*,-R %$")
-	la var rptlnodr "Report Line Order"
+		qui: rename rpt_line_order rptlnodr
+		qui: destring rptlnodr, replace ignore("*,-R %$")
+		la var rptlnodr "Report Line Order"
 	} // End of handling of the RPT_LINE_ORDER variable
 	
 	//Handles instance of the SPENDING_PER_STDNT variable
@@ -1981,30 +1997,29 @@ prog def kdestandardize
 		la var ctepath "Career Pathways"
 	} // End of handling of the CAREER_PATHWAY_DESC variable
 	
-	// Used to test for null records in the HS level CCR file
-	if `: list ccrhs in x' != 0 {
-		qui: egen ccrmissing = rowmiss(`ccrhs')
-		qui: drop if ccrmissing == 8
-		drop ccrmissing
-		testpk distid schid schyr amogroup
-	}
 
-	// Used to test for null records in the MS level CCR file
-	if `: list ccrms in x' != 0 {
-		qui: egen ccrmissing = rowmiss(`ccrms')
-		qui: drop if ccrmissing == 6
-		drop ccrmissing
-	}
+	// If metric variable list is passed this will check for empty records.
+	if `"`metricvars'"' != "" {
 	
-	// Used to test for null records in the Accountability Growth file
-	if `: list growvars in x' != 0 {
-		qui: egen growmiss = rowmiss(`growvars')
-		qui: drop if growmiss == 4
-		qui: drop growmiss
-	}
+		loc mvars `: word count `metricvars''
+		
+		qui: egen nullrow = rowmiss(`metricvars')
+		
+		qui: drop if nullrow == `mvars'
+		
+		qui: drop nullrow
+		
+	}	
 	
 	// Check for primary key if user passed values to the parameter
-	if `"`primarykey'"' != "" testpk `primarykey'
+	if `"`primarykey'"' != "" { 
+		
+		testpk `primarykey'
+	
+		// Keep only variables containing values or identifying information
+		if `"`metricvars'"' != "" keep `primarykey' `metricvars'
+		
+	} // End IF Block for primary key option
 		
 end		
 

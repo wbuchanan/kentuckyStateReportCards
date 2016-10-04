@@ -38,7 +38,7 @@ prog def kdecombo
 		restore
 		
 		// Add the data from the step above in this loop to the original data set
-		append using `x`y''.dta
+		qui: append using `x`y''.dta
 
 	} // Move to the next value
 
