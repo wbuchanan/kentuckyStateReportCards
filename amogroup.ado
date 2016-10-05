@@ -11,10 +11,21 @@ prog def amogroup
 		
 	qui: drop if `labels' == `"Disability – With IEP not including Alternate"' | ///   
 			`labels' == `"Disability – With Accommodation not including Alternate"' | /// 
-			`labels' == `"Disability - Alternate Only"' 
+			`labels' == `"Disability - Alternate Only"' |					 ///   
+			`labels' == `"Disability-With IEP not including Alternate"'
 
 	qui: destring `varlist', replace
+
+	if `"`varlist'"' == "disagg_order" {
 	
+		qui: replace `varlist' = 19 if `labels' == "Gifted/Talented"
+		
+		qui: replace `labels' = `"English Learners"' if `labels' == "Limited English Proficiency"
+		
+		qui: replace `varlist' = `varlist' - 1 if schyr == 2016 & `varlist' >= 13
+
+	}	
+		
 	qui: levelsof `varlist', loc(vals)
 
 	if `"`laname'"' != "" loc labs la def `laname'

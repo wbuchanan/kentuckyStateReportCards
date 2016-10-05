@@ -66,29 +66,14 @@ qui: save clean/assessPlan.dta, replace
 import excel using raw/2012/ASSESSMENT_KPREP_EOC.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile keoc
 qui: save `keoc'.dta, replace
-kdecombo ASSESSMENT_KPREP_EOC, sheets(`"`"Public Schools"' `"Assessment KPREP-EOC"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
-append using `keoc'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(1)
-drop dist_name sch_name sch_type category cntyno cntyname ncesid enrollment  ///   
-state_sch_id particip_rate coop coop_code sch_cd proficient_distinguished
-rename (dist_number sch_number test_type content_type sch_year content_level grade_level)(distid schid testnm content schyr schlev grade)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
+kdecombo ASSESSMENT_KPREP_EOC, y(2012 2012 2013 2014 2015 2016)				 ///    
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
+`"`"Assessment KPREP-EOC"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
 
-isid distid schid schyr content grade amogroup
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
+kdestandardize, primarykey(schyr schid content grade amogroup) grade(100) 	 ///   
+m(tested membership partic novice apprentice proficient distinguished) 
+
 
 qui: save clean/assessEOC.dta, replace
 
@@ -101,25 +86,13 @@ qui: save `kgr'.dta, replace
 kdecombo ASSESSMENT_KPREP_GRADE, sheets(`"`"Public Schools"' `"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
 append using `kgr'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(1)
-drop dist_name sch_name sch_type category cntyno cntyname ncesid enrollment  ///   
-state_sch_id particip_rate coop coop_code sch_cd proficient_distinguished
-rename (grade_level dist_number sch_number test_type content_level content_type sch_year)(grade distid schid testnm schlev content schyr)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
-isid distid schid schyr content grade amogroup
+kdecombo ASSESSMENT_KPREP_GRADE, y(2012 2012 2013 2014 2015 2016)			 ///   
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "' 				 ///   
+`"`"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
+
+kdestandardize, primarykey(schyr schid level content grade amogroup)		 ///   
+m(tested membership partic novice apprentice proficient distinguished)
+
 
 qui: save clean/assessKPREPgr.dta, replace
 
@@ -132,24 +105,12 @@ qui: save `klev'.dta, replace
 kdecombo ASSESSMENT_KPREP_LEVEL, sheets(`"`"Public Schools"' `"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
 append using `klev'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(0) nogr
-drop sch_cd dist_name sch_name sch_type category proficient_distinguished 	 ///   
-cntyno cntyname state_sch_id ncesid enrollment particip_rate coop coop_code
-rename (grade_level dist_number sch_number test_type content_level content_type sch_year)(grade distid schid testnm schlev content schyr)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
+kdecombo ASSESSMENT_KPREP_LEVEL, y(2012 2012 2013 2014 2015 2016)			 ///    
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
+`"`"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
+
+kdestandardize, primarykey(schyr schid level content amogroup)				 ///   
+m(tested membership partic novice apprentice proficient distinguished)
 
 qui: save clean/assessKPREPlevel.dta, replace
 
