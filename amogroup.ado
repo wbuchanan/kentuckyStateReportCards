@@ -12,7 +12,8 @@ prog def amogroup
 	qui: drop if `labels' == `"Disability – With IEP not including Alternate"' | ///   
 			`labels' == `"Disability – With Accommodation not including Alternate"' | /// 
 			`labels' == `"Disability - Alternate Only"' |					 ///   
-			`labels' == `"Disability-With IEP not including Alternate"'
+			`labels' == `"Disability-With IEP not including Alternate"' |	 ///   
+			`labels' == `"Disability-With IEP (not including Alternate)"'
 
 	qui: destring `varlist', replace
 

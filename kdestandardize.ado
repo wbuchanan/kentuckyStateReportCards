@@ -42,7 +42,8 @@ prog def kdestandardize
 	5 "Met Target" 
 
 	// Define grade span level value labels
-	la def level 1 "Elementary School" 2 "Middle School" 3 "High School", modify
+	la def level 1 "Elementary School" 2 "Middle School" 3 "High School"	 ///   
+				 4 "District Average" 5 "State Average", modify
 	
 	// Define value labels for content area that was tested
 	la def content 	1 "Language Mechanics" 2 "Mathematics" 3 "Reading" 		 ///   
@@ -55,9 +56,11 @@ prog def kdestandardize
 					6 "NRT" 7 "PPSAT" 8 "PSAT", modify	
 
 	// Define value labels for grade levels				
-	la def grade 3 "3rd Grade" 4 "4th Grade" 5 "5th Grade" 6 "6th Grade" 	 ///   
-				 7 "7th Grade" 8 "8th Grade" 9 "9th Grade" 10 "10th Grade"   ///   
-				 11 "11th Grade" 12 "12th Grade" 99 "High School" 			 ///   
+	la def grade -2 "Early Childhood" -1 "Pre-K" 0 "Kindergarten" 			 ///   
+				 1 "1st Grade" 2 "2nd Grade"  3 "3rd Grade" 4 "4th Grade" 	 ///   
+				 5 "5th Grade" 6 "6th Grade" 7 "7th Grade" 8 "8th Grade" 	 ///   
+				 9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 				 ///   
+				 12 "12th Grade" 98 "Adult Education" 99 "High School" 		 ///   
 				 100 "All Grades", modify
 
 	// Define value labels for whether or not AMOs are met			 
@@ -88,6 +91,9 @@ prog def kdestandardize
 	// Define value labels for graduation rate goal variable						
 	la def gradgoal .n "N/A" 0 "No" 1 "Yes", modify
 
+	// Define value labels for graduation rate goal variable						
+	la def ccrgoal .n "N/A" 0 "No" 1 "Yes", modify
+	
 	// Define value labels for participation rate variable
 	la def nextpartic 0 "No" 1 "Yes", modify
 
@@ -288,7 +294,9 @@ prog def kdestandardize
 	if `: list posof "content_level" in x' != 0 { 
 		loc cl content_level
 		qui: replace content_level = cond(`rx'(`cl', "elem.*", 1) == 1, "1", ///   
-									 cond(`rx'(`cl', "mid.*", 1) == 1, "2", "3"))
+									 cond(`rx'(`cl', "mid.*", 1) == 1, "2",  ///   
+									 cond(`rx'(`cl', "high.*", 1) == 1, "3", ///   
+									 cond(`rx'(`cl', "dist.*", 1) == 1, "4", "5"))))
 		qui: rename content_level level
 		qui: destring level, replace ignore("*,-R %$")
 		la val level level
@@ -306,7 +314,18 @@ prog def kdestandardize
 							 cond(test_type == "PLAN", "5",					 ///   
 							 cond(test_type == "NRT", "6",					 ///   
 							 cond(test_type == "PPSAT", "7", "8"))))))) 
-
+		
+		qui: levelsof fileid, loc(files)
+		qui: loc nfref la def fileid 
+		foreach fref of loc files {
+			loc lab `"`: label (fileid) `fref''"'
+			loc nfref `nfref' `= real(test_type + strofreal(`fref'))' `"`lab'"'
+		}	
+		qui: replace fileid = real(test_type + strofreal(fileid))
+		la drop fileid
+		`nfref'
+		la val fileid fileid
+		
 		// Renames the test_type variable
 		qui: rename test_type testnm
 		
@@ -373,6 +392,12 @@ prog def kdestandardize
 		
 	} // End handling of the nbr_tested variable
 	
+	// Handles instances of the grade variable
+	if `: list posof "grade" in x' != 0 {
+		qui: destring grade, replace ignore("*,-R %$")
+		la val grade grade
+		la var grade "Accountability Grade Level" 
+	}
 	
 	// Handles instances of the grade_level variable
 	if `: list posof "grade_level" in x' != 0 {
@@ -602,6 +627,8 @@ prog def kdestandardize
 	if `: list posof "sch_name" in x' != 0 {
 		qui: rename sch_name schnm 
 		qui: replace schnm = "Kentucky" if ustrregexm(schnm, "state", 1)
+		qui: replace schnm = distnm + " School District" if schid != "999999" & ///   
+		substr(schid, -3, 3) == "999"
 		la var schnm "School Name"
 	} // End of handling of the sch_name variable
 	
@@ -630,7 +657,16 @@ prog def kdestandardize
 	
 	// Handles instances of the ncesid variable
 	if `: list posof "ncesid" in x' != 0 {
-		la var ncesid "National Center for Educational Statistics ID Number"
+		if `: list posof "nces_cd" in x' != 0 {
+			qui: replace ncesid = nces_cd if mi(ncesid) & !mi(nces_cd)
+			qui: replace ncesid = ncesid + "00000" if length(ncesid) == 7
+			qui: bysort schyr (schid): replace ncesid = ncesid[_n - 1] if 	 ///   
+			mi(ncesid) & substr(schid, -3, 3) == "999"
+			drop nces_cd
+		}
+		qui: g leaid = substr(ncesid, 1, 7)
+		la var leaid "National Center for Educational Statistics LEA ID"
+		la var ncesid "National Center for Educational Statistics School ID"
 	} // End of handling of the ncesid variable
 	
 	// Handles instances of the nbr_graduates_with_diploma variable
@@ -908,7 +944,7 @@ prog def kdestandardize
 	
 	// Handles instances of the py_yr_overall variable
 	if `: list posof "py_yr_overall" in x' != 0 {
-		qui: destring py_yr_overall, repalce ignore("*,-R %$")
+		qui: destring py_yr_overall, replace ignore("*,-R %$")
 		qui: rename py_yr_overall poverall
 		la var poverall "Prior Year's Overall Score"	
 	} // End of handling of the py_yr_overall variable
@@ -995,10 +1031,10 @@ prog def kdestandardize
 	
 	// Handles instances of the stdnt_tested_bnchmrk_cnt variable
 	if `: list posof "stdnt_tested_bnchmrk_cnt" in x' != 0 {
-		qui: rename stdnt_tested_bnchmrk_cnt tested
-		qui: destring tested, replace ignore("*,-R %$")
+		qui: rename stdnt_tested_bnchmrk_cnt bnchmrktested
+		qui: destring bnchmrktested, replace ignore("*,-R %$")
 		// Need to verify the contents of this data element
-		la var tested "Number of Students Tested"
+		la var bnchmrktested "Number of Students Tested for Benchmark"
 	} // End of handling of the stdnt_tested_bnchmrk_cnt variable
 	
 	// Handles instances of the  variable
@@ -1031,6 +1067,12 @@ prog def kdestandardize
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Number of Students Enrolled"
 	} // End of handling of the  variable
+
+	if `: list posof "membership" in x' != 0 {
+		qui: destring membership, replace ignore("*,-R %$")
+		la var membership "Number of Students Enrolled"
+	} // End of handling of the  variable
+
 	
 	// Handles instances of the number_tested variable
 	if `: list posof "number_tested" in x' != 0 {
@@ -1290,8 +1332,20 @@ prog def kdestandardize
 		la var ccrpct "Total % of College AND Career Ready Students"
 	}	 
 	
+	if ustrregexm(`"`x'"', "ccr_[0-9]{4}") == 1 {
+		rename ccr_# ccr#
+		qui: ds ccr????
+		foreach v of var ccr???? {
+			qui: replace `v' = 	cond(`v' == "Yes", "1", 					 ///   
+								cond(`v' == "No", "0", 						 ///   
+								cond(`v' == "N/A", ".n", `v')))
+			qui: destring `v', replace ignore("*,-R %$")
+			la var `v' `"College and Career Readiness Goal for `: subinstr loc v "ccr" "", all'"'
+		}
+	}
+	
 	if `: list posof "performance_measure" in x' != 0 {
-		qui: g prknsmeasure = performance_measure
+		qui: rename performance_measure prknsmeasure
 		qui: replace prknsmeasure = cond(regexm(prknsmeasure, "Read"), "1",	 ///   
 									cond(regexm(prknsmeasure, "Math"), "2",  ///   
 									cond(regexm(prknsmeasure, "Technical"), "3", ///   
@@ -1472,7 +1526,7 @@ prog def kdestandardize
 								  cond(program_type == "Special Education","3",  ///
 								  cond(program_type == "Gifted and Talented","4")))) 
 		qui: rename program_type progtype
-		qui: desting progtype,replace ignore("*,-R %$")
+		qui: destring progtype,replace ignore("*,-R %$")
 		la val progtype progtype
 		la var progtype "Program Type"
 	} // End of handling of the PROGRAM_TYPE variable
@@ -1579,7 +1633,7 @@ prog def kdestandardize
 			  cond(rpt_header == "Discipline-Resolutions", "7",           	 ///
 			  cond(rpt_header == "Legal Sanctions", "8", ""))))))))		  
 		qui: rename rpt_header rpthdr
-		qui: desting rpthdr,replace ignore("*,-R %$")
+		qui: destring rpthdr,replace ignore("*,-R %$")
 		la val rpthdr rpthdr
 		la var rpthdr "Report Header"
 	} // End of handling of the RPT_HEADER variable
@@ -1869,7 +1923,7 @@ prog def kdestandardize
 				cond(pedagogy == `"NAF Academy Dual Credit - District Offered"', "9", 				 ///
 				cond(pedagogy == `"Third Party Contract"', "10", 					 ///
 				cond(pedagogy == `"Transitional Course - KDE Curriculum"', "11", "")))))))))))
-		qui: desting pedagogy, replace ignore("*,-R %$")
+		qui: destring pedagogy, replace ignore("*,-R %$")
 		la val pedagogy pedagogy
 		la var pedagogy "Pedagogical/Instructional Methodology"
 	} // End of handling of the TEACHING_METHOD variable
@@ -1924,21 +1978,21 @@ prog def kdestandardize
 	//Handles instance of the FINANACE_LABEL variable
 	if `: list posof "finance_label" in x' !=0 {
 		qui: rename finance_label finlabel
-		qui: desting finlabel, replace ignore ("*-R %")
+		qui: destring finlabel, replace ignore ("*-R %")
 		la var fintype "Finance Lable"
 	} //End of handling of the FINANCE_LABEL variable
 	
 	//Handles instance of the FINANACE_VALUE variable
 	if `: list posof "finance_value" in x' !=0 {
 		qui: rename finance_value finvalue
-		qui: desting finvalue, replace ignore ("*-R %")
+		qui: destring finvalue, replace ignore ("*-R %")
 		la var finvalue "Finance Value"
 	} //End of handling of the FINANCE_VALUE variable
 	
 	//Handles instance of the FINANACE_RANK variable
 	if `: list posof "finance_rank" in x' !=0 {
 		qui: rename finance_rank finrank
-		qui: desting finrank, replace ignore ("*-R %")
+		qui: destring finrank, replace ignore ("*-R %")
 		la var finrank "Finance Rank"
 	} //End of handling of the FINANCE_RANK variable
 	
@@ -1958,19 +2012,9 @@ prog def kdestandardize
 	
 	// Handles instances of the CAREER_PATHWAY_DESC variable
 	if `: list posof "career_pathway_desc" in x' != 0 {
-		qui: rename career_pathway_desc ctepath
-		qui: replace ctepath = cond(ctepath == `"ADMINISTRATION SUPPORT"', "1",  ///
-				cond(ctepath == `"AGRIBIOTECHNOLOGY"', "2",    				 ///
-				cond(ctepath == `"ANIMAL SYSTEMS"', "3", 				 	 ///
-				cond(ctepath == `"BUSINESS TECHNOLOGY"', "4", 	 			 ///
-				cond(ctepath == `"COMPUTER PROGRAMMING"', "5", 			 	 ///
-				cond(ctepath == `"CONSUMER AND FAMILY MANAGEMENT"', "6", 	 ///
-				cond(ctepath == `"FINANCE"', "7", 		 					 ///
-				cond(ctepath == `"HORTICULTURE AND PLANT SCIENCES"', "8", 	 ///
-				cond(ctepath == `"INFORMATION SUPPORT AND SERVICES"', "9", 	 ///
-				cond(ctepath == `"TECHNOLOGY"', "10", "")))))))))) 					
-		qui: desting ctepath,replace ignore("*,-R %$")
-		la val ctepath ctepath
+		// qui: replace career_pathway_desc = proper(career_pathway_desc)
+		qui: encode career_pathway_desc, gen(ctepath)
+		qui: drop career_pathway_desc
 		la var ctepath "Career Pathways"
 	} // End of handling of the CAREER_PATHWAY_DESC variable
 	
@@ -1999,6 +2043,9 @@ prog def kdestandardize
 	
 		// Keep only variables containing values or identifying information
 		if `"`metricvars'"' != "" keep `primarykey' `metricvars'
+		
+		// Sets the display order of the variables
+		order `primarykey' `metricvars'
 		
 	} // End IF Block for primary key option
 		
