@@ -235,12 +235,12 @@ prog def kdestandardize
 				   10 `"TECHNOLOGY"', modify
 				   
 	   // Define PERFORMANCE_TYPE
-	   la def ptype 1 `"Points"'											 ///
-				    2 `"NAPD Calculation"', modify
+	   la def ptype 0 `"Points"'											 ///
+				    1 `"NAPD Calculation"', modify
 					
 	   // Define ASSESSMENT_LEVEL
-	   la def assesslvl 1 `"Kentucky"'										 ///
-						2 `"Nation"', modify
+	   la def assesslvl 0 `"Kentucky"'										 ///
+						1 `"Nation"', modify
 						
 		// Define PERFORMANCE_MEASURE
 	   la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       		 ///
@@ -253,8 +253,8 @@ prog def kdestandardize
 				   8 `"Technical Skill Attainment - 2S1"', modify
 				   
 	   // Define COHORT_TYPE
-	   la def cohort 1 `"FIVE YEAR"'										 ///
-					 2 `"FOUR YEAR"', modify
+	   la def cohort 0 `"FIVE YEAR"'										 ///
+					 1 `"FOUR YEAR"', modify
 		
 	   // Define GRAD_TARGETS
 	   la def grdtgt 1 `"Actual Score"'       								 ///
@@ -2005,8 +2005,8 @@ prog def kdestandardize
 	//Handles instance of the PERFORMANCE_TYPE variable
 	if `: list posof "performance_type" in x' !=0 {
 		qui: rename performance_type ptype
-		qui: replace ptype = cond(ptype == "Points", "1",		 ///
-							   cond(ptype == "NAPD Calculation", "2"))
+		qui: replace ptype = cond(ptype == "Points", "0",		 ///
+							   cond(ptype == "NAPD Calculation", "1", ""))
 		qui: destring ptype, replace ignore ("*-R %")
 		la val ptype ptype
 		la var ptype "Performance Type"
@@ -2015,8 +2015,8 @@ prog def kdestandardize
 	//Handles instance of the ASSESSMENT_LEVEL variable
 	if `: list posof "assessment_level" in x' !=0 {
 		qui: rename assessment_level assesslvl
-		qui: replace assesslvl = cond(assesslvl == "Kentucky", "1",			 ///
-							     cond(assesslvl == "Nation", "2"))
+		qui: replace assesslvl = cond(assesslvl == "Kentucky", "0",			 ///
+							     cond(assesslvl == "Nation", "1", ""))
 		qui: destring assesslvl, replace ignore ("*-R %")
 		la val assesslvl assesslvl
 		la var assesslvl "Assessment Level"
@@ -2041,11 +2041,11 @@ prog def kdestandardize
 	//Handles instance of the COHORT_TYPE variable
 	if `: list posof "cohort_type" in x' !=0 {
 		qui: rename cohort_type cohort
-		qui: replace cohort = cond(cohort == "FIVE YEAR", "1",				 ///
-							  cond(cohort == "FOUR YEAR", "2"))
+		qui: replace cohort = cond(cohort == "FIVE YEAR", "0",				 ///
+							  cond(cohort == "FOUR YEAR", "1", ""))
 		qui: destring cohort, replace ignore ("*-R %")
 		la val cohort cohort
-		la var cohort "Cohort"
+		la var cohort "Graduation Rate Adjusted Cohort"
 	} //End of handling of the COHORT_TYPE variable
 	
 	//Handles instances of the RPT_LINE variable
