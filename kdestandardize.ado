@@ -234,6 +234,34 @@ prog def kdestandardize
 				   9 `"INFORMATION SUPPORT AND SERVICES"'		 			 ///
 				   10 `"TECHNOLOGY"', modify
 				   
+	   // Define PERFORMANCE_TYPE
+	   la def ptype 0 `"Points"'											 ///
+				    1 `"NAPD Calculation"', modify
+					
+	   // Define ASSESSMENT_LEVEL
+	   la def assesslvl 0 `"Kentucky"'										 ///
+						1 `"Nation"', modify
+						
+		// Define PERFORMANCE_MEASURE
+	   la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       		 ///
+				   2 `"Academic Attainment - Reading - 1S1"'				 ///
+				   3 `"Non-Traditional Completion - 6S2"'	 			     ///
+				   4 `"Non-Traditional Participation - 6S1"'				 ///
+				   5 `"Secondary Placement - 5S1"'							 ///
+				   6 `"Secondary School Completion - 3S1"'					  ///
+				   7 `"Student Graduation Rate - 4S1"'						 ///
+				   8 `"Technical Skill Attainment - 2S1"', modify
+				   
+	   // Define COHORT_TYPE
+	   la def cohort 0 `"FIVE YEAR"'										 ///
+					 1 `"FOUR YEAR"', modify
+		
+	   // Define GRAD_TARGETS
+	   la def grdtgt 1 `"Actual Score"'       								 ///
+				     2 `"Delivery Target"'									 ///
+				     3 `"Met Target"'	 			  					     ///
+				     4 `"Denominator Count"'								 ///
+				     5 `"Numerator Count"', modify
 	}  // End of value label definitions
 	
 	
@@ -1974,6 +2002,72 @@ prog def kdestandardize
 		la var ctepath "Career Pathways"
 	} // End of handling of the CAREER_PATHWAY_DESC variable
 	
+	//Handles instance of the PERFORMANCE_TYPE variable
+	if `: list posof "performance_type" in x' !=0 {
+		qui: rename performance_type ptype
+		qui: replace ptype = cond(ptype == "Points", "0",		 ///
+							   cond(ptype == "NAPD Calculation", "1", ""))
+		qui: destring ptype, replace ignore ("*-R %")
+		la val ptype ptype
+		la var ptype "Performance Type"
+	} //End of handling of the PERFORMANCE_TYPE variable
+	
+	//Handles instance of the ASSESSMENT_LEVEL variable
+	if `: list posof "assessment_level" in x' !=0 {
+		qui: rename assessment_level assesslvl
+		qui: replace assesslvl = cond(assesslvl == "Kentucky", "0",			 ///
+							     cond(assesslvl == "Nation", "1", ""))
+		qui: destring assesslvl, replace ignore ("*-R %")
+		la val assesslvl assesslvl
+		la var assesslvl "Assessment Level"
+	} //End of handling of the ASSESSMENT_LEVEL variable	
+	
+	//Handles instances of the PERFROMANCE_MEASURE variable
+	if `: list posof "performance_measure" in x' != 0 {
+		qui: rename performance_measure pmsr
+		qui: replace pmsr = cond(pmsr == "Academic Attainment - Mathematics - 1S2", "1", ///
+			  cond(pmsr == "Academic Attainment - Reading - 1S1", "2",       ///
+			  cond(pmsr == "Non-Traditional Completion - 6S2", "3",   		 ///
+			  cond(pmsr == "Non-Traditional Participation - 6S1"," 4",     	 ///
+			  cond(pmsr == "Secondary Placement - 5S1", "5", 				 ///
+			  cond(pmsr == "Secondary School Completion - 3S1", "6",         ///
+			  cond(pmsr == "Student Graduation Rate - 4S1", "7",           	 ///
+			  cond(pmsr == "Technical Skill Attainment - 2S1", "8", ""))))))))		  
+		qui: desting pmsr,replace ignore("*,-R %$")
+		la val pmsr pmsr
+		la var pmsr "Performance Measure"
+	} // End of handling of the PERFORMANCE_MEASURE variable
+	
+	//Handles instance of the COHORT_TYPE variable
+	if `: list posof "cohort_type" in x' !=0 {
+		qui: rename cohort_type cohort
+		qui: replace cohort = cond(cohort == "FIVE YEAR", "0",				 ///
+							  cond(cohort == "FOUR YEAR", "1", ""))
+		qui: destring cohort, replace ignore ("*-R %")
+		la val cohort cohort
+		la var cohort "Graduation Rate Adjusted Cohort"
+	} //End of handling of the COHORT_TYPE variable
+	
+	//Handles instances of the RPT_LINE variable
+	if `: list posof "rpt_line" in x' != 0 {
+		qui: rename rpt_line rptln
+		qui: desting rptln,replace ignore("*,-R %$")
+		la val rptln rptln
+		la var rptln "Report Line"
+	} // End of handling of the RPT_LINE variable
+	
+	//Handles instances of the GRAD_TARGETS variable
+	if `: list posof "grad_targets" in x' != 0 {
+		qui: rename grad_targets grdtgt
+		qui: replace gtdtgt = cond(grdtgt == "Actual Score", "1", ///
+			  cond(grdtgt == "Delivery Target", "2",       ///
+			  cond(grdtgt == "Met Target", "3",   		 ///
+			  cond(grdtgt == "Denominator Count"," 4",     	 ///
+			  cond(grdtgt == "Numerator Count", "5")))))		  
+		qui: desting grdtgt,replace ignore("*,-R %$")
+		la val grdtgt grdtgt
+		la var grdtgt "Graduation Targets"
+	} // End of handling of the GRAD_TARGETS variable
 
 	// If metric variable list is passed this will check for empty records.
 	if `"`metricvars'"' != "" {
