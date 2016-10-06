@@ -240,6 +240,9 @@ prog def kdestandardize
 				   9 `"INFORMATION SUPPORT AND SERVICES"'		 			 ///
 				   10 `"TECHNOLOGY"', modify
 				   
+		la def coop 0 "CKEC" 1 "GRREC" 2 "JEFF CO" 3 "KEDC" 4 "KVEC" 		 ///   
+					5 "NKCES" 6 "OVEC" 7 "SESC" 8 "WKEC", modify
+				   
 	}  // End of value label definitions
 	
 	
@@ -620,17 +623,20 @@ prog def kdestandardize
 	if `: list posof "dist_name" in x' != 0 {
 		qui: rename dist_name distnm
 		qui: replace distnm = "Kentucky" if ustrregexm(sch_name, "state", 1)
+		
+		// Checks if the same school has multiple names
+		qui: egen undistnms = nvals(distnm), by(schid)
+		
+		// Sort by school id in ascending order and school year in descending order
+		gsort schid - schyr
+		
+		// Replace other names with most recent name if school had multiple names
+		qui: replace distnm = distnm[_n - 1] if undistnms > 1 & distnm[_n - 1] != distnm
+		
+		drop undistnms
+		
 		la var distnm "District Name"
 	} // End of handling of the distnm variable
-	
-	// Handles instances of the sch_name variable
-	if `: list posof "sch_name" in x' != 0 {
-		qui: rename sch_name schnm 
-		qui: replace schnm = "Kentucky" if ustrregexm(schnm, "state", 1)
-		qui: replace schnm = distnm + " School District" if schid != "999999" & ///   
-		substr(schid, -3, 3) == "999"
-		la var schnm "School Name"
-	} // End of handling of the sch_name variable
 	
 	// Handles instances of the cntyno variable
 	if `: list posof "cntyno" in x' != 0 {
@@ -652,6 +658,17 @@ prog def kdestandardize
 	
 	// Handles instances of the coop variable
 	if `: list posof "coop" in x' != 0 {
+		qui: replace coop = cond(coop == "CKEC", "0", 						 ///   
+							cond(coop == "GRREC", "1",						 ///   
+							cond(coop == "JEFF CO", "2", 					 ///   
+							cond(coop == "KEDC", "3",						 ///   
+							cond(coop == "KVEC", "4",						 ///   
+							cond(coop == "NKCES", "5",						 ///   
+							cond(coop == "OVEC", "6",						 ///   
+							cond(coop == "SESC", "7",						 ///   
+							cond(coop == "WKEC", "8", "")))))))))
+		qui: destring coop, replace ignore("*,-R %$")
+		la val coop coop
 		la var coop "Cooperative Name"
 	} // End of handling of the coop variable
 	
@@ -2018,7 +2035,139 @@ prog def kdestandardize
 		la var ctepath "Career Pathways"
 	} // End of handling of the CAREER_PATHWAY_DESC variable
 	
+		// Handler for the low_grade variable
+	if `: list posof "low_grade" in x' != 0 {
+		qui: ds
+		loc newlist `r(varlist)'
+		if `: list posof "distid" in newlist' != 0 loc district distid
+		else loc district dist_number
+		
+		// This is used to make the county names and IDs consistent across years
+		preserve
+			keep `district' cntyid cntynm
+			drop if mi(cntyid) | mi(cntynm)
+			duplicates drop
+			tempfile cnty
+			qui: save `cnty'.dta, replace
+		restore
+		qui: merge m:1 `district' using `cnty'.dta, nogen update replace
+		
+		// This is used to make the coop names and IDs consistent across years
+		preserve
+			keep `district' coopid coop
+			drop if mi(coopid, coop)
+			duplicates drop
+			tempfile coop
+			qui: save `coop'.dta, replace
+		restore
+		qui: merge m:1 `district' using `coop'.dta, nogen update replace
+		
+		qui: rename low_grade mingrade
+		qui: replace mingrade = ustrregexra(mingrade, "(st)|(th)|(rd)|(nd)", "")
+		qui: replace mingrade = cond(mingrade == "Adult Ed", "98",			 ///   
+					cond(inlist(mingrade, "Entry", "K", "Primary"), "0", 	 ///   
+					cond(mingrade == "Preschool", "-1", mingrade)))
+		qui: destring mingrade, replace
+		la val mingrade grade
+		la var mingrade "Lowest Grade Level Served by School"
+	} // End of handling of the low_grade variable
 
+	// Handler for the high_grade variable
+	if `: list posof "high_grade" in x' != 0 {
+		qui: rename high_grade maxgrade
+		qui: replace maxgrade = ustrregexra(maxgrade, "(st)|(th)|(rd)|(nd)", "")
+		qui: replace maxgrade = cond(maxgrade == "Adult Ed", "98",			 ///   
+					cond(inlist(maxgrade, "Entry", "K", "Primary"), "0", 	 ///   
+					cond(maxgrade == "Preschool", "-1", maxgrade)))
+		qui: destring maxgrade, replace
+		la val maxgrade grade
+		la var maxgrade "Highest Grade Level Served by School"
+	} // End of handling of the high_grade variable
+
+	// Handler for the title1_status variable
+	if `: list posof "title1_status" in x' != 0 {
+		/*
+		qui: rename title1_status title1
+		qui: replace title1 = proper(trim(itrim(ustrregexra(				 ///   
+					ustrregexra(subinstr(title1, "Title 1", "Title I", .),   ///   
+						"[ ]?[–-]+[ ]?No Program", " - No Program"), 		 ///   
+						"[–-]+", " - "))))
+		qui: replace = cond()
+		la var  ""
+		*/
+		qui: encode title1_status, gen(title1)
+		la var title1 "Title I Status Indicator"
+		drop title1_status
+	} // End of handling of the title1_status variable
+
+	// Handler for the  variable
+	if `: list posof "contact_name" in x' != 0 {
+		qui: rename contact_name poc
+		la var poc "Point of Contact"
+	} // End of handling of the  variable
+
+	// Handler for the  variable
+	if `: list posof "address" in x' != 0 {
+		qui: rename (address address2)(addy addy2)
+		la var addy "Street Address"
+		la var addy2 "Street Address (Line 2)
+	} // End of handling of the  variable
+
+	// Handler for the po_box variable
+	if `: list posof "po_box" in x' != 0 {
+		qui: rename po_box pobox
+		la var pobox "Post Office Box"
+	} // End of handling of the  variable
+
+	// Handler for the city variable
+	if `: list posof "city" in x' != 0 {
+		la var city "City"
+	} // End of handling of the  variable
+
+	// Handler for the state variable
+	if `: list posof "state" in x' != 0 {
+		la var state "State"
+	} // End of handling of the  variable
+
+	// Handler for the zipcode variable
+	if `: list posof "zipcode" in x' != 0 {
+		qui: rename zipcode zip
+		la var zip "USPS Zip Code"
+	} // End of handling of the  variable
+
+	// Handler for the phone variable
+	if `: list posof "phone" in x' != 0 {
+		la var phone "Phone Number"
+	} // End of handling of the  variable
+
+	// Handler for the fax variable
+	if `: list posof "fax" in x' != 0 {
+		la var fax "Fax Number"
+	} // End of handling of the  variable
+
+	// Handles instances of the sch_name variable
+	if `: list posof "sch_name" in x' != 0 {
+		qui: rename sch_name schnm 
+		qui: replace schnm = "Kentucky" if ustrregexm(schnm, "state", 1)
+		qui: replace schnm = distnm + " School District" if schid != "999999" & ///   
+		substr(schid, -3, 3) == "999"
+		
+		// Checks if the same school has multiple names
+		qui: egen unschnms = nvals(schnm), by(schid)
+		
+		// Sort by school id in ascending order and school year in descending order
+		gsort schid - schyr
+		
+		// Replace other names with most recent name if school had multiple names
+		qui: replace schnm = schnm[_n - 1] if unschnms > 1 & schnm[_n - 1] != schnm
+		
+		drop unschnms
+		
+		// Assigns variable label to the variable
+		la var schnm "School Name"
+		
+	} // End of handling of the sch_name variable
+	
 	// If metric variable list is passed this will check for empty records.
 	if `"`metricvars'"' != "" {
 	

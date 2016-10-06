@@ -219,9 +219,32 @@ kdecombo LEARNING_ENVIRONMENT_SAFETY, sheets(`"`"Safety Data"' `"Safety Data"' `
 qui: save clean/safety.dta, replace
 
 /*******************************************************************************
+ * Accountability System School Profiles									   *
+ ******************************************************************************/
+
+kdecombo PROFILE, y(2012 2013 2014 2015 2016) 								 ///   
+sheets(`"`"School District Profile Data"' `"School District Profile Data"'"' ///   
+`" `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
+qui: replace membership = enrollment if mi(membership) & !mi(enrollment)
+qui: drop enrollment
+
+kdestandardize, primarykey(fileid schyr schid) m(cntyid coopid leaid distid  ///   
+ncesid cntynm coop distnm schnm schtype title1 mingrade maxgrade membership  ///   
+poc addy addy2 pobox city state zip phone fax lat lon)
+
+
+/*******************************************************************************
  * Accountability System Program Review	Data								   *
  ******************************************************************************/
-kdecombo PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+kdecombo PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 	 ///   
+y(2014 2015 2016)
+
+kdestandardize, primarykey(fileid schyr schid level) m(totpts totscore ahcia ///   
+ahassess ahprofdev ahadmin ahtotpts ahlev k3cia k3assess k3profdev k3admin	 ///   
+k3totpts k3lev plcia plassess plprofdev pladmin pltotpts pllev wlcia 		 ///   
+wlassess wlprofdev wladmin wltotpts wllev wrcia wrassess wrprofdev wradmin 	 ///   
+wrtotpts wrlev)
+
 qui: save clean/programReview.dta, replace
 
 /*******************************************************************************
