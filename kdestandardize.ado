@@ -234,6 +234,7 @@ prog def kdestandardize
 				   10 `"TECHNOLOGY"', modify
 				   
 	   // Define PERFORMANCE_TYPE
+<<<<<<< HEAD
 	   la def prfrmtype 1 `"Points"'										 ///
 					    2 `"NAPD Calculation"', modify
 				   
@@ -261,6 +262,35 @@ prog def kdestandardize
 					 3 `"Delivery Target"'            					     ///
 					 4 `"Numerator Count"' 									 ///
 					 5 `"Denominator Count"', modify
+=======
+	   la def ptype 0 `"Points"'											 ///
+				    1 `"NAPD Calculation"', modify
+					
+	   // Define ASSESSMENT_LEVEL
+	   la def assesslvl 0 `"Kentucky"'										 ///
+						1 `"Nation"', modify
+						
+		// Define PERFORMANCE_MEASURE
+	   la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       		 ///
+				   2 `"Academic Attainment - Reading - 1S1"'				 ///
+				   3 `"Non-Traditional Completion - 6S2"'	 			     ///
+				   4 `"Non-Traditional Participation - 6S1"'				 ///
+				   5 `"Secondary Placement - 5S1"'							 ///
+				   6 `"Secondary School Completion - 3S1"'					  ///
+				   7 `"Student Graduation Rate - 4S1"'						 ///
+				   8 `"Technical Skill Attainment - 2S1"', modify
+				   
+	   // Define COHORT_TYPE
+	   la def cohort 0 `"FIVE YEAR"'										 ///
+					 1 `"FOUR YEAR"', modify
+		
+	   // Define GRAD_TARGETS
+	   la def grdtgt 1 `"Actual Score"'       								 ///
+				     2 `"Delivery Target"'									 ///
+				     3 `"Met Target"'	 			  					     ///
+				     4 `"Denominator Count"'								 ///
+				     5 `"Numerator Count"', modify
+>>>>>>> upstream/master
 	}  // End of value label definitions
 	
 	
@@ -307,7 +337,7 @@ prog def kdestandardize
 		
 		// Calls external routine with logic/rules for handling these business 
 		// rules/logic
-		qui: amogroup disagg_order, la(disagg_label) lan(amogroup)					
+		qui: amogroup disagg_order, la(disagg_label) lan(amogroup)				
 		
 	} // End Handling of disagg_label and disagg_order variables
 	
@@ -724,39 +754,11 @@ prog def kdestandardize
 	
 	} // End of handling of the pct_ccr_with_bonus variable
 	
-	// Handles instances of the actmsengpct variable
-	if `: list posof "english_bnchmrk_pct" in x' != 0 {
-		qui: destring english_bnchmrk_pct, replace ignore("*,-R %$")
-		qui: rename english_bnchmrk_pct actmsengpct
-		la var actmsengpct "% of MS Students Meeting English CCR Benchmark"	
-	} // End of handling of the actmsengpct variable
-	
-	// Handles instances of the actmsrlapct variable
-	if `: list posof "reading_bnchmrk_pct" in x' != 0 {
-		qui: destring reading_bnchmrk_pct, replace ignore("*,-R %$")
-		qui: rename reading_bnchmrk_pct actmsrlapct   
-		la var actmsrlapct "% of MS Students Meeting Reading CCR Benchmark" 	
-	} // End of handling of the actmsrlapct variable
-	
-	// Handles instances of the actmsmthpct variable
-	if `: list posof "math_bnchmrk_pct" in x' != 0 {
-		qui: destring math_bnchmrk_pct, replace ignore("*,-R %$")
-		qui: rename math_bnchmrk_pct actmsmthpct
-		la var actmsmthpct "% of MS Students Meeting Math CCR Benchmark" 
-	} // End of handling of the actmsmthpct variable
-	
-	// Handles instances of the actmsscipct variable
-	if `: list posof "science_bnchmrk_pct" in x' != 0 {
-		qui: destring science_bnchmrk_pct, replace ignore("*,-R %$")
-		qui: rename science_bnchmrk_pct actmsscipct
-		la var actmsscipct "% of MS Students Meeting Science CCR Benchmark" 
-	} // End of handling of the actmscipct variable
-	
 	// Handles instances of the total_points variable
 	if `: list posof "total_points" in x' != 0 {
 		qui: destring total_points, replace ignore("*,-R %$")
-		qui: rename total_points totmsccrpts	
-		la var totmsccrpts "Total Points for Middle School CCR Component"
+		qui: rename total_points totpts	
+		la var totpts "Total Points"
 	} // End of handling of the total_points variable
 	
 	// Handles instances of the napd_calculation variable
@@ -987,73 +989,73 @@ prog def kdestandardize
 	
 	// Handles instances of the  variable
 	if `: list posof "english_mean_score" in x' != 0 {
-		qui: rename english_mean_score acthsengsc
-		qui: destring acthsengsc, replace ignore("*,-R %$")
-		la var acthsengsc "ACT Average English Score"
+		qui: rename english_mean_score actengsc
+		qui: destring actengsc, replace ignore("*,-R %$")
+		la var actengsc "ACT Average English Score"
 	} // End of handling of the  variable
 	
 	// Handles instances of the  variable
 	if `: list posof "english_bnchmrk_pct" in x' != 0 {
-		qui: rename english_bnchmrk_pct acthsengpct
-		qui: destring acthsengpct, replace ignore("*,-R %$")
-		la var acthsengpct "% of Students Meeting ACT English Benchmark"
+		qui: rename english_bnchmrk_pct actengpct
+		qui: destring actengpct, replace ignore("*,-R %$")
+		la var actengpct "% of Students Meeting ACT English Benchmark"
 	} // End of handling of the  variable
 	
 	// Handles instances of the  variable
 	if `: list posof "mathematics_mean_score" in x' != 0 {
-		qui: rename mathematics_mean_score acthsmthsc
-		qui: destring acthsmthsc, replace ignore("*,-R %$")
-		la var acthsmthsc "ACT Average Mathematics Score"
+		qui: rename mathematics_mean_score actmthsc
+		qui: destring actmthsc, replace ignore("*,-R %$")
+		la var actmthsc "ACT Average Mathematics Score"
 	} // End of handling of the  variable
 	
 	// Handles instances of the mathematics_bnchmrk_pct variable
 	if `: list posof "mathematics_bnchmrk_pct" in x' != 0 {
-		qui: rename mathematics_bnchmrk_pct acthsmthpct
-		qui: destring acthsmthpct, replace ignore("*,-R %$")
-		la var acthsmthpct "% of Students Meeting ACT Mathematics Benchmark"
+		qui: rename mathematics_bnchmrk_pct actmthpct
+		qui: destring actmthpct, replace ignore("*,-R %$")
+		la var actmthpct "% of Students Meeting ACT Mathematics Benchmark"
 	} // End of handling of the mathematics_bnchmrk_pct variable
 	
 	// Handles instances of the reading_mean_score variable
 	if `: list posof "reading_mean_score" in x' != 0 {
-		qui: rename reading_mean_score acthsrlasc
-		qui: destring acthsrlasc, replace ignore("*,-R %$")
-		la var acthsrlasc "ACT Average Reading Score"
+		qui: rename reading_mean_score actrlasc
+		qui: destring actrlasc, replace ignore("*,-R %$")
+		la var actrlasc "ACT Average Reading Score"
 	} // End of handling of the reading_mean_score variable
 	
 	// Handles instances of the reading_bnchmrk_pct variable
 	if `: list posof "reading_bnchmrk_pct" in x' != 0 {
-		qui: rename reading_bnchmrk_pct acthsrlapct
-		qui: destring acthsrlapct, replace ignore("*,-R %$")
-		la var acthsrlapct "% of Students Meeting ACT Reading Benchmark"
+		qui: rename reading_bnchmrk_pct actrlapct
+		qui: destring actrlapct, replace ignore("*,-R %$")
+		la var actrlapct "% of Students Meeting ACT Reading Benchmark"
 	} // End of handling of the reading_bnchmrk_pct variable
 	
 	// Handles instances of the science_mean_score variable
 	if `: list posof "science_mean_score" in x' != 0 {
-		qui: rename science_mean_score acthsscisc
-		qui: destring acthsscisc, replace ignore("*,-R %$")
-		la var acthsscisc "ACT Average Science Score"
+		qui: rename science_mean_score actscisc
+		qui: destring actscisc, replace ignore("*,-R %$")
+		la var actscisc "ACT Average Science Score"
 	} // End of handling of the science_mean_score variable
 	
 	// Handles instances of the science_mean_score variable
 	if `: list posof "science_bnchmrk_pct" in x' != 0 {
-		qui: rename science_bnchmrk_pct acthsscipct
-		qui: destring acthsscipct, replace ignore("*,-R %$")
-		la var acthsscipct "% of Students Meeting ACT Science Benchmark"
+		qui: rename science_bnchmrk_pct actscipct
+		qui: destring actscipct, replace ignore("*,-R %$")
+		la var actscipct "% of Students Meeting ACT Science Benchmark"
 	} // End of handling of the science_mean_score variable
 	
 	// Handles instances of the composite_mean_score variable
 	if `: list posof "composite_mean_score" in x' != 0 {
-		qui: rename composite_mean_score acthscmpsc
-		qui: destring acthscmpsc, replace ignore("*,-R %$")
-		la var acthscmpsc "ACT Average Composite Score"
+		qui: rename composite_mean_score actcmpsc
+		qui: destring actcmpsc, replace ignore("*,-R %$")
+		la var actcmpsc "ACT Average Composite Score"
 	} // End of handling of the composite_mean_score variable
 	
 	// Handles instances of the stdnt_tested_bnchmrk_cnt variable
 	if `: list posof "stdnt_tested_bnchmrk_cnt" in x' != 0 {
-		qui: rename stdnt_tested_bnchmrk_cnt bnchmrktested
-		qui: destring bnchmrktested, replace ignore("*,-R %$")
+		qui: rename stdnt_tested_bnchmrk_cnt tested
+		qui: destring tested, replace ignore("*,-R %$")
 		// Need to verify the contents of this data element
-		la var bnchmrktested "Number of Students Tested for ACT Benchmarks"
+		la var tested "Number of Students Tested"
 	} // End of handling of the stdnt_tested_bnchmrk_cnt variable
 	
 	// Handles instances of the  variable
@@ -1121,13 +1123,13 @@ prog def kdestandardize
 	
 		// Handles instances of the Program Review Summative Variables
 	if `: list posof "progrev_total_points" in x' != 0 {
-		rename (progrev_total_points progrev_total_score)(prtotpts prtotsc)
-		foreach v of var prtotpts prtotsc {
+		rename (progrev_total_points progrev_total_score)(totpts totscore)
+		foreach v of var totpts totscore {
 			qui: replace `v' = ".n" if `v' == "N/A"
 		}
-		qui: destring prtotpts prtotsc, replace ignore("*,-R %$")
-		la var prtotpts "Program Review Total Points"
-		la var prtotsc "Program Review Total Score"
+		qui: destring totpts totscore, replace ignore("*,-R %$")
+		la var totpts "Total Points"
+		la var totscore "Total Score"
 	} // Ends handling of the Program Review Summative Variables
 	
 	// Handles instances of the Arts & Humanities Program Review variables
@@ -1377,12 +1379,17 @@ prog def kdestandardize
 	}
 
 	if `: list posof "total_enrollment" in x' != 0 {
-		qui: rename total_enrollment prknsenr
-		qui: destring prknsenr, replace ignore("*,-R %$")
-		la var prknsenr "Total Number of Students Enrolled"
+		qui: rename total_enrollment membership
+		qui: destring membership, replace ignore("*,-R %$")
+		la var membership "Total Number of Students Enrolled"
 	}	
 
-	
+	if `: list posof "enrollment" in x' != 0 {
+		qui: rename enrollment membership
+		qui: destring membership, replace ignore("*,-R %$")
+		la var membership "Total Number of Students Enrolled"
+	}	
+
 	// Handles instances of the  variable
 	if `: list posof "target_level" in x' != 0 {
 		loc tl target_level
@@ -1996,7 +2003,7 @@ prog def kdestandardize
 	if `: list posof "enrollment_cnt" in x' !=0 {
 		qui: rename enrollment_cnt membership
 		qui: destring membership, replace ignore ("*-R %")
-		la var membership "Total Enrollment"
+		la var membership "Total Number of Students Enrolled"
 	} //End of handling of the ENROLLMENT_CNT variable
 	
 	//Handles instance of the CERTIFICATION_CNT variable
@@ -2026,56 +2033,64 @@ prog def kdestandardize
 	
 	//Handles instance of the PERFORMANCE_TYPE variable
 	if `: list posof "performance_type" in x' !=0 {
-		qui: rename performance_type prfrmtype
-		qui: replace prfrmtype = cond(prfrmtype == "Points", "1",			 ///
-							     cond(prfrmtype == "NAPD Calculation", "2")) ///
-		qui: destring prfrmtype, replace ignore ("*-R %")
-		la val prfrmtype prfrmtype
-		la var prfrmtype "Performance Type"
+		qui: rename performance_type ptype
+		qui: replace ptype = cond(ptype == "Points", "0",		 ///
+							   cond(ptype == "NAPD Calculation", "1", ""))
+		qui: destring ptype, replace ignore ("*-R %")
+		la val ptype ptype
+		la var ptype "Performance Type"
 	} //End of handling of the PERFORMANCE_TYPE variable
 	
 	//Handles instance of the ASSESSMENT_LEVEL variable
 	if `: list posof "assessment_level" in x' !=0 {
 		qui: rename assessment_level assesslvl
-		qui: replace assesslvl = cond(assesslvl == "Kentucky", "1",			 ///
-							     cond(assesslvl == "Nation", "2"))			 ///
+		qui: replace assesslvl = cond(assesslvl == "Kentucky", "0",			 ///
+							     cond(assesslvl == "Nation", "1", ""))
 		qui: destring assesslvl, replace ignore ("*-R %")
 		la val assesslvl assesslvl
 		la var assesslvl "Assessment Level"
-	} //End of handling of the ASSESSMENT_LEVEL variable
+	} //End of handling of the ASSESSMENT_LEVEL variable	
+	
+	//Handles instances of the PERFROMANCE_MEASURE variable
+	if `: list posof "performance_measure" in x' != 0 {
+		qui: rename performance_measure pmsr
+		qui: replace pmsr = cond(pmsr == "Academic Attainment - Mathematics - 1S2", "1", ///
+			  cond(pmsr == "Academic Attainment - Reading - 1S1", "2",       ///
+			  cond(pmsr == "Non-Traditional Completion - 6S2", "3",   		 ///
+			  cond(pmsr == "Non-Traditional Participation - 6S1"," 4",     	 ///
+			  cond(pmsr == "Secondary Placement - 5S1", "5", 				 ///
+			  cond(pmsr == "Secondary School Completion - 3S1", "6",         ///
+			  cond(pmsr == "Student Graduation Rate - 4S1", "7",           	 ///
+			  cond(pmsr == "Technical Skill Attainment - 2S1", "8", ""))))))))		  
+		qui: desting pmsr,replace ignore("*,-R %$")
+		la val pmsr pmsr
+		la var pmsr "Performance Measure"
+	} // End of handling of the PERFORMANCE_MEASURE variable
 	
 	//Handles instance of the COHORT_TYPE variable
 	if `: list posof "cohort_type" in x' !=0 {
 		qui: rename cohort_type cohort
-		qui: replace cohort = cond(cohort == "FIVE YEAR", "1",			 ///
-							  cond(cohort == "FOUR YEAR", "2"))			 ///
+		qui: replace cohort = cond(cohort == "FIVE YEAR", "0",				 ///
+							  cond(cohort == "FOUR YEAR", "1", ""))
 		qui: destring cohort, replace ignore ("*-R %")
 		la val cohort cohort
-		la var cohort "Cohort"
+		la var cohort "Graduation Rate Adjusted Cohort"
 	} //End of handling of the COHORT_TYPE variable
 	
-	//Handles instances of the PERFORMANCE_MEASURE variable
-	if `: list posof "performance_measure" in x' != 0 {
-		qui: rename performance_measure prfrmmsr
-		qui: replace prfrmmsr = cond(prfrmmsr == "Academic Attainment - Mathematics - 1S2", "1", ///
-			  cond(prfrmmsr == "Academic Attainment - Reading - 1S1", "2",       	 ///
-			  cond(prfrmmsr == "Non-Traditional Completion - 6S2", "3",   	 ///
-			  cond(prfrmmsr == "Non-Traditional Participation - 6S1"," 4",     	 ///
-			  cond(prfrmmsr == "Secondary Placement - 5S1", "5",  ///
-			  cond(prfrmmsr == "Secondary School Completion - 3S1", "6",           	 ///
-			  cond(prfrmmsr == "Student Graduation Rate - 4S1", "7",           	 ///
-			  cond(prfrmmsr == "Technical Skill Attainment - 2S1", "8", ""))))))))		  
-		qui: desting prfrmmsr,replace ignore("*,-R %$")
-		la val prfrmmsr prfrmmsr
-		la var prfrmmsr "Performance Measure"
-	} // End of handling of the PERFORMANCE_MEASURE variable
+	//Handles instances of the RPT_LINE variable
+	if `: list posof "rpt_line" in x' != 0 {
+		qui: rename rpt_line rptln
+		qui: desting rptln,replace ignore("*,-R %$")
+		la val rptln rptln
+		la var rptln "Report Line"
+	} // End of handling of the RPT_LINE variable
 	
 	//Handles instances of the GRAD_TARGETS variable
 	if `: list posof "grad_targets" in x' != 0 {
 		qui: rename grad_targets grdtgt
-		qui: replace grdtgt = cond(grdtgt == "Actual Score", "1", ///
-			  cond(grdtgt == "Met Target", "2",       	 ///
-			  cond(grdtgt == "Delivery Target", "3",   	 ///
+		qui: replace gtdtgt = cond(grdtgt == "Actual Score", "1", ///
+			  cond(grdtgt == "Delivery Target", "2",       ///
+			  cond(grdtgt == "Met Target", "3",   		 ///
 			  cond(grdtgt == "Denominator Count"," 4",     	 ///
 			  cond(grdtgt == "Numerator Count", "5")))))		  
 		qui: desting grdtgt,replace ignore("*,-R %$")
@@ -2099,7 +2114,11 @@ prog def kdestandardize
 	// Check for primary key if user passed values to the parameter
 	if `"`primarykey'"' != "" { 
 		
+		// Tests the primary key constraint
 		testpk `primarykey'
+		
+		// Sort the data based on the values passed to the primary key parameter
+		qui: sort `primarykey'
 	
 		// Keep only variables containing values or identifying information
 		if `"`metricvars'"' != "" keep `primarykey' `metricvars'

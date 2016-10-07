@@ -66,29 +66,14 @@ qui: save clean/assessPlan.dta, replace
 import excel using raw/2012/ASSESSMENT_KPREP_EOC.xlsx, first case(lower) clear sheet(`"Public Alternative Programs"') allstring
 tempfile keoc
 qui: save `keoc'.dta, replace
-kdecombo ASSESSMENT_KPREP_EOC, sheets(`"`"Public Schools"' `"Assessment KPREP-EOC"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
-append using `keoc'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(1)
-drop dist_name sch_name sch_type category cntyno cntyname ncesid enrollment  ///   
-state_sch_id particip_rate coop coop_code sch_cd proficient_distinguished
-rename (dist_number sch_number test_type content_type sch_year content_level grade_level)(distid schid testnm content schyr schlev grade)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
+kdecombo ASSESSMENT_KPREP_EOC, y(2012 2012 2013 2014 2015 2016)				 ///    
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
+`"`"Assessment KPREP-EOC"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
 
-isid distid schid schyr content grade amogroup
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
+kdestandardize, primarykey(schyr schid content grade amogroup) grade(100) 	 ///   
+m(tested membership partic novice apprentice proficient distinguished) 
+
 
 qui: save clean/assessEOC.dta, replace
 
@@ -101,25 +86,13 @@ qui: save `kgr'.dta, replace
 kdecombo ASSESSMENT_KPREP_GRADE, sheets(`"`"Public Schools"' `"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
 append using `kgr'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(1)
-drop dist_name sch_name sch_type category cntyno cntyname ncesid enrollment  ///   
-state_sch_id particip_rate coop coop_code sch_cd proficient_distinguished
-rename (grade_level dist_number sch_number test_type content_level content_type sch_year)(grade distid schid testnm schlev content schyr)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
-isid distid schid schyr content grade amogroup
+kdecombo ASSESSMENT_KPREP_GRADE, y(2012 2012 2013 2014 2015 2016)			 ///   
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "' 				 ///   
+`"`"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
+
+kdestandardize, primarykey(schyr schid level content grade amogroup)		 ///   
+m(tested membership partic novice apprentice proficient distinguished)
+
 
 qui: save clean/assessKPREPgr.dta, replace
 
@@ -132,24 +105,12 @@ qui: save `klev'.dta, replace
 kdecombo ASSESSMENT_KPREP_LEVEL, sheets(`"`"Public Schools"' `"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"'"')  y(2012 2013 2014 2015)
 append using `klev'.dta
 
-achgrfmt, v(disagg_order) la(disagg_label) lan(amogroup) dis(0) nogr
-drop sch_cd dist_name sch_name sch_type category proficient_distinguished 	 ///   
-cntyno cntyname state_sch_id ncesid enrollment particip_rate coop coop_code
-rename (grade_level dist_number sch_number test_type content_level content_type sch_year)(grade distid schid testnm schlev content schyr)
-order distid schid schyr schlev content testnm grade amogroup tested novice apprentice proficient distinguished
-la var schyr "School Year"
-la var content "Subject Area"
-la var schlev "Educational Level"
-la var amogroup "Student Reporting Subgroups"
-la var tested "Number of Students Tested" 
-la var novice "Percent of Students Scoring Novice"
-la var apprentice "Percent of Students Scoring Apprentice"
-la var proficient "Percent of Students Scoring Proficient"
-la var distinguished "Percent of Students Scoring Distinguished"
-la var distid "District ID"
-la var schid "School ID"
-la var testnm "Test Name" 
-la var grade "Grade Level of Test" 
+kdecombo ASSESSMENT_KPREP_LEVEL, y(2012 2012 2013 2014 2015 2016)			 ///    
+sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
+`"`"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  
+
+kdestandardize, primarykey(schyr schid level content amogroup)				 ///   
+m(tested membership partic novice apprentice proficient distinguished)
 
 qui: save clean/assessKPREPlevel.dta, replace
 
@@ -208,55 +169,103 @@ qui: save clean/ctePerkins.dta, replace
 /*******************************************************************************
  * Accountability System Delivery Targets - College & Career Readiness	 	   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_CCR, sheets(`"`"Delivery Target CCR"' `"Delivery Target CCR"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
+import excel using raw/2012/DELIVERY_TARGET_CCR.xlsx, first case(lower) clear sheet(`"Delivery Target CCR"') allstring
+tempfile `tgt'.dta, replace
+kdecombo DELIVERY_TARGET_CCR, sheets(`"`"Delivery Target CCR"' `"Delivery Target CCR"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015 2016)
+append using `tgt'.dta
+kdestandardize, primarykey(schyr schid target)								 ///
+m(ccr2010 ccr2011 ccr2012 ccr2013 ccr2014 ccr2015 ccr2016 ccr2017)
 qui: save clean/targetCCR.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Graduation Rate Data	  		   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015)
+import excel using raw/2013/Delivery_TARGET_GRADUATION_RATE_COHORT.xlsx, first case(lower) clear sheet(`"Delivery Target Cohort Data"') allstring
+tempfile `cohort'.dta, replace
+kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015 2016)
+append using `cohort'.dta
+kdestandardize, primarykey(schyr schid cohort target amogroup)				 ///
+m(cohort2013 cohort2014 cohort2015 reportyear2014 reportyear2016 reportyear2017 reportyear2018 reportyear2019 reportyear2020)
 qui: save clean/targetGradRate.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Proficiency Gap Data		 	   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, sheets(`"`"Delivery Target ProficiencyGap"' `"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
+import excel using raw/2012/DELIVERY_TARGET_PROFICIENCY_GAP.xlsx, first case(lower) clear sheet(`"Delivery Target ProficiencyGap"') allstring
+tempfile `gap'.dta, replace
+kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, sheets(`"`"Delivery Target ProficiencyGap"' `"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015 2016)
+append using `gap'.dta
+kdestandardize, primarykey(schyr schid content amogroup target)				 ///
+m(yr2014 yr2015 yr2016 yr2017 yr2018 yr2019)
 qui: save clean/targetProfGap.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Kindergarten Readiness Screening   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_KSCREEN, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+import excel using raw/2014/DELIVERY_TARGET_KSCREEN.xlsx, first case(lower) clear sheet(`"Sheet 1"') allstring
+tempfile `kscrn'.dta, replace
+kdecombo DELIVERY_TARGET_KSCREEN, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
+append using `kscrn'.dta
+kdestandardize, primarykey(schyr schid kstype target amogroup)				 ///
+m(kscreen2013 kscreen2014 kscreen2015 kscreen2016 kscreen2017 kscreen2018)
 qui: save clean/targetKScreen.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Program Review					   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+import excel using raw/2014/DELIVERY_TARGET_PROGRAM_REVIEW.xlsx, first case(lower) clear sheet(`"Sheet 1"') allstring
+tempfile `pr'.dta, replace
+kdecombo DELIVERY_TARGET_PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
+append using `pr'.dta
+kdestandardize, primarykey(schyr schid target ptargettype)					 ///
+m(pr2013 pr2014 pr2015 pr2016 pr2017 pr2018
 qui: save clean/targetProgramReview.dta, replace
 
 /*******************************************************************************
  * Accountability System Learning Environment Student-Teacher Data	   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' `"Student-Teacher Detail"'"') y(2012 2013 2014 2015)
+import excel using raw/2012/LEARNING_ENVIRONMENT_STUDENT-TEACHERS.xlsx, first case(lower) clear sheet(`"Sheet1"') allstring
+tempfile `stdtch'.dta, replace
+kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' `"Student-Teacher Detail"' `"Student - Teacher Detail"'"') y(2012 2013 2014 2015 2016)
+append using `stdtch'.dta
+kdestandardize, primarykey(schyr schid grade)								 ///
+m(membershiptotal maletotal femaletotal whitemalecnt whitefemalecnt whitetotal blackmalecnt blackfemalecnt blacktotal hisapnicmalecnt hispanicfemalecnt hispanictotal asianmalecnt asianfemalecnt asiantotal ///
+	aianmalecnt aianfemalecnt aiantotal hawaiianmalecnt hawaiianfemalecnt hawaiiantotal twoormoreracemalecnt twoormoreracefemalecnt twoormoreracetotal)
 qui: save clean/envStudentTeacher.dta, replace
 
 /*******************************************************************************
  * Accountability System Learning Environment Teaching Methods Data			   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015)
+import excel using raw/2013/LEARNING_ENVIRONMENT_TEACHING_METHODS.xlsx, first case(lower) clear sheet(`"TEACHING METHODS"') allstring
+tempfile `mthd'.dta, replace
+kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015 2016)
+append using `mthd'.dta
+kdestandardize, primarykey(schyr schid pedagogy)							 ///
+m(onsiteclassroomcnt offsitectecnt offsitecollegecnt homehospitalcnt onlinecnt)
 qui: save clean/envTeachingMethods.dta, replace
 
 /*******************************************************************************
  * Accountability System Learning Environment Safety Data					   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_SAFETY, sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
+import excel using raw/2012/LEARNING_ENVIRONMENT_SAFETY.xlsx, first case(lower) clear sheet(`"Safety Data"') allstring
+tempfile `safe'.dta, replace
+kdecombo LEARNING_ENVIRONMENT_SAFETY, sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015 2016)
+append using `safe'.dta
+kdestandardize, primarykey(schyr schid rpthdr rptln)						 ///
+m(nwhite nblack nishp nasian naian npacisl nmulti nmale nfemale membership totevents)
 qui: save clean/safety.dta, replace
 
 /*******************************************************************************
  * Accountability System Program Review	Data								   *
  ******************************************************************************/
-kdecombo PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+import excel using raw/2014/PROGRAM_REVIEW.xlsx, first case(lower) clear sheet(`"Sheet 1"') allstring
+tempfile `pr'.dta, replace
+kdecombo PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
+append using `pr'.dta
+kdestandardize, primarykey(schyr schid level)								 ///
+m(totpts totscore ahcurrandinst ahformandsumm ahprofdevandsup ahadminandsup ahtotalpoints ahclassification plcurrandinst plformandsumm plprofdevandsup pladminandsup pltotalpoints plclassification ///
+wrcurrandinst wrformandsumm wrprofdevandsup wradminandsup wrtotalpoints wrclassification k3currandinst k3formandsumm k3profdevandsup k3adminandsup k3totalpoints k3classification ///
+wlcurrandinst wlformandsumm wlprofdevandsup wladminandsup wltotalpoints wlclassification)
 qui: save clean/programReview.dta, replace
 
 /*******************************************************************************
