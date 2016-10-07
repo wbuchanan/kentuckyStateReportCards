@@ -1880,7 +1880,7 @@ prog def kdestandardize
 	}	
 		
 	if 	`: list posof "membership_other_cnt" in x' != 0 {
-		qui: confirm var nmulti
+		cap confirm var nmulti
 		if _rc == 0 qui: replace nmulti = real(membership_other_cnt) if	 	 ///   
 					mi(nmulti) & !mi(membership_other_cnt)
 		else qui: g nmulti = real(membership_other_cnt)
