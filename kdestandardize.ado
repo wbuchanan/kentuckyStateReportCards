@@ -1888,8 +1888,10 @@ prog def kdestandardize
 	} 
 
 	if 	`: list posof "membership_other_pct" in x' != 0 {
-		qui: replace pctmulti = real(membership_other_pct) if mi(pctmulti) & ///   
-		!mi(membership_other_pct)
+		cap confirm var pctmulti
+		if _rc == 0 qui: replace pctmulti = real(membership_other_pct) if 	 ///   
+						 mi(pctmulti) & !mi(membership_other_pct)
+		else g pctmulti = real(membership_other_pct)				 
 		drop membership_other_pct
 	} 
 
