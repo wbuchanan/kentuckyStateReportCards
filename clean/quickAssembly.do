@@ -203,13 +203,33 @@ qui: save clean/targetProgramReview.dta, replace
 /*******************************************************************************
  * Accountability System Learning Environment Student-Teacher Data	   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' `"Student-Teacher Detail"'"') y(2012 2013 2014 2015)
+kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, y(2012 2013 2014 2015 2016) ///   
+sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' "'				 ///   
+`"`"Student-Teacher Detail"' `"Student - Teacher Detail"'"')
+
+kdestandardize, primarykey(fileid schyr schid grade) m(membership ppe ada 	 ///   
+adarate nfemale nmale naian naianf naianm nasian nasianf nasianm nblack 	 ///   
+nblackf nblackm nhisp nhispf nhispm nmulti nmultif nmultim npacisl npacislf  ///   
+npacislm nwhite nwhitef nwhitem nfrl nfreelnch nredlnch ncollege nincollege  ///   
+noutcollege nfailure nmilitary nparttime nvocational nworkforce 			 ///   
+councilparent ptconf sbdmvote volunteertime nnbct nfte femalefte malefte 	 ///   
+tchexp stdcompratio stdtchratio droprate gradrate retrate pctfemale pctmale  ///   
+pctaian pctasian pctblack pcthisp pctmulti pctpacisl pctwhite pctfrl 		 ///   
+pctfreelnch pctredlnch pctcollege pctincollege pctoutcollege pctfailure 	 ///   
+pctmilitary pctparttime pctvocational pctworkforce pctdr pctnothq pctoldcomp ///   
+pctprovcert pctqualba pctqualma pctqualrank1 pctqualspecialist pctqualtch)
+
+drop if mi(membership)
+
 qui: save clean/envStudentTeacher.dta, replace
 
 /*******************************************************************************
  * Accountability System Learning Environment Teaching Methods Data			   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015)
+kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, y(2013 2014 2015 2016) 		 ///   
+sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
+
+
 qui: save clean/envTeachingMethods.dta, replace
 
 /*******************************************************************************
