@@ -40,7 +40,7 @@ prog def amogroup
 		
 	}
 	
-	qui: `labs'
+	qui: `labs', modify
 	
 	if `"`laname'"' != "" {
 		qui: rename `varlist' `laname'

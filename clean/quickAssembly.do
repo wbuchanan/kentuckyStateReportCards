@@ -10,9 +10,16 @@ sheets(`"`"Accountability Gap Level Data"' `"ACCOUNTABILITY GAP LEVEL"' "'	 ///
 kdestandardize, primarykey(fileid schyr schid content level) m(tested novice ///   
 apprentice proficient distinguished profdist napd)
 
+save clean/acctGapLevel.dta, replace
 
+kdecombo ACCOUNTABILITY_GROWTH, y(2012 2013 2014 2015 2016) 				 ///   
+sheets(`"`"Accountability Growth Data"' `"ACCOUNTABILITY GROWTH"' "'		 ///   
+`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
 
+kdestandardize, primarykey(fileid schyr schid level) m(sgptested sgprla 	 ///   
+sgpmth sgpboth cattested catrla catmth catboth)
 
+save clean/acctGrowth.dta, replace
 
 kdecombo ACCOUNTABILITY_CCR_HIGHSCHOOL, y(2012 2013 2014 2015 2016) 		 ///   
 sheets(`"`"Accountability CCR High School"' "'								 ///   
@@ -21,12 +28,17 @@ sheets(`"`"Accountability CCR High School"' "'								 ///
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(diplomas 	 ///   
 collready caracad cartech cartot nregular pctwobonus pctwbonus)
 
+save clean/ccrHighSchool.dta, replace
+
+
 kdecombo ACCOUNTABILITY_CCR_MIDDLESCHOOL, y(2012 2013 2014 2015) 			 ///   
 sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///   
 `"`"Sheet 1"' `"Sheet 1"'"')
 
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(tested 	 ///   
 totpts actengpct actrlapct actmthpct actscipct)
+
+save clean/ccrMiddleSchool.dta, replace
 
 
 kdecombo ACCOUNTABILITY_ACHIEVEMENT_GRADE, y(2012 2013 2014 2015 2016)		 ///   
@@ -35,6 +47,17 @@ sheets(`"`"Acct Achievement Grade Data"' `"ACCT ACHIEVEMENT GRADE"' "'		 ///
 
 kdestandardize, primarykey(fileid schyr schid level grade content amogroup)	 ///   
 m(tested novice apprentice proficient distinguished profdist napd napdbonus)
+
+save clean/acctAchievementGrade.dta, replace
+
+kdecombo ACCOUNTABILITY_ACHIEVEMENT_LEVEL, y(2012 2013 2014 2015 2016)		 ///   
+sheets(`"`"Acct Achievement Level Data"' `"ACCT Achievement Level"' "'		 ///   
+`"`"Sheet1"' `"Sheet1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid level content amogroup)		 ///   
+m(tested novice apprentice proficient distinguished profdist napd napdbonus)
+
+save clean/acctAchievementLevel.dta, replace
 
 
 /*******************************************************************************
@@ -84,6 +107,21 @@ m(tested actengsc actengpct actmthsc actmthpct actrlasc actrlapct actscisc 	 ///
 actcmpsc bnchmrktested) grade(99)
 
 qui: save clean/assessACT.dta, replace
+
+
+/*******************************************************************************
+ * Advanced Placement Assessment Data										   *
+ ******************************************************************************/
+
+kdecombo ASSESSMENT_ADVANCE_PLACEMENT, y(2013 2014 2015 2016) 				 ///   
+sheets(`"`"ADVANCE PLACEMENT Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+drop disagg_order
+
+kdestandardize, primarykey(fileid schyr schid amogroup) m(ntested pcttested  ///   
+nexams ncredit pctcredit)
+
+
 
 /*******************************************************************************
  * Accountability System Explore data										   *
@@ -163,6 +201,20 @@ qui: append using clean/assessKPREPgr.dta
 qui: save clean/kprep.dta, replace
 
 /*******************************************************************************
+ * Accountability System Kindergarten Screening Assessment Data	   *
+ ******************************************************************************/
+
+kdecombo ASSESSMENT_KSCREEN, y(2014 2015 2016) sheets(`"`"Sheet 1"' "'		 ///   
+`"`"Sheet 1"' `"Sheet 1"'"')  
+
+kdestandardize, primarykey(fileid schyr schid kstype amogroup) m(cndenr 	 ///   
+cndtested cndpartic shseenr shsetested shsepartic knotready kready cogblw 	 ///   
+cogavg cogabv lanblw lanavg lanabv phyblw phyavg phyabv slfblw slfavg slfabv ///   
+selblw selavg selabv)
+
+qui: save clean/assessKscreen.dta, replace
+
+/*******************************************************************************
  * Accountability System NRT Assessment Data	   *
  ******************************************************************************/
 
@@ -231,13 +283,55 @@ qui: save clean/targetGradRate.dta, replace
 /*******************************************************************************
  * Accountability System Delivery Targets - Proficiency Gap Data		 	   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, sheets(`"`"Delivery Target ProficiencyGap"' `"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015 2016)
+kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, y(2012 2013 2014 2015 2016) 		 ///   
+sheets(`"`"Delivery Target ProficiencyGap"' "'								 ///   
+`"`"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+drop target_type dist_name sch_name category cntyno cntyname dist_number 	 ///   
+sch_number state_sch_id ncesid coop coop_code
+
+kdestandardize, primarykey(fileid schyr schid content level target amogroup) ///   
+m(yr2012 yr2013 yr2014 yr2015 yr2016 yr2017 yr2018 yr2019)
+
+drop *order
+
 qui: save clean/targetProfGap.dta, replace
+
+kdecombo FINANCE, y(2015 2015 2015 2015 2016) sheets(`"`"2011-2012"' "'		 ///   
+`"`"2012-2013"' `"2013-2014"' `"2014-2015"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid fintype finlabel) m(finvalue finrank)
+
+qui: encode finlabel, gen(x)
+drop finlabel
+mata: vals = J(0, 0, .)
+mata: labs = J(0, 0, "")
+mata: st_vlload("x", vals, labs)
+
+reshape wide finvalue finrank, i(fileid schyr schid fintype) j(x)
+
+mata:
+for (i = 1; i <= 58; i++) {
+	st_varlabel("finvalue" + strofreal(i), "$ for " + labs[i, 1])
+	st_varlabel("finrank" + strofreal(i), "Rank for " + labs[i, 1])
+}
+end
+foreach v of var finvalue* {
+	qui: replace `v' = cond(`v' == "Yes", "1", cond(`v' == "No", "0", `v'))
+	qui: destring `v', replace ignore ("*,R %$")
+}
+
+save clean/finance.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Kindergarten Readiness Screening   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_KSCREEN, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
+kdecombo DELIVERY_TARGET_KSCREEN, y(2014 2015 2016) 						 ///   
+sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet1"'"')
+
+kdestandardize, primarykey(fileid schyr schid kstype target amogroup)		 ///   
+m(kscreen2013 kscreen2014 kscreen2015 kscreen2016 kscreen2017 kscreen2018)
+
 qui: save clean/targetKScreen.dta, replace
 
 /*******************************************************************************
@@ -250,6 +344,10 @@ kdestandardize, primarykey(fileid schyr schid targetyr) m(met nactual 		 ///
 ndelivery pctactual pctdelivery)
 
 qui: save clean/targetProgramReview.dta, replace
+
+
+
+
 
 /*******************************************************************************
  * Accountability System Learning Environment Student-Teacher Data	   *
@@ -280,6 +378,8 @@ qui: save clean/envStudentTeacher.dta, replace
 kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, y(2013 2014 2015 2016) 		 ///   
 sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
 
+kdestandardize, primarykey(fileid schyr schid pedagogy) m(nonsitecls 		 ///   
+noffsitecte noffsitecol nhomehosp nonline)
 
 qui: save clean/envTeachingMethods.dta, replace
 
@@ -289,8 +389,22 @@ qui: save clean/envTeachingMethods.dta, replace
 kdecombo LEARNING_ENVIRONMENT_SAFETY, y(2012 2013 2014 2015 2016) 			 ///   
 sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
 
+kdestandardize, primarykey(fileid schyr schid rpthdr rptln) m(membership	 ///   
+totevents nfemale nmale naian nasian nblack nhisp nmulti npacisl nwhite)
 
-qui: save clean/safety.dta, replace
+qui: save clean/envSafety.dta, replace
+
+
+kdecombo LEARNING_ENVIRONMENT_PROGRAMS, y(2013 2013 2013 2013 2014 2014 2014 ///   
+2014 2015 2015 2015 2015 2016) sheets(`"`"Gifted and Talented"' "'			 ///   
+`"`"Migrant"' `"English Language Learners (ELL)"' `"Special Education"' "'   ///   
+`"`"Gifted"' `"Migrant"' `"ELL"' `"Special Ed"' `"Gifted"' `"Migrant"' "'	 ///   
+`"`"ELL"' `"Special Ed"' `"Sheet 1"'"')
+
+rename disagg_label program_label
+kdestandardize, primarykey(fileid schyr schid progtype proggroup) m(membership totpct)
+
+qui: save clean/envPrograms.dta, replace
 
 /*******************************************************************************
  * Accountability System School Profiles									   *
