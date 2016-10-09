@@ -1,4 +1,43 @@
 /*******************************************************************************
+ * Accountability GAP Level				                                       *
+ ******************************************************************************/
+
+// Combines all of the accountability profile files/worksheets
+kdecombo ACCOUNTABILITY_GAP_LEVEL, y(2012 2013 2014 2015 2016) 				 ///   
+sheets(`"`"Accountability Gap Level Data"' `"ACCOUNTABILITY GAP LEVEL"' "'	 ///   
+`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid content level) m(tested novice ///   
+apprentice proficient distinguished profdist napd)
+
+
+
+
+
+kdecombo ACCOUNTABILITY_CCR_HIGHSCHOOL, y(2012 2013 2014 2015 2016) 		 ///   
+sheets(`"`"Accountability CCR High School"' "'								 ///   
+`"`"Accountability CCR High School"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(diplomas 	 ///   
+collready caracad cartech cartot nregular pctwobonus pctwbonus)
+
+kdecombo ACCOUNTABILITY_CCR_MIDDLESCHOOL, y(2012 2013 2014 2015) 			 ///   
+sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///   
+`"`"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(tested 	 ///   
+totpts actengpct actrlapct actmthpct actscipct)
+
+
+kdecombo ACCOUNTABILITY_ACHIEVEMENT_GRADE, y(2012 2013 2014 2015 2016)		 ///   
+sheets(`"`"Acct Achievement Grade Data"' `"ACCT ACHIEVEMENT GRADE"' "'		 ///   
+`"`"Sheet1"' `"Sheet1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid level grade content amogroup)	 ///   
+m(tested novice apprentice proficient distinguished profdist napd napdbonus)
+
+
+/*******************************************************************************
  * Accountability System School Profiles                                       *
  ******************************************************************************/
 
@@ -174,30 +213,42 @@ kdecombo DELIVERY_TARGET_CCR, y(2012 2013 2014 2015 2016)					 ///
 sheets(`"`"Delivery Target CCR"' `"Delivery Target CCR"' `"Sheet 1"' "'		 ///   
 `"`"Sheet 1"' `"Sheet 1"'"') 
 
+kdestandardize, primarykey(fileid schid schyr targetyr) m(met pctactual 	 ///   
+pctdelivery)
+
 qui: save clean/targetCCR.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Graduation Rate Data	  		   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"'"') y(2013 2014 2015)
+kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, y(2013 2014 2015 2016) 	 ///   
+sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
+
+
+
 qui: save clean/targetGradRate.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Proficiency Gap Data		 	   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, sheets(`"`"Delivery Target ProficiencyGap"' `"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
+kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, sheets(`"`"Delivery Target ProficiencyGap"' `"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015 2016)
 qui: save clean/targetProfGap.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Kindergarten Readiness Screening   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_KSCREEN, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+kdecombo DELIVERY_TARGET_KSCREEN, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
 qui: save clean/targetKScreen.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Program Review					   *
  ******************************************************************************/
-kdecombo DELIVERY_TARGET_PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+kdecombo DELIVERY_TARGET_PROGRAM_REVIEW, y(2014 2015 2016) 					 ///   
+sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid targetyr) m(met nactual 		 ///   
+ndelivery pctactual pctdelivery)
+
 qui: save clean/targetProgramReview.dta, replace
 
 /*******************************************************************************
@@ -235,7 +286,10 @@ qui: save clean/envTeachingMethods.dta, replace
 /*******************************************************************************
  * Accountability System Learning Environment Safety Data					   *
  ******************************************************************************/
-kdecombo LEARNING_ENVIRONMENT_SAFETY, sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"'"') y(2012 2013 2014 2015)
+kdecombo LEARNING_ENVIRONMENT_SAFETY, y(2012 2013 2014 2015 2016) 			 ///   
+sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+
 qui: save clean/safety.dta, replace
 
 /*******************************************************************************
@@ -275,7 +329,7 @@ import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) 
 qui: save `part12'.dta, replace
 import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"') allstring
 qui: save `part13'.dta, replace
-kdecombo ACCOUNTABILITY_FEDERAL_DATA_PARTICIPATION_RATE, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+kdecombo ACCOUNTABILITY_FEDERAL_DATA_PARTICIPATION_RATE, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
 append using `part12'.dta
 append using `part13'.dta
 save clean/participationRates.dta, replace
@@ -288,7 +342,7 @@ import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) 
 qui: save `oth12'.dta, replace
 import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"') allstring
 qui: save `oth13'.dta, replace
-kdecombo ACCOUNTABILITY_FEDERAL_DATA_ATTENDANCE, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
+kdecombo ACCOUNTABILITY_FEDERAL_DATA_ATTENDANCE, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
 append using `oth12'.dta
 append using `oth13'.dta
 save clean/amoOtherIndicators.dta, replace

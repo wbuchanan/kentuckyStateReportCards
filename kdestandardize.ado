@@ -53,7 +53,7 @@ prog def kdestandardize
 					
 	// Define value labels for test names				
 	la def testnm 	1 "KPREP" 2 "ACCESS" 3 "ACT" 4 "Explore" 5 "Plan" 		 ///   
-					6 "NRT" 7 "PPSAT" 8 "PSAT", modify	
+					6 "NRT" 7 "PPSAT" 8 "PSAT" 9 "CCR" 10 "CCR Explore", modify	
 
 	// Define value labels for grade levels				
 	la def grade -2 "Early Childhood" -1 "Pre-K" 0 "Kindergarten" 			 ///   
@@ -62,7 +62,7 @@ prog def kdestandardize
 				 9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 				 ///   
 				 12 "12th Grade" 98 "Adult Education" 99 "High School" 		 ///   
 				 97 "Magical KDE Undefined Grade" 100 "All Grades" 			 ///   
-				 14 "IDEA", modify
+				 14 "IDEA" 15 "Another Magical Grade Invented by KDE", modify
 
 	// Define value labels for whether or not AMOs are met			 
 	la def amomet 0 "Did not meet AMOs" 1 "Met AMOs", modify
@@ -311,6 +311,51 @@ prog def kdestandardize
 		
 	} // End Handling of disagg_label and disagg_order variables
 	
+	// Handles files that have AMO disaggregation groups in the variable list
+	if 	`: list posof "disagg_label" in x' != 0 & 							 ///   
+		`: list posof "disagg_order" in x' == 0 {
+	
+			la def amogroup 0 "All Students" 1 "Male" 2 "Female" 			 ///   
+						3 "White (Non-Hispanic)" 4 "African American" 		 ///   
+						5 "Hispanic" 6 "Asian" 								 ///   
+						7 "American Indian or Alaska Native" 				 ///   
+						8 "Native Hawaiian or Other Pacific Islander" 		 ///   
+						9 "Two or More Races" 10 "Migrant" 					 ///   
+						11 "English Learners" 12 "Free/Reduced-Price Meals"  ///   
+						13 "Disability-With IEP (Total)"  					 ///   
+						15 "Disability-With Accommodation (not including Alternate)"   ///   
+						16 "Disability-Alternate Only" 						 ///   
+						17 "Gap Group (non-duplicated)" 18 "Gifted/Talented", modify
+
+		loc dl disagg_label
+
+		// Create AMO group variable for cases when there is only the disagg_label
+		// And no disagg_order variable
+		qui: g amogroup = cond(`dl' == `"All Students"', 0,					 ///   
+		cond(`dl' == `"Male"', 1,											 ///   
+		cond(`dl' == `"Female"', 2,											 ///   
+		cond(`dl' == `"White (Non-Hispanic)"', 3,							 ///   
+		cond(`dl' == `"African American"', 4,								 ///   
+		cond(`dl' == `"Hispanic"', 5,										 ///   
+		cond(`dl' == `"Asian"', 6,											 ///   
+		cond(`dl' == `"American Indian or Alaska Native"', 7,				 ///   
+		cond(`dl' == `"Native Hawaiian or Other Pacific Islander"', 8,		 ///   
+		cond(`dl' == `"Two or more races"', 9,								 ///   
+		cond(`dl' == `"Migrant"', 10,										 ///   
+		cond(inlist(`dl', `"Limited English Proficiency"', `"English Learners"'), 11, ///   
+		cond(`dl' == `"Free/Reduced-Price Meals"', 12,						 ///   
+		cond(`dl' == `"Disability-With IEP (Total)"', 13,					 ///   
+		cond(`dl' == `"Disability-With Accommodation (not including Alternate)"', 15, ///   
+		cond(`dl' == `"Disability-Alternate Only"', 16,						 ///   
+		cond(inlist(`dl', `"GAP"', `"Gap Group (non-duplicated)"'), 17,		 ///   
+		cond(`dl' == "Gifted/Talented", 18,									 ///   
+		cond(mi(`dl') & schyr <= 2013, 0, 14)))))))))))))))))))
+		
+		la val amogroup amogroup
+		la var amogroup "Federally Required AMO Reporting Subgroups"
+	
+	}
+	
 	// Handles the content_level variable
 	if `: list posof "content_level" in x' != 0 { 
 		loc cl content_level
@@ -334,8 +379,12 @@ prog def kdestandardize
 							 cond(test_type == "EXPLORE", "4",				 ///   
 							 cond(test_type == "PLAN", "5",					 ///   
 							 cond(test_type == "NRT", "6",					 ///   
-							 cond(test_type == "PPSAT", "7", "8"))))))) 
-		
+							 cond(test_type == "PPSAT", "7", 				 ///   
+							 cond(test_type == "PSAT", "8", 				 ///   
+							 cond(test_type == "CCR", "9", 					 ///   
+							 cond(test_type == "CCR EXPLORE", "10", "")))))))))) 
+		qui: levelsof test_type, loc(tests)
+		if `: word count `tests'' == 1 & mi(test_type) qui: replace test_type = `tests'
 		qui: levelsof fileid, loc(files)
 		qui: loc nfref la def fileid 
 		foreach fref of loc files {
@@ -414,6 +463,7 @@ prog def kdestandardize
 	
 	// Handles instances of the grade variable
 	if `: list posof "grade" in x' != 0 {
+		qui: replace grade = "15" if grade == "EO"
 		qui: replace grade = ustrregexra(grade, "[gG][rR][aA][dD][eE] ", "")
 		qui: replace grade = cond(grade == "K", "0", cond(grade == "00", "97", grade))
 		qui: destring grade, replace ignore("*,-R %$")
@@ -515,6 +565,19 @@ prog def kdestandardize
 		qui: destring distinguished, replace ignore("*,-R %$")
 		la var distinguished "% of Students Scoring Distinguished"
 	} // End of handling of the  variable
+	
+	if `: list posof "pct_proficient_distinguished" in x' != 0 {
+		qui: rename pct_proficient_distinguished profdist
+		qui: destring profdist, replace ignore("*,-R %$")
+		la var profdist "% of Students Scoring Proficient or Distinguished"
+	} // End of handling of the  variable
+	
+	if `: list posof "pct_bonus" in x' != 0 {
+		qui: g napdbonus = real(pct_bonus)
+		drop pct_bonus
+		la var napdbonus "% Points added to the NAPD calculation if # distinguished > # novice"
+	}	
+
 	
 	// Handles dropping records containing no test data if file contains test data
 	if `: list testlevs in x' != 0 {
@@ -782,6 +845,7 @@ prog def kdestandardize
 	if `: list posof "napd_calculation" in x' != 0 {
 		qui: destring napd_calculation, replace ignore("*,-R %$")
 		qui: rename napd_calculation napd	
+		la var napd "Novice * 0 + Apprentice + 0.5 + Proficient + Distinguished"
 	} // End of handling of the napd_calculation variable
 	
 	// Handles instances of the reading_pct variable
@@ -1031,6 +1095,13 @@ prog def kdestandardize
 		qui: destring actmthpct, replace ignore("*,-R %$")
 		la var actmthpct "% of Students Meeting ACT Mathematics Benchmark"
 	} // End of handling of the mathematics_bnchmrk_pct variable
+	
+	// Handles instances of the math_bnchmrk_pct variable
+	if `: list posof "math_bnchmrk_pct" in x' != 0 {
+		qui: rename math_bnchmrk_pct actmthpct
+		qui: destring actmthpct, replace ignore("*,-R %$")
+		la var actmthpct "% of Students Meeting ACT Mathematics Benchmark"
+	} // End of handling of the math_bnchmrk_pct variable
 	
 	// Handles instances of the reading_mean_score variable
 	if `: list posof "reading_mean_score" in x' != 0 {
@@ -1371,19 +1442,6 @@ prog def kdestandardize
 		la var ccrpct "Total % of College AND Career Ready Students"
 	}	 
 	
-	if ustrregexm(`"`x'"', "ccr_[0-9]{4}") == 1 {
-		rename ccr_# ccr#
-		qui: ds ccr????
-		foreach v of var ccr???? {
-			qui: replace `v' = 	cond(`v' == "Yes", "1", 					 ///   
-								cond(`v' == "No", "0", 						 ///   
-								cond(`v' == "N/A", ".n", `v')))
-			qui: destring `v', replace ignore("*,-R %$")
-			la val `v' met
-			la var `v' `"College and Career Readiness Goal for `: subinstr loc v "ccr" "", all'"'
-		}
-	}
-	
 	if `: list posof "performance_measure" in x' != 0 {
 		qui: rename performance_measure prknsmeasure
 		qui: replace prknsmeasure = cond(regexm(prknsmeasure, "Read"), "1",	 ///   
@@ -1430,8 +1488,8 @@ prog def kdestandardize
 	// Handles instances of the  variable
 	if `: list posof "target_level" in x' != 0 {
 		loc tl target_level
-		qui: replace target_level = cond(`rx'(`cl', "elem.*", 1) == 1, "1", ///   
-									 cond(`rx'(`cl', "mid.*", 1) == 1, "2", "3"))
+		qui: replace target_level = cond(`rx'(`tl', "elem.*", 1) == 1, "1", ///   
+									 cond(`rx'(`tl', "mid.*", 1) == 1, "2", "3"))
 		qui: rename target_level level
 		qui: destring level, replace ignore("*,-R %$")
 		la val level level
@@ -1516,11 +1574,32 @@ prog def kdestandardize
 		qui: ds progrev*
 		qui: drop if nullrecord == `: word count `r(varlist)''
 		qui: drop nullrecord
-		deltargets, st(progrev) pk(fileid schid schyr)
+		deltargets, st(progrev) pk(fileid schid schyr) tar(targettype)
 		la val met met
 		
 	}
 
+
+	
+	if ustrregexm(`"`x'"', "ccr_[0-9]{4}") == 1 {
+		rename ccr_# ccr#
+		foreach v of var ccr???? {
+			qui: replace `v' = 	cond(`v' == "Yes", "1", 					 ///   
+								cond(`v' == "No", "0", 						 ///   
+								cond(`v' == "N/A", ".n", `v')))
+			qui: destring `v', replace ignore("*,-R %$")
+		}
+		qui: egen nullrecord = rowmiss(ccr*)
+		qui: ds ccr*
+		qui: drop if nullrecord == `: word count `r(varlist)''
+		qui: drop nullrecord
+		qui: g targettype = 2
+		deltargets, st(ccr) pk(fileid schid schyr) tar(targettype)
+
+	}
+	
+
+	
 	
 	
 	// Handles instances of the  variable EQUITY_MEASURE
@@ -2196,12 +2275,11 @@ prog def kdestandardize
 		
 	//Handles instance of the COHORT_TYPE variable
 	if `: list posof "cohort_type" in x' !=0 {
-		qui: rename cohort_type cohort
-		qui: replace cohort = cond(cohort == "FIVE YEAR", "0",				 ///
-							  cond(cohort == "FOUR YEAR", "1", ""))
-		qui: destring cohort, replace ignore ("*-R %")
-		la val cohort cohort
-		la var cohort "Graduation Rate Adjusted Cohort"
+		qui: rename cohort_type targettype
+		qui: replace targettype = cond(targettype == "FIVE YEAR", "1",		 ///
+							  cond(targettype == "FOUR YEAR", "0", ""))
+		qui: destring targettype, replace ignore ("*-R %")
+		qui: replace targettype = 0 if mi(targettype) & schyr <= 2013
 	} //End of handling of the COHORT_TYPE variable
 	
 	//Handles instances of the RPT_LINE variable
@@ -2682,6 +2760,24 @@ prog def kdestandardize
 		qui: rename coop_cd coopid 
 		la var coopid "Cooperative ID Number"
 	}
+	
+		if ustrregexm(`"`x'"', "cohort_[0-9]{4}") == 1 {
+		rename cohort_# cohort#
+		foreach v of var cohort???? {
+			qui: replace `v' = 	cond(upper(`v') == "YES", "1", 				 ///   
+								cond(upper(`v') == "NO", "0", 				 ///   
+								cond(upper(`v') == "N/A", ".n", 			 ///   
+								cond(upper(`v') == "***", ".s", 			 ///   
+								cond(upper(`v') == "---", ".d", `v')))))
+			qui: destring `v', replace ignore("*,-R %$")
+		}
+		qui: egen nullrecord = rowmiss(cohort*)
+		qui: ds cohort*
+		qui: drop if nullrecord == `: word count `r(varlist)''
+		drop nullrecord		
+		deltargets, st(cohort) pk(fileid schid schyr amogroup) tar(targettype)
+	}	
+	
 
 	// Handles instances of the sch_name variable
 	if `: list posof "sch_name" in x' != 0 {
@@ -2750,60 +2846,105 @@ end
 // Subroutine for handling reshaping the delivery targets data 
 prog def deltargets
 
-	syntax, STub(string asis) Pk(varlist) 
+	syntax, STub(string asis) Pk(varlist) [ TARgettype(string asis) 		 ///   
+	i1(string asis) i2(string asis) i3(string asis) j1(string asis) 		 ///   
+	j2(string asis) j3(string asis) ]
 	
-		qui: reshape long `stub', i(`pk' target targettype) j(targetyr)
-		
-		qui: reshape wide `stub', i(`pk' targetyr target) j(targettype)
-		rename (`stub'1 `stub'2)(n pct)
-		qui: reshape wide n pct, i(`pk' targetyr) j(target)
-		la def met .n "N/A" 0 "No" 1 "Yes"
-		la var targetyr "Delivery Target Year"
+		if `"`targettype'"' == "" loc targettype targettype
+		if `"`i1'"' == "" loc i1 `pk' target `targettype'
+		if `"`j1'"' == "" loc j1 targetyr
+		if `"`i2'"' == "" loc i2 `pk' targetyr target
+		if `"`j2'"' == "" loc j2 `targettype'
+		if `"`i3'"' == "" loc i3 `pk' targetyr
+		if `"`j3'"' == "" loc j3 target
 		cap drop ncesid
-		qui: ds n* 
-		loc targets `r(varlist)'
-		if `: list posof "n1" in targets' != 0 {
-			qui: rename (n1 pct1)(nactual pctactual)
-			la var nactual "Actual Score # Target"
-			la var pctactual "Actual Score % Target"
+
+		qui: reshape long `stub', i(`i1') j(`j1')
+		qui: reshape wide `stub', i(`i2') j(`j2')
+		qui: ds `stub'
+		loc x `r(varlist)'
+		if `: word count `x'' == 2 {
+			rename (`stub'1 `stub'2)(n pct)
+			qui: reshape wide n pct, i(`i3') j(`j3')
+		}
+		else {
+			rename `stub'* pct
+			qui: g byte n = .
+			qui: reshape wide n pct, i(`i3') j(`j3')
+			drop n?
 		}
 		
-		if `: list posof "n2" in targets' != 0 {
-			qui: rename (n2 pct2)(ndelivery pctdelivery)
-			la var ndelivery "Delivery Target # Target"
-			la var pctdelivery "Delivery Target % Target"
+		
+		la def met .n "N/A" 0 "No" 1 "Yes", modify
+		la var `j1' "Delivery Target Year"
+		qui: ds pct* 
+		loc targets `r(varlist)'
+		if `: list posof "pct1" in targets' != 0 {
+			cap {
+				rename n1 nactual
+				la var nactual "Actual Score # Target"
+			}
+			cap {
+				qui: rename pct1 pctactual
+				la var pctactual "Actual Score % Target"
+			}
+		}	
+		
+		if `: list posof "pct2" in targets' != 0 {
+			cap {
+				rename n2 ndelivery
+				la var ndelivery "Delivery Target # Target"
+			}
+			cap {
+				qui: rename pct2 pctdelivery
+				la var pctdelivery "Delivery Target % Target"
+			}
 		}
 		
 		if `: word count `targets'' == 5 {
 		
-			if `: list posof "n3" in targets' != 0 {
-				qui: rename (n3 pct3)(nnum pctnum)
-				la var nnum "Numerator # Target"
-				la var pctnum "Numerator % Target"
+			if `: list posof "pct3" in targets' != 0 {
+				cap {
+					rename n3 nnum
+					la var nnum "Numerator # Target"
+				}
+				cap {
+					qui: rename pct3 pctnum
+					la var pctnum "Numerator % Target"
+				}
 			}
 			
-			if `: list posof "n4" in targets' != 0 {
-				qui: rename (n4 pct4)(nden pctden)
-				la var nden "Denominator # Target"
-				la var pctden "Denominator % Target"
+			if `: list posof "pct4" in targets' != 0 {
+				cap {
+					rename n3 nden
+					la var nden "Denominator # Target"
+				}
+				cap {
+					qui: rename pct3 pctden
+					la var pctden "Denominator % Target"
+				}
 			}
 			
-			if `: list posof "n5" in targets' != 0 {
-				qui: rename pct5 met
-				drop n5
-				qui: compress met
-				la val met met
-				la var met "Met % Target"
+			if `: list posof "pct5" in targets' != 0 {
+				cap {
+					qui: rename pct5 met
+					qui: compress met
+					la val met met
+					la var met "Met Target"
+					assert pctactual > pctdelivery if met == 1
+				}
 			}
 			
 		}
 		
 		else if `: word count `targets'' == 3 {
-			qui: rename pct5 met
-			drop n5
-			qui: compress met
-			la val met met
-			la var met "Met Target"
+			cap {
+				qui: rename pct5 met
+				qui: compress met
+				la val met met
+				la var met "Met Target"
+				assert pctactual > pctdelivery if met == 1
+			}
 		}
 		
 end
