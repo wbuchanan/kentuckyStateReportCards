@@ -259,7 +259,7 @@ prog def kdestandardize
 				   8 `"Technical Skill Attainment - 2S1"', modify
 				   
 	   // Define COHORT_TYPE
-	   la def cohort 0 `"FIVE YEAR"'										 ///
+	   la def cohort 2 `"FIVE YEAR"'										 ///
 					 1 `"FOUR YEAR"', modify
 
 	}  // End of value label definitions
@@ -1533,9 +1533,9 @@ prog def kdestandardize
 		qui: rename target_label target
 		qui: replace target = 	cond(target == "Actual Score", "1",			 ///    
 								cond(inlist(target, "Target", "Delivery Target"), "2", ///   
-								cond(target == "Numerator", "3",			 ///   
-								cond(target == "Denominator", "4",			 ///   
-								cond(target == "Met Target", "5", ""))))) 
+								cond(ustrregexm(target, ".*numerator.*", 1) == 1, "3",		 ///   
+								cond(ustrregexm(target, ".*denominator.*", 1) == 1, "4",	 ///   
+								cond(target == "Met Target", "5", "")))))  
 		qui: destring target, replace ignore("*,-R %$")
 		la val target target
 		la var target "Accountability Component Targets"
@@ -1630,49 +1630,70 @@ prog def kdestandardize
 
 	}
 	
-
-	
-	
-	
-	// Handles instances of the  variable EQUITY_MEASURE
-	if `: list posof "equity_measure" in x' != 0 {
-	//Recodes equity measure variable with numeric values
-		qui: replace equity_measure=cond(equity_measure == "Community Support and Involvement Composite", "1", ///
-									cond(equity_measure == "Managing Student Conduct Composite", "2",  ///
-									cond(equity_measure == "Overall Effectiveness of School Teachers and Leaders", "3",  ///
-									cond(equity_measure == "Overall Student Growth Rating of Teachers and Leaders", "4", ///
-									cond(equity_measure == "Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers", "5", ///
-									cond(equity_measure == "Percentage of Teacher Turnover", "6", ///
-									cond(equity_measure == "School Leadership Composite", "7", ""))))))) ///
-	//Rename Equity_Measure variable
-	qui: rename equity_measure eqmeasure
-	//Recasts the values to numeric types
-	qui: destring eqmeasure,replace ignore("*,-R %$")
-	//Applies value labels to the variable
-	la val eqmeasure eqmeasure
-	//Applies variable label to the variable
-	la var eqmeasure "Equity Measure"
-									
-	} // End of handling of the Equity_Measure  variable
-	
-	// Handles instances of the EQ_LABEL variable
-	if `: list posof "EQ_LABEL" in x' != 0 {
-		qui: replace eq_label=cond(`rx'(eq_label, "Exemplary/ Accomplished.*", 1), "1", ///
-							  cond(eq_label == "High/Expect.*", "2",         ///
-							  cond(eq_label == "School-Level.*", "3",        ///
-							  cond(eq_label == "Strongly Agree/Agree.*", "4")))) 
-		qui: rename eq_label eqlabel
-		qui: destring eqlabel, replace ignore("*,-R %$")
-		la val eqlabel eqlabel
-		la var eqlabel "Equity Label"
-	} // End of handling of the EQ_LABEL variable
-	
 	// Handles instances of the EQ_PCT variable
 	if `: list posof "eq_pct" in x' != 0 {
-	qui: rename eq_pct eqpct
+		qui: rename eq_pct eqpct
+		qui: replace eqpct = ".n" if eqpct == "N/A"
 		qui: destring eqpct, replace ignore("*,-R %$")
 		la var eqpct "Equity Percent"
 	} // End of handling of the EQ_PCT variable
+	
+	// Handles instances of the  variable EQUITY_MEASURE
+	if `: list posof "equity_measure" in x' != 0 {
+		
+		//Recodes equity measure variable with numeric values
+		qui: replace equity_measure = ///   
+		cond(equity_measure == `"Community Support and Involvment Composite"', "1", ///
+		cond(equity_measure == `"Managing Student Conduct Composite"', "2",  ///
+		cond(equity_measure == `"Overall Effectiveness of School Teachers and Leaders"', "3",  ///
+		cond(equity_measure == `"Overall Student Growth Rating of Teachers and Leaders"', "4", ///
+		cond(equity_measure == `"Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers"', "5", ///
+		cond(equity_measure == `"Percentage of teacher turnover"', "6", ///
+		cond(equity_measure == `"School Leadership Composite"', "7", "")))))))
+		
+		//Rename Equity_Measure variable
+		qui: rename equity_measure eqm
+
+		//Recasts the values to numeric types
+		qui: destring eqm, replace ignore("*,-R %$")
+		
+		//Applies value labels to the variable
+		la val eqm eqmeasure
+		
+		//Applies variable label to the variable
+		la var eqm "Equity Measure"
+									
+	} // End of handling of the Equity_Measure  variable
+
+	// Handles instances of the EQ_LABEL variable
+	if `: list posof "eq_label" in x' != 0 {
+		qui: replace eq_label = cond(eq_label == "Exemplary/ Accomplished", "1", ///
+								cond(eq_label == "High/Expected", "2",       ///
+								cond(eq_label == "School-Level", "3",    	 ///
+								cond(eq_label == "Strongly Agree/Agree", "4", "5")))) 
+		qui: rename eq_label eqlabel
+		qui: destring eqlabel, replace ignore("*,-R %$")
+		
+		qui: reshape wide eqpct, i(fileid schyr schid eqlabel) j(eqm)
+		qui: reshape wide eqpct?, i(fileid schyr schid ) j(eqlabel)
+		qui: count
+		loc x `= `r(N)''
+		foreach v of var eqpct* {
+			qui: count if mi(`v')
+			if `r(N)' == `x' drop `v'
+		}
+		qui: rename (eqpct14 eqpct24 eqpct31 eqpct42 eqpct55 eqpct63 eqpct74) ///   
+		(csnicomp stdconduct effectivestaff staffsgp pctnewtch pctchurn ldrship)
+		
+		la var csnicomp "% Agree/Strongly Agree - Community Support/Involvement"
+		la var stdconduct "% Agree/Strongly Agree - Managing Student Conduct"
+		la var effectivestaff "% Exemplary/Accomplished - Overall Effectiveness"
+		la var staffsgp "% Exemplary/Accomplished - Overall Student Growth Rating"
+		la var pctnewtch "% New/KTIP Educators"
+		la var pctchurn "% School-Level Educator Churn" 
+		la var ldrship "% Agree/Strongly Agree - School Leadership Composite"
+				
+	} // End of handling of the EQ_LABEL variable
 	
 	if `: list posof "program_label" in x' != 0 {
 		qui: encode program_label, gen(proggroup)
@@ -2318,10 +2339,10 @@ prog def kdestandardize
 	//Handles instance of the COHORT_TYPE variable
 	if `: list posof "cohort_type" in x' !=0 {
 		qui: rename cohort_type targettype
-		qui: replace targettype = cond(targettype == "FIVE YEAR", "1",		 ///
-							  cond(targettype == "FOUR YEAR", "0", ""))
+		qui: replace targettype = cond(targettype == "FIVE YEAR", "2",		 ///
+							  cond(targettype == "FOUR YEAR", "1", ""))
 		qui: destring targettype, replace ignore ("*-R %")
-		qui: replace targettype = 0 if mi(targettype) & schyr <= 2013
+		qui: replace targettype = 1 if mi(targettype) & schyr <= 2013
 	} //End of handling of the COHORT_TYPE variable
 	
 	//Handles instances of the RPT_LINE variable
@@ -2979,7 +3000,7 @@ prog def kdestandardize
 		qui: ds cohort*
 		qui: drop if nullrecord == `: word count `r(varlist)''
 		drop nullrecord		
-		deltargets, st(cohort) pk(fileid schid schyr amogroup) tar(targettype)
+		// deltargets, st(cohort) pk(fileid schid schyr amogroup) tar(targettype)
 	}	
 	
 	if `: list posof "test_takers_cnt" in x' != 0 {
@@ -3012,6 +3033,104 @@ prog def kdestandardize
 		la var pctcredit "% of Exams with College Credit Bearing Scores"
 	}
 	
+		if `: list posof "py_novice_pct" in x' != 0 {
+		qui: rename py_novice_pct pnovicepct
+		qui: destring pnovicepct, replace ignore("*,-R %$")
+		la var pnovicepct "Prior Year % Novice"
+	}
+
+	if `: list posof "py_reduction_target_needed" in x' != 0 {
+		qui: rename py_reduction_target_needed pynovicetarget
+		qui: destring pynovicetarget, replace ignore("*,-R %$")
+		la var pynovicetarget "Prior Year Reduction Target"
+	}
+
+	if `: list posof "cy_novice_pct" in x' != 0 {
+		qui: rename cy_novice_pct cnovicepct
+		qui: destring cnovicepct, replace ignore("*,-R %$")
+		la var cnovicepct "Current Year % Novice"
+	}
+
+	if `: list posof "cy_reduction_target_met" in x' != 0 {
+		qui: rename cy_reduction_target_met cnovicemet
+		qui: destring cnovicemet, replace ignore("*,-R %$")
+		la var cnovicemet "Current Year Target Met"
+	}
+
+	if `: list posof "pct_target_met" in x' != 0 {
+		qui: rename pct_target_met pctmet
+		qui: destring pctmet, replace ignore("*,-R %$")
+		la var pctmet "% of Students Meeting Target"
+	}
+
+	if `: list posof "points_by_content_area" in x' != 0 {
+		qui: rename points_by_content_area contentpts
+		qui: destring contentpts, replace ignore("*,-R %$")
+		la var contentpts "Novice Reduction Points by Content Area"
+	}
+
+	if `: list posof "points_by_nr" in x' != 0 {
+		qui: rename points_by_nr nrpts
+		qui: destring nrpts, replace ignore("*,-R %$")
+		la var nrpts "Novice Reduction Points"
+	}
+
+	if `: list posof "reading" in x' != 0 {
+		qui: rename reading rlagap
+		qui: destring rlagap, replace ignore("*,-R %$")
+		la var rlagap "Gap Summary - Reading"
+	}
+
+	if `: list posof "math" in x' != 0 {
+		qui: rename math mthgap
+		qui: destring mthgap, replace ignore("*,-R %$")
+		la var mthgap "Gap Summary - Mathematics"
+	}
+
+	if `: list posof "science" in x' != 0 {
+		qui: rename science scigap
+		qui: destring scigap, replace ignore("*,-R %$")
+		la var scigap "Gap Summary - Science"
+	}
+
+	if `: list posof "social_studies" in x' != 0 {
+		qui: rename social_studies socgap 
+		qui: destring socgap, replace ignore("*,-R %$")
+		la var socgap "Gap Summary - Social Studies"
+	}
+
+	if `: list posof "writing" in x' != 0 {
+		qui: rename writing wrtgap
+		qui: destring wrtgap, replace ignore("*,-R %$")
+		la var wrtgap "Gap Summary - Writing"
+	}
+
+	if `: list posof "language_mechanics" in x' != 0 {
+		qui: rename language_mechanics langap
+		qui: destring langap, replace ignore("*,-R %$")
+		la var langap "Gap Summary - Language Mechanics"
+	}
+
+	if `: list posof "acct_type" in x' != 0 { 
+		qui: rename acct_type accttype
+		qui: replace accttype = cond(accttype == "GAP", "0", ///   
+								cond(accttype == "NDG", "1", "-1"))
+		qui: destring accttype, replace 
+		la var accttype "Accountability Type"						
+	}
+
+	if `: list posof "non_dup_gap" in x' != 0 { 
+		qui: rename non_dup_gap ndg
+		qui: destring ndg, replace ignore("*,-R %$")
+		la var ndg "Non Duplicated Gap Group"
+	}
+
+	if `: list posof "novice_reduction" in x' != 0 { 
+		qui: rename novice_reduction nr
+		qui: destring nr, replace ignore("*,-R %$")
+		la var nr "Novice Reduction Gap"
+	}
+
 	// Handles instances of the sch_name variable
 	if `: list posof "sch_name" in x' != 0 {
 		qui: rename sch_name schnm 
@@ -3091,10 +3210,9 @@ prog def deltargets
 		if `"`i3'"' == "" loc i3 `pk' targetyr
 		if `"`j3'"' == "" loc j3 target
 		cap drop ncesid
-
 		qui: reshape long `stub', i(`i1') j(`j1')
 		qui: reshape wide `stub', i(`i2') j(`j2')
-		qui: ds `stub'
+		qui: ds `stub'*
 		loc x `r(varlist)'
 		if `: word count `x'' == 2 {
 			rename (`stub'1 `stub'2)(n pct)
@@ -3149,11 +3267,11 @@ prog def deltargets
 			
 			if `: list posof "pct4" in targets' != 0 {
 				cap {
-					rename n3 nden
+					rename n4 nden
 					la var nden "Denominator # Target"
 				}
 				cap {
-					qui: rename pct3 pctden
+					qui: rename pct4 pctden
 					la var pctden "Denominator % Target"
 				}
 			}
@@ -3166,6 +3284,7 @@ prog def deltargets
 					la var met "Met Target"
 					assert pctactual > pctdelivery if met == 1
 				}
+				cap drop n5
 			}
 			
 		}

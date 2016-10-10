@@ -10,7 +10,17 @@ sheets(`"`"Accountability Gap Level Data"' `"ACCOUNTABILITY GAP LEVEL"' "'	 ///
 kdestandardize, primarykey(fileid schyr schid content level) m(tested novice ///   
 apprentice proficient distinguished profdist napd)
 
-save clean/acctGapLevel.dta, replace
+qui: save clean/acctGapLevel.dta, replace
+
+kdecombo ACCOUNTABILITY_GAP_SUMMARY, y(2012 2013 2014 2015 2016)			 ///   
+sheets(`"`"Accountability Gap Summary Data"' `"GAP Summary"' `"Sheet 1"'"'   ///   
+`"`"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid level ptype accttype) m(rlagap ///   
+mthgap scigap socgap wrtgap langap totpts ndg nr)
+
+qui: save clean/acctGapSummary.dta, replace
+
 
 kdecombo ACCOUNTABILITY_GROWTH, y(2012 2013 2014 2015 2016) 				 ///   
 sheets(`"`"Accountability Growth Data"' `"ACCOUNTABILITY GROWTH"' "'		 ///   
@@ -19,7 +29,15 @@ sheets(`"`"Accountability Growth Data"' `"ACCOUNTABILITY GROWTH"' "'		 ///
 kdestandardize, primarykey(fileid schyr schid level) m(sgptested sgprla 	 ///   
 sgpmth sgpboth cattested catrla catmth catboth)
 
-save clean/acctGrowth.dta, replace
+qui: save clean/acctGrowth.dta, replace
+
+kdecombo ACCOUNTABILITY_NOVICE_REDUCTION, y(2016) sheets(`"`"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid level content amogroup) 		 ///   
+m(pnovicepct pynovicetarget cnovicepct cnovicemet pctmet contentpts nrpts)
+
+qui: save clean/acctNoviceReduction.dta, replace
+
 
 kdecombo ACCOUNTABILITY_CCR_HIGHSCHOOL, y(2012 2013 2014 2015 2016) 		 ///   
 sheets(`"`"Accountability CCR High School"' "'								 ///   
@@ -28,8 +46,7 @@ sheets(`"`"Accountability CCR High School"' "'								 ///
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(diplomas 	 ///   
 collready caracad cartech cartot nregular pctwobonus pctwbonus)
 
-save clean/ccrHighSchool.dta, replace
-
+qui: save clean/ccrHighSchool.dta, replace
 
 kdecombo ACCOUNTABILITY_CCR_MIDDLESCHOOL, y(2012 2013 2014 2015) 			 ///   
 sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///   
@@ -38,8 +55,7 @@ sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(tested 	 ///   
 totpts actengpct actrlapct actmthpct actscipct)
 
-save clean/ccrMiddleSchool.dta, replace
-
+qui: save clean/ccrMiddleSchool.dta, replace
 
 kdecombo ACCOUNTABILITY_ACHIEVEMENT_GRADE, y(2012 2013 2014 2015 2016)		 ///   
 sheets(`"`"Acct Achievement Grade Data"' `"ACCT ACHIEVEMENT GRADE"' "'		 ///   
@@ -48,7 +64,7 @@ sheets(`"`"Acct Achievement Grade Data"' `"ACCT ACHIEVEMENT GRADE"' "'		 ///
 kdestandardize, primarykey(fileid schyr schid level grade content amogroup)	 ///   
 m(tested novice apprentice proficient distinguished profdist napd napdbonus)
 
-save clean/acctAchievementGrade.dta, replace
+qui: save clean/acctAchievementGrade.dta, replace
 
 kdecombo ACCOUNTABILITY_ACHIEVEMENT_LEVEL, y(2012 2013 2014 2015 2016)		 ///   
 sheets(`"`"Acct Achievement Level Data"' `"ACCT Achievement Level"' "'		 ///   
@@ -57,8 +73,7 @@ sheets(`"`"Acct Achievement Level Data"' `"ACCT Achievement Level"' "'		 ///
 kdestandardize, primarykey(fileid schyr schid level content amogroup)		 ///   
 m(tested novice apprentice proficient distinguished profdist napd napdbonus)
 
-save clean/acctAchievementLevel.dta, replace
-
+qui: save clean/acctAchievementLevel.dta, replace
 
 /*******************************************************************************
  * Accountability System School Profiles                                       *
@@ -92,7 +107,6 @@ ctotalpr cwgtpr coverall ptotal pwgtngl ptotalpr pwgtpr poverall)
 
 qui: save clean/acctSummary.dta, replace
 
-
 /*******************************************************************************
  * Accountability System ACT data											   *
  ******************************************************************************/
@@ -108,7 +122,6 @@ actcmpsc bnchmrktested) grade(99)
 
 qui: save clean/assessACT.dta, replace
 
-
 /*******************************************************************************
  * Advanced Placement Assessment Data										   *
  ******************************************************************************/
@@ -121,7 +134,7 @@ drop disagg_order
 kdestandardize, primarykey(fileid schyr schid amogroup) m(ntested pcttested  ///   
 nexams ncredit pctcredit)
 
-
+qui: save clean/assessAP.dta, replace
 
 /*******************************************************************************
  * Accountability System Explore data										   *
@@ -276,7 +289,9 @@ qui: save clean/targetCCR.dta, replace
 kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, y(2013 2014 2015 2016) 	 ///   
 sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
 
-
+kdestandardize, primarykey(fileid schyr schid target targettype amogroup)  	 ///   
+m(cohort2013 cohort2014 cohort2015 cohort2016 cohort2017 cohort2018 		 ///   
+cohort2019 cohort2020)
 
 qui: save clean/targetGradRate.dta, replace
 
@@ -321,7 +336,7 @@ foreach v of var finvalue* {
 	qui: destring `v', replace ignore ("*,R %$")
 }
 
-save clean/finance.dta, replace
+qui: save clean/finance.dta, replace
 
 /*******************************************************************************
  * Accountability System Delivery Targets - Kindergarten Readiness Screening   *
@@ -344,10 +359,6 @@ kdestandardize, primarykey(fileid schyr schid targetyr) m(met nactual 		 ///
 ndelivery pctactual pctdelivery)
 
 qui: save clean/targetProgramReview.dta, replace
-
-
-
-
 
 /*******************************************************************************
  * Accountability System Learning Environment Student-Teacher Data	   *
@@ -420,6 +431,7 @@ kdestandardize, primarykey(fileid schyr schid) m(cntyid coopid leaid distid  ///
 ncesid cntynm coop distnm schnm schtype title1 mingrade maxgrade membership  ///   
 poc addy addy2 pobox city state zip phone fax lat lon)
 
+qui: save clean/profile.dta, replace
 
 /*******************************************************************************
  * Accountability System Program Review	Data								   *
@@ -438,26 +450,39 @@ qui: save clean/programReview.dta, replace
 /*******************************************************************************
  * Accountability System Participation Rates								   *
  ******************************************************************************/
-tempfile part12 part13
-import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"') allstring
-qui: save `part12'.dta, replace
-import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Participation Rate"') allstring
-qui: save `part13'.dta, replace
-kdecombo ACCOUNTABILITY_FEDERAL_DATA_PARTICIPATION_RATE, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
-append using `part12'.dta
-append using `part13'.dta
-save clean/participationRates.dta, replace
+
+// Created soft dynamic links to ACCOUNTABILITY_FEDERAL_DATA to map to the same
+// file name used below for the 2012 and 2013 school years
+kdecombo ACCOUNTABILITY_FEDERAL_DATA_PARTICIPATION_RATE,  y(2012 2013 2014 	 ///   
+2015 2016) sheets(`"`"Participation Rate"' `"Participation Rate"' "'		 ///   
+`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
+
+qui: replace disagg_label = "Gap Group (non-duplicated)" if disagg_label == "GAP"
+qui: replace disagg_order = "17" if disagg_label == "Gap Group (non-duplicated)"
+
+kdestandardize, primarykey(fileid schyr schid amogroup) m(membership tested  ///   
+partic metpartic)
+
+qui: save clean/acctParticipation.dta, replace
 
 /*******************************************************************************
  * Accountability System Daily Attendance Rates								   *
  ******************************************************************************/
-tempfile oth12 oth13
-import excel using raw/2012/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"') allstring
-qui: save `oth12'.dta, replace
-import excel using raw/2013/ACCOUNTABILITY_FEDERAL_DATA.xlsx, first case(lower) clear sheet(`"Other Indicators"') allstring
-qui: save `oth13'.dta, replace
-kdecombo ACCOUNTABILITY_FEDERAL_DATA_ATTENDANCE, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') y(2014 2015 2016)
-append using `oth12'.dta
-append using `oth13'.dta
-save clean/amoOtherIndicators.dta, replace
 
+ // Created soft dynamic links to ACCOUNTABILITY_FEDERAL_DATA to map to the same
+// file name used below for the 2012 and 2013 school years
+kdecombo ACCOUNTABILITY_FEDERAL_DATA_ATTENDANCE,  y(2012 2013 2014 2015 	 ///   
+2016) sheets(`"`"Other Indicators"' `"Other Indicators"' `"Sheet 1"' "'		 ///   
+`"`"Sheet 1"' `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid) m(adarate adagoal othamo)
+
+qui: save clean/acctAttendance.dta, replace
+
+kdecombo LEARNING_ENVIRONMENT_EQUITY, y(2015 2016) sheets(`"`"Sheet 1"'"' 	 ///   
+`" `"Sheet 1"'"')
+
+kdestandardize, primarykey(fileid schyr schid) m(effectivestaff staffsgp 	 ///   
+pctchurn csnicomp stdconduct ldrship pctnewtch)
+
+qui: save clean/envEquity.dta, replace
