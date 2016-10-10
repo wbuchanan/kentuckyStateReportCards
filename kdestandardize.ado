@@ -2322,7 +2322,16 @@ prog def kdestandardize
 	// Handler for the  variable
 	if `: list posof "contact_name" in x' != 0 {
 		qui: rename contact_name poc
+		
+		// Sort by school id in ascending order and school year in descending order
+		gsort schid - schyr
+		qui: egen pcs = nvals(poc), by(schid)
+		// Replace other names with most recent name if school had multiple names
+		qui: replace poc = poc[_n - 1] if pcs > 1 & poc[_n - 1] != poc &	 ///   
+		schid[_n - 1] == schid
+		drop pcs
 		la var poc "Point of Contact"
+		
 	} // End of handling of the  variable
 
 	// Handler for the  variable
