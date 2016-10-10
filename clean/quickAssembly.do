@@ -1,3 +1,5 @@
+profiler on
+
 /*******************************************************************************
  * Accountability GAP Level				                                       *
  ******************************************************************************/
@@ -231,7 +233,7 @@ qui: save clean/assessKPREPlevel.dta, replace
 
 qui: append using clean/assessEOC.dta
 qui: append using clean/assessKPREPgr.dta
-qui: save clean/kprep.dta, replace
+qui: save clean/assessKPREP.dta, replace
 
 /*******************************************************************************
  * Assessment Data - Kindergarten Readiness Screening Data					   *
@@ -514,3 +516,6 @@ kdestandardize, primarykey(fileid schyr schid) m(effectivestaff staffsgp 	 ///
 pctchurn csnicomp stdconduct ldrship pctnewtch)
 
 qui: save clean/envEquity.dta, replace
+
+profiler report
+profiler clear

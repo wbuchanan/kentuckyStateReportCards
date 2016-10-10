@@ -605,6 +605,7 @@ prog def kdestandardize
 		
 		// Short hand reference for the variable
 		loc pny participation_next_yr
+		qui: replace `pny' = ".n" if `pny' == "N/A"
 		
 		// Use numeric encodings for participation rate field
 		qui: replace `pny' = cond(`pny' == "No", "0", cond(`pny' == "Yes", "1", ""))
@@ -1190,11 +1191,13 @@ prog def kdestandardize
 	// Handles instances of the number_enrolled variable
 	if `: list posof "number_enrolled" in x' != 0 {
 		qui: rename number_enrolled membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "# of Students Enrolled"
 	} // End of handling of the  variable
 
 	if `: list posof "membership" in x' != 0 {
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "# of Students Enrolled"
 	} // End of handling of the  variable
@@ -1211,6 +1214,7 @@ prog def kdestandardize
 	// Handles instances of the participation_rate variable
 	if `: list posof "participation_rate" in x' != 0 {
 		qui: rename participation_rate partic 
+		qui: replace partic = ".n" if partic == "N/A"
 		qui: destring partic, replace ignore("*,-R %$")
 		la var partic "Participation Rate"
 	} // End of handling of the participation_rate variable
@@ -1218,6 +1222,7 @@ prog def kdestandardize
 	// Handles instances of the particip_rate variable
 	if `: list posof "particip_rate" in x' != 0 {
 		qui: rename particip_rate partic 
+		qui: replace partic = ".n" if partic == "N/A"
 		qui: destring partic, replace ignore("*,-R %$")
 		la var partic "Participation Rate"
 	} // End of handling of the particip_rate variable
@@ -1492,12 +1497,14 @@ prog def kdestandardize
 
 	if `: list posof "total_enrollment" in x' != 0 {
 		qui: rename total_enrollment membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total # of Students Enrolled"
 	}	
 
 	if `: list posof "enrollment" in x' != 0 {
 		qui: rename enrollment membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total # of Students Enrolled"
 	}	
@@ -1716,6 +1723,7 @@ prog def kdestandardize
 	// Handles instances of the TOTAL_CNT variable
 	if `: list posof "total_cnt" in x' != 0 {
 		qui: rename total_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Student Membership"
 	} // End of handling of the TOTAL_CNT variable
@@ -1793,6 +1801,7 @@ prog def kdestandardize
 	//Handles instances of the TOTAL_STDNT_CNT variable
 	if `: list posof "total_stdnt_cnt" in x' != 0 {
 		qui: rename total_stdnt_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Membership"
 	} // End of handling of the TOTAL_STDNT_CNT variable
@@ -1853,6 +1862,7 @@ prog def kdestandardize
 	//Handles instance of the MEMBERSHIP_TOTAL variable
 	if `: list posof "membership_total" in x' != 0 {
 		qui: rename membership_total membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Student Membership"
 	} // End of handling of the MEMBERSHIP_TOTAL variable
@@ -2219,6 +2229,7 @@ prog def kdestandardize
 	//Handles instance of the ENROLLMENT_CNT variable
 	if `: list posof "enrollment_cnt" in x' !=0 {
 		qui: rename enrollment_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore ("*-R %")
 		la var membership "Total # of Students Enrolled"
 	} //End of handling of the ENROLLMENT_CNT variable
@@ -2248,8 +2259,8 @@ prog def kdestandardize
 		// This is used to make the county names and IDs consistent across years
 		preserve
 			keep `district' cntyid cntynm
-			drop if mi(cntyid) | mi(cntynm)
-			duplicates drop
+			qui: drop if mi(cntyid) | mi(cntynm)
+			qui: duplicates drop
 			tempfile cnty
 			qui: save `cnty'.dta, replace
 		restore
@@ -2258,8 +2269,8 @@ prog def kdestandardize
 		// This is used to make the coop names and IDs consistent across years
 		preserve
 			keep `district' coopid coop
-			drop if mi(coopid, coop)
-			duplicates drop
+			qui: drop if mi(coopid, coop)
+			qui: duplicates drop
 			tempfile coop
 			qui: save `coop'.dta, replace
 		restore
@@ -2857,6 +2868,7 @@ prog def kdestandardize
 
 	if `: list posof "comp_and_domain_partciprate" in x' != 0 {
 		qui: rename comp_and_domain_partciprate cndpartic
+		qui: replace cndpartic = ".n" if cndpartic == "N/A"
 		qui: destring cndpartic, replace ignore("*,-R %$")
 		la var cndpartic "Participation Rate - Composite & Domain"
 	}
@@ -2875,6 +2887,7 @@ prog def kdestandardize
 
 	if `: list posof "shse_participrate" in x' != 0 {
 		qui: rename shse_participrate shsepartic
+		qui: replace shsepartic = ".n" if shsepartic == "N/A"
 		qui: destring shsepartic, replace ignore("*,-R %$")
 		la var shsepartic "Participation Rate - Self-Help & Social-Emotional"
 	}
