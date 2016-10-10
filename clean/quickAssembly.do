@@ -12,6 +12,10 @@ apprentice proficient distinguished profdist napd)
 
 qui: save clean/acctGapLevel.dta, replace
 
+/*******************************************************************************
+ * Accountability GAP Summary			                                       *
+ ******************************************************************************/
+
 kdecombo ACCOUNTABILITY_GAP_SUMMARY, y(2012 2013 2014 2015 2016)			 ///   
 sheets(`"`"Accountability Gap Summary Data"' `"GAP Summary"' `"Sheet 1"'"'   ///   
 `"`"Sheet 1"' `"Sheet 1"'"')
@@ -21,7 +25,9 @@ mthgap scigap socgap wrtgap langap totpts ndg nr)
 
 qui: save clean/acctGapSummary.dta, replace
 
-
+/*******************************************************************************
+ * Accountability Growth				                                       *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_GROWTH, y(2012 2013 2014 2015 2016) 				 ///   
 sheets(`"`"Accountability Growth Data"' `"ACCOUNTABILITY GROWTH"' "'		 ///   
 `"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
@@ -31,6 +37,9 @@ sgpmth sgpboth cattested catrla catmth catboth)
 
 qui: save clean/acctGrowth.dta, replace
 
+/*******************************************************************************
+ * Accountability Novice Reduction		                                       *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_NOVICE_REDUCTION, y(2016) sheets(`"`"Sheet 1"'"')
 
 kdestandardize, primarykey(fileid schyr schid level content amogroup) 		 ///   
@@ -38,7 +47,9 @@ m(pnovicepct pynovicetarget cnovicepct cnovicemet pctmet contentpts nrpts)
 
 qui: save clean/acctNoviceReduction.dta, replace
 
-
+/*******************************************************************************
+ * Accountability HS College/Career Ready                                      *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_CCR_HIGHSCHOOL, y(2012 2013 2014 2015 2016) 		 ///   
 sheets(`"`"Accountability CCR High School"' "'								 ///   
 `"`"Accountability CCR High School"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
@@ -48,6 +59,9 @@ collready caracad cartech cartot nregular pctwobonus pctwbonus)
 
 qui: save clean/ccrHighSchool.dta, replace
 
+/*******************************************************************************
+ * Accountability MS College/Career Ready                                      *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_CCR_MIDDLESCHOOL, y(2012 2013 2014 2015) 			 ///   
 sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///   
 `"`"Sheet 1"' `"Sheet 1"'"')
@@ -57,6 +71,9 @@ totpts actengpct actrlapct actmthpct actscipct)
 
 qui: save clean/ccrMiddleSchool.dta, replace
 
+/*******************************************************************************
+ * Accountability Grade Level Achievement	                                   *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_ACHIEVEMENT_GRADE, y(2012 2013 2014 2015 2016)		 ///   
 sheets(`"`"Acct Achievement Grade Data"' `"ACCT ACHIEVEMENT GRADE"' "'		 ///   
 `"`"Sheet1"' `"Sheet1"' `"Sheet 1"'"')
@@ -66,6 +83,9 @@ m(tested novice apprentice proficient distinguished profdist napd napdbonus)
 
 qui: save clean/acctAchievementGrade.dta, replace
 
+/*******************************************************************************
+ * Accountability Educational Level Achievement	                               *
+ ******************************************************************************/
 kdecombo ACCOUNTABILITY_ACHIEVEMENT_LEVEL, y(2012 2013 2014 2015 2016)		 ///   
 sheets(`"`"Acct Achievement Level Data"' `"ACCT Achievement Level"' "'		 ///   
 `"`"Sheet1"' `"Sheet1"' `"Sheet 1"'"')
@@ -76,7 +96,7 @@ m(tested novice apprentice proficient distinguished profdist napd napdbonus)
 qui: save clean/acctAchievementLevel.dta, replace
 
 /*******************************************************************************
- * Accountability System School Profiles                                       *
+ * Accountability System - Accountability Profiles                             *
  ******************************************************************************/
 
 // Combines all of the accountability profile files/worksheets
@@ -108,7 +128,7 @@ ctotalpr cwgtpr coverall ptotal pwgtngl ptotalpr pwgtpr poverall)
 qui: save clean/acctSummary.dta, replace
 
 /*******************************************************************************
- * Accountability System ACT data											   *
+ * Assessment Data - ACT													   *
  ******************************************************************************/
 
 // Combines all of the ACT files/worksheets
@@ -123,7 +143,7 @@ actcmpsc bnchmrktested) grade(99)
 qui: save clean/assessACT.dta, replace
 
 /*******************************************************************************
- * Advanced Placement Assessment Data										   *
+ * Assessment Data - Advanced Placement										   *
  ******************************************************************************/
 
 kdecombo ASSESSMENT_ADVANCE_PLACEMENT, y(2013 2014 2015 2016) 				 ///   
@@ -137,7 +157,7 @@ nexams ncredit pctcredit)
 qui: save clean/assessAP.dta, replace
 
 /*******************************************************************************
- * Accountability System Explore data										   *
+ * Assessment Data - ACT Explore											   *
  ******************************************************************************/
 
 // Combines all of the ACT EXPLORE files/worksheets
@@ -152,7 +172,7 @@ actscipct actcmpsc bnchmrktested) grade(100)
 qui: save clean/assessExplore.dta, replace
 
 /*******************************************************************************
- * Accountability System Plan data	   *
+ * Assessment Data - ACT Plan												   *
  ******************************************************************************/
 
 // Combines all of the ACT PLAN files/worksheets
@@ -167,7 +187,7 @@ actscipct actcmpsc bnchmrktested) grade(100)
 qui: save clean/assessPlan.dta, replace
 
 /*******************************************************************************
- * Accountability System KPREP End of Course Assessment Data				   *
+ * Assessment Data - KPREP End of Course Exams								   *
  ******************************************************************************/
 
 // Combines all of the KPREP End of Course Assessment files/worksheets
@@ -181,7 +201,7 @@ m(tested membership partic novice apprentice proficient distinguished) grade(99)
 qui: save clean/assessEOC.dta, replace
 
 /*******************************************************************************
- * Accountability System KPREP Grade Level Assessment Data					   *
+ * Assessment Data - KPREP Grade Level Exams								   *
  ******************************************************************************/
 
 // Combines all of the KPREP Grade Level Assessment files/worksheets
@@ -195,7 +215,7 @@ amogroup) m(tested membership partic novice apprentice proficient distinguished)
 qui: save clean/assessKPREPgr.dta, replace
 
 /*******************************************************************************
- * Accountability System KPREP Educational Level Assessment Data			   *
+ * Assessment Data - KPREP Educational Level Exam Results					   *
  ******************************************************************************/
 
 // Combines all of the KPREP Educational Level Assessment files/worksheets
@@ -214,7 +234,7 @@ qui: append using clean/assessKPREPgr.dta
 qui: save clean/kprep.dta, replace
 
 /*******************************************************************************
- * Accountability System Kindergarten Screening Assessment Data	   *
+ * Assessment Data - Kindergarten Readiness Screening Data					   *
  ******************************************************************************/
 
 kdecombo ASSESSMENT_KSCREEN, y(2014 2015 2016) sheets(`"`"Sheet 1"' "'		 ///   
@@ -228,7 +248,7 @@ selblw selavg selabv)
 qui: save clean/assessKscreen.dta, replace
 
 /*******************************************************************************
- * Accountability System NRT Assessment Data	   *
+ * Assessment Data - Novice Reduction Testing ???							   *
  ******************************************************************************/
 
 kdecombo ASSESSMENT_NRT, y(2012 2012 2013 2014 2015 2016)					 ///   
@@ -241,7 +261,7 @@ m(rlapctile mthpctile scipctile socpctile lanpctile)
 qui: save clean/assessNRT.dta, replace
 
 /*******************************************************************************
- * Accountability System Career/Technical Ed - College/Career Readiness Data   *
+ * Career/Technical Ed - College/Career Readiness Data  					   *
  ******************************************************************************/
 kdecombo CTE_CAREER_CCR, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
 
@@ -251,7 +271,7 @@ collrdy actwrkkeys asvab industrycert kossa carrdy ccrn ccrpct) grade(99)
 qui: save clean/cteCCR.dta, replace
 
 /*******************************************************************************
- * Accountability System Career/Technical Ed - Career Pathways Data	   *
+ * Career/Technical Ed - Career Pathways Data	 							   *
  ******************************************************************************/
 kdecombo CTE_CAREER_PATHWAYS,  y(2014 2015 2016)							 ///   
 sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
@@ -262,7 +282,7 @@ ncert) grade(99)
 qui: save clean/ctePathway.dta, replace
 
 /*******************************************************************************
- * Accountability System Career/Technical Ed - Perkins Program Data			   *
+ * Career/Technical Ed - Perkins Program Data			 					   *
  ******************************************************************************/
 kdecombo CTE_CAREER_PERKINS, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)
 
@@ -272,7 +292,7 @@ bnchmrkprkns prknsgoal)
 qui: save clean/ctePerkins.dta, replace
 
 /*******************************************************************************
- * Accountability System Delivery Targets - College & Career Readiness	 	   *
+ * Delivery Targets - College & Career Readiness	 						   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_CCR, y(2012 2013 2014 2015 2016)					 ///   
 sheets(`"`"Delivery Target CCR"' `"Delivery Target CCR"' `"Sheet 1"' "'		 ///   
@@ -284,7 +304,7 @@ pctdelivery)
 qui: save clean/targetCCR.dta, replace
 
 /*******************************************************************************
- * Accountability System Delivery Targets - Graduation Rate Data	  		   *
+ * Delivery Targets - Graduation Rate Data	  								   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_GRADUATION_RATE_COHORT, y(2013 2014 2015 2016) 	 ///   
 sheets(`"`"Delivery Target Cohort Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
@@ -296,7 +316,7 @@ cohort2019 cohort2020)
 qui: save clean/targetGradRate.dta, replace
 
 /*******************************************************************************
- * Accountability System Delivery Targets - Proficiency Gap Data		 	   *
+ * Delivery Targets - Proficiency Gap Data		 							   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, y(2012 2013 2014 2015 2016) 		 ///   
 sheets(`"`"Delivery Target ProficiencyGap"' "'								 ///   
@@ -312,6 +332,9 @@ drop *order
 
 qui: save clean/targetProfGap.dta, replace
 
+/*******************************************************************************
+ * Financial Data		 													   *
+ ******************************************************************************/
 kdecombo FINANCE, y(2015 2015 2015 2015 2016) sheets(`"`"2011-2012"' "'		 ///   
 `"`"2012-2013"' `"2013-2014"' `"2014-2015"' `"Sheet 1"'"')
 
@@ -339,7 +362,7 @@ foreach v of var finvalue* {
 qui: save clean/finance.dta, replace
 
 /*******************************************************************************
- * Accountability System Delivery Targets - Kindergarten Readiness Screening   *
+ * Delivery Targets - Kindergarten Readiness Screening  					   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_KSCREEN, y(2014 2015 2016) 						 ///   
 sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet1"'"')
@@ -350,7 +373,7 @@ m(kscreen2013 kscreen2014 kscreen2015 kscreen2016 kscreen2017 kscreen2018)
 qui: save clean/targetKScreen.dta, replace
 
 /*******************************************************************************
- * Accountability System Delivery Targets - Program Review					   *
+ * Delivery Targets - Program Review										   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_PROGRAM_REVIEW, y(2014 2015 2016) 					 ///   
 sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
@@ -361,7 +384,7 @@ ndelivery pctactual pctdelivery)
 qui: save clean/targetProgramReview.dta, replace
 
 /*******************************************************************************
- * Accountability System Learning Environment Student-Teacher Data	   *
+ * Learning Environment - Student-Teacher Data	  							   *
  ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, y(2012 2013 2014 2015 2016) ///   
 sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' "'				 ///   
@@ -384,7 +407,7 @@ drop if mi(membership)
 qui: save clean/envStudentTeacher.dta, replace
 
 /*******************************************************************************
- * Accountability System Learning Environment Teaching Methods Data			   *
+ * Learning Environment - Teaching Methods Data	  							   *
  ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_TEACHING_METHODS, y(2013 2014 2015 2016) 		 ///   
 sheets(`"`"TEACHING METHODS"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 
@@ -395,7 +418,7 @@ noffsitecte noffsitecol nhomehosp nonline)
 qui: save clean/envTeachingMethods.dta, replace
 
 /*******************************************************************************
- * Accountability System Learning Environment Safety Data					   *
+ * Learning Environment - Safety Data			  							   *
  ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_SAFETY, y(2012 2013 2014 2015 2016) 			 ///   
 sheets(`"`"Safety Data"' `"Safety Data"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')
@@ -405,7 +428,9 @@ totevents nfemale nmale naian nasian nblack nhisp nmulti npacisl nwhite)
 
 qui: save clean/envSafety.dta, replace
 
-
+/*******************************************************************************
+ * Learning Environment - Special Programs Data	  							   *
+ ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_PROGRAMS, y(2013 2013 2013 2013 2014 2014 2014 ///   
 2014 2015 2015 2015 2015 2016) sheets(`"`"Gifted and Talented"' "'			 ///   
 `"`"Migrant"' `"English Language Learners (ELL)"' `"Special Education"' "'   ///   
@@ -418,7 +443,7 @@ kdestandardize, primarykey(fileid schyr schid progtype proggroup) m(membership t
 qui: save clean/envPrograms.dta, replace
 
 /*******************************************************************************
- * Accountability System School Profiles									   *
+ * School Profile Data														   *
  ******************************************************************************/
 
 kdecombo PROFILE, y(2012 2013 2014 2015 2016) 								 ///   
@@ -434,7 +459,7 @@ poc addy addy2 pobox city state zip phone fax lat lon)
 qui: save clean/profile.dta, replace
 
 /*******************************************************************************
- * Accountability System Program Review	Data								   *
+ * Program Review Data														   *
  ******************************************************************************/
 kdecombo PROGRAM_REVIEW, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 	 ///   
 y(2014 2015 2016)
@@ -448,7 +473,7 @@ wrtotpts wrlev)
 qui: save clean/programReview.dta, replace
 
 /*******************************************************************************
- * Accountability System Participation Rates								   *
+ * Accountability System - Participation Rates								   *
  ******************************************************************************/
 
 // Created soft dynamic links to ACCOUNTABILITY_FEDERAL_DATA to map to the same
@@ -466,7 +491,7 @@ partic metpartic)
 qui: save clean/acctParticipation.dta, replace
 
 /*******************************************************************************
- * Accountability System Daily Attendance Rates								   *
+ * Accountability System - Daily Attendance Rates							   *
  ******************************************************************************/
 
  // Created soft dynamic links to ACCOUNTABILITY_FEDERAL_DATA to map to the same
@@ -479,6 +504,9 @@ kdestandardize, primarykey(fileid schyr schid) m(adarate adagoal othamo)
 
 qui: save clean/acctAttendance.dta, replace
 
+/*******************************************************************************
+ * Learning Environment - Equity Data	  									   *
+ ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_EQUITY, y(2015 2016) sheets(`"`"Sheet 1"'"' 	 ///   
 `" `"Sheet 1"'"')
 
