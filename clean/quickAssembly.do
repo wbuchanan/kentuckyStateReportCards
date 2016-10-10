@@ -330,8 +330,6 @@ sch_number state_sch_id ncesid coop coop_code
 kdestandardize, primarykey(fileid schyr schid content level target amogroup) ///   
 m(yr2012 yr2013 yr2014 yr2015 yr2016 yr2017 yr2018 yr2019)
 
-drop *order
-
 qui: save clean/targetProfGap.dta, replace
 
 /*******************************************************************************

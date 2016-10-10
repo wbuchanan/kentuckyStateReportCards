@@ -536,16 +536,6 @@ prog def kdestandardize
 
 	} // End handling of reward_recognition variable
 	
-	// Handles instances of the amo_met variable
-	if `: list posof "amo_met" in x' != 0 {
-		qui: replace amo_met = 	cond(amo_met == "No", "0", 					 ///   
-								cond(amo_met == "Yes", "1", ""))
-		qui: destring amo_met, replace ignore("*,-R %$")
-		qui: rename amo_met amomet
-		la val amomet amomet
-		la var amomet "AMO Status Indicator"
-	} // End of handling of the amo_met variable
-	
 	// Handles instances of the  variable
 	if `: list posof "pct_novice" in x' != 0 {
 		qui: rename pct_novice novice
@@ -708,6 +698,7 @@ prog def kdestandardize
 	if `: list posof "gain_needed" in x' != 0 {
 		qui: destring gain_needed, replace ignore("*,-R %$")
 		qui: rename gain_needed amogain
+		qui: replace amogain = real(amo_goal) - baseline if mi(amogain) & !mi(real(amo_goal)) & !mi(baseline)
 		la var amogain "Gain Needed to meet AMOs"
 	} // End of handling of the gain_needed variable
 	
@@ -715,8 +706,22 @@ prog def kdestandardize
 	if `: list posof "amo_goal" in x' != 0 {
 		qui: destring amo_goal, replace ignore("*,-R %$")
 		qui: rename amo_goal amogoal 
+		qui: replace amogoal = baseline + amogain if mi(amogoal) & !mi(baseline) & !mi(amogain)
 		la var amogoal "Annual Measureable Objectives Goal"
-	} // End of handling of the amo_goal variable
+	} // End of handling of the amo_goal variable	
+	
+	// Handles instances of the amo_met variable
+	if `: list posof "amo_met" in x' != 0 {
+		qui: replace amo_met = 	cond(amo_met == "No", "0", 					 ///   
+								cond(amo_met == "Yes", "1", ""))
+		qui: destring amo_met, replace ignore("*,-R %$")
+		qui: rename amo_met amomet
+		qui: replace amomet = cond(mi(amogoal), .,							 ///   
+							  cond(mi(amomet) & overall >= amogoal, 1,		 ///   
+							  cond(mi(amomet) & overall < amogoal, 0, amomet)))
+		la val amomet amomet
+		la var amomet "AMO Status Indicator"
+	} // End of handling of the amo_met variable
 	
 	// Handles instances of the distnm variable
 	if `: list posof "dist_name" in x' != 0 {
