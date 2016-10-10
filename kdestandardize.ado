@@ -32,7 +32,7 @@ prog def kdestandardize
 	{
 	
 	// Define missing value labels for nbr_tested variable
-	la def tested .d "---" .s "***", modify		
+	la def tested .d "Suppressed due to FERPA Concerns" .s "< 10 Students", modify		
 	
 	// Define missing value label for NRT percentiles
 	la def pctiles .s "***", modify
