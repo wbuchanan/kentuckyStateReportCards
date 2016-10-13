@@ -62,7 +62,7 @@ prog def kdestandardize
 				 9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 				 ///   
 				 12 "12th Grade" 98 "Adult Education" 99 "High School" 		 ///   
 				 97 "Magical KDE Undefined Grade" 100 "All Grades" 			 ///   
-				 14 "IDEA" 15 "Another Magical Grade Invented by KDE", modify
+				 14 "IDEA", modify
 
 	// Define value labels for whether or not AMOs are met			 
 	la def amomet 0 "Did not meet AMOs" 1 "Met AMOs", modify
@@ -182,20 +182,20 @@ prog def kdestandardize
 					   6 `"Percentage of Teacher Turnover"'                  ///
 					   7 `"School Leadership Composite"', modify
 
-	   // Define EQ_LABEL
-	   la def eqlabel 1 `"Exemplary/Accomplished"'                           ///
+		// Define EQ_LABEL
+		la def eqlabel 1 `"Exemplary/Accomplished"'                          ///
 					  2 `"High/Expected"'                                    ///
 					  3 `"School-Level"'                                     ///
 					  4 `"Strongly Agree/Agree"', modify
-					  
-	   // Define PROGRAM_TYPE
-	   la def progtype 1 `"English Learners"'        				         ///
+			
+		// Define PROGRAM_TYPE
+		la def progtype 1 `"English Learners"'        				         ///
 					 2 `"Migrant"'                                           ///
 					 3 `"Special Education"'                                 ///
 					 4 `"Gifted and Talented"', modify
 					 
-	   // Define RPT_HEADER
-	   la def rpthdr 1 `"Behavior Events"'                                   ///
+		// Define RPT_HEADER
+		la def rpthdr 1 `"Behavior Events"'                                  ///
 					 2 `"Behavior Events by Context"'						 ///
 					 3 `"Behavior Events by Grade Level"'                    ///
 					 4 `"Behavior Events by Location"' 						 ///
@@ -205,8 +205,8 @@ prog def kdestandardize
 					 8 `"Legal Sanctions"', modify
 					 
 					 
-	   // Define TEACHING_METHOD
-	   la def pedagogy 1 `"Credit Recovery - Digital Learning Povider"'      ///
+		// Define TEACHING_METHOD
+		la def pedagogy 1 `"Credit Recovery - Digital Learning Povider"'     ///
 					 2 `"Credit Recovery - Direct Instruction"'				 ///
 					 3 `"Digital Learning Provider"'						 ///
 					 4 `"Direct Instruction"'								 ///
@@ -218,15 +218,15 @@ prog def kdestandardize
 					 10 `"Third Pary Contract"'								 ///
 					 11 `"Transitional Course - KDE Curriculum"', modify
 					 
-	   // Define FINANCE_TYPE
-	   la def fintype 1 `"Financial Summary"'								 ///
+		// Define FINANCE_TYPE
+		la def fintype 1 `"Financial Summary"'								 ///
 					  2 `"Salaries"'										 ///
 					  3 `"Seek"'											 ///
 					  4 `"Tax"'												 ///   
 					  5 `"Revenues & Expenditures"', modify
 					  
-	   // Define CAREER_PATHWAY_DESC
-	   la def path 1 `"ADMINISTRATION SUPPORT"'         					 ///
+		// Define CAREER_PATHWAY_DESC
+		la def path 1 `"ADMINISTRATION SUPPORT"'         					 ///
 				   2 `"AGRIBIOTECHNOLOGY"'									 ///
 				   3 `"ANIMAL SYSTEMS"'						 			     ///
 				   4 `"BUSINESS TECHNOLOGY"'								 ///
@@ -239,28 +239,28 @@ prog def kdestandardize
 				   
 		la def coop 0 "CKEC" 1 "GRREC" 2 "JEFF CO" 3 "KEDC" 4 "KVEC" 		 ///   
 					5 "NKCES" 6 "OVEC" 7 "SESC" 8 "WKEC", modify
-				   
-	   // Define PERFORMANCE_TYPE
-	   la def ptype 0 `"Points"'											 ///
-				    1 `"NAPD Calculation"', modify
+			
+		// Define PERFORMANCE_TYPE
+		la def ptype 0 `"Points"' 1 `"NAPD Calculation"', modify
 					
-	   // Define ASSESSMENT_LEVEL
-	   la def assesslvl 0 `"Kentucky"'										 ///
-						1 `"Nation"', modify
+		// Define ASSESSMENT_LEVEL
+		la def assesslvl 0 `"Kentucky"' 1 `"Nation"', modify
+					
+		// Value label for the acct_type variable			
+		la def accttype 0 "GAP" 1 "Non-Duplicated Gap Group", modify				
 						
 		// Define PERFORMANCE_MEASURE
-	   la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       		 ///
+		la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       	 ///
 				   2 `"Academic Attainment - Reading - 1S1"'				 ///
 				   3 `"Non-Traditional Completion - 6S2"'	 			     ///
 				   4 `"Non-Traditional Participation - 6S1"'				 ///
 				   5 `"Secondary Placement - 5S1"'							 ///
-				   6 `"Secondary School Completion - 3S1"'					  ///
+				   6 `"Secondary School Completion - 3S1"'					 ///
 				   7 `"Student Graduation Rate - 4S1"'						 ///
 				   8 `"Technical Skill Attainment - 2S1"', modify
 				   
 	   // Define COHORT_TYPE
-	   la def cohort 2 `"FIVE YEAR"'										 ///
-					 1 `"FOUR YEAR"', modify
+	   la def cohort 2 `"FIVE YEAR"' 1 `"FOUR YEAR"', modify
 
 	}  // End of value label definitions
 	
@@ -468,7 +468,7 @@ prog def kdestandardize
 	
 	// Handles instances of the grade variable
 	if `: list posof "grade" in x' != 0 {
-		qui: replace grade = "15" if grade == "EO"
+		qui: replace grade = "99" if grade == "EO"
 		qui: replace grade = ustrregexra(grade, "[gG][rR][aA][dD][eE] ", "")
 		qui: replace grade = cond(grade == "K", "0", cond(grade == "00", "97", grade))
 		qui: destring grade, replace ignore("*,-R %$")
@@ -735,7 +735,8 @@ prog def kdestandardize
 		gsort schid - schyr
 		
 		// Replace other names with most recent name if school had multiple names
-		qui: replace distnm = distnm[_n - 1] if undistnms > 1 & distnm[_n - 1] != distnm
+		qui: replace distnm = distnm[_n - 1] if undistnms > 1 &				 ///   
+		distnm[_n - 1] != distnm & schid[_n - 1] == schid
 		
 		drop undistnms
 		
@@ -3140,9 +3141,9 @@ prog def kdestandardize
 
 	if `: list posof "acct_type" in x' != 0 { 
 		qui: rename acct_type accttype
-		qui: replace accttype = cond(accttype == "GAP", "0", ///   
-								cond(accttype == "NDG", "1", "-1"))
+		qui: replace accttype = cond(accttype == "GAP", "0", "1")
 		qui: destring accttype, replace 
+		la val accttype accttype
 		la var accttype "Accountability Type"						
 	}
 
@@ -3172,7 +3173,8 @@ prog def kdestandardize
 		gsort schid - schyr
 		
 		// Replace other names with most recent name if school had multiple names
-		qui: replace schnm = schnm[_n - 1] if unschnms > 1 & schnm[_n - 1] != schnm
+		qui: replace schnm = schnm[_n - 1] if unschnms > 1 &				 ///   
+		schnm[_n - 1] != schnm & schid[_n - 1] == schid
 		
 		drop unschnms
 		
