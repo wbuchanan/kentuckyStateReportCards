@@ -4,5 +4,6 @@
 *.json
 .DS_Store
 raw/.DS_Store
-
+clean/*
+newclean/*
 

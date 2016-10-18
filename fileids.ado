@@ -1,3 +1,34 @@
+/*******************************************************************************
+*                                                                              *
+* Title - FILEIDS                                                              *
+*                                                                              *
+* Description - Program used to generate unique fileid values for KY school    *
+*               and district report card data sets that do not overlap over    *
+*               file types.                                                    *
+*                                                                              *
+* Dependencies -                                                               *
+*     Internal - none                                                          *
+*     External - should only be called by the kdecombo program                 *
+*                                                                              *
+* Parameters -                                                                 *
+*     Required -                                                               *
+*         filenm - String containing the file name containing the data.        *
+*         sheetname - The worksheet in which the data are located.             *
+*         schyr - The academic year ending used to define subdirectories.      *
+*         sheetnumber - An iterator used to identify unique files/years/sheets *
+*     Optional -                                                               *
+*                                                                              *
+* Output -                                                                     *
+*     Returns a local macro in r(labdef) containing the key/value pair used to *
+*     define the value label associated with this specific instance.           *
+*                                                                              *
+* Usage -                                                                      *
+*     called internally by kdecombo only                                       *
+*                                                                              *
+* Lines - 344                                                                  *
+*                                                                              *
+*******************************************************************************/
+
 // Drops program if already loaded in memory
 cap prog drop
 
@@ -309,4 +340,6 @@ prog def fileids, rclass
 	// Defines the local macro that is returned by this program
 	ret loc labdef `fiddef'
 	
+// End of program definition	
 end	
+
