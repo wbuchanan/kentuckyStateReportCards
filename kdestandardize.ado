@@ -22,8 +22,8 @@ prog def kdestandardize
 	// Defines local macro to test for growth null records
 	loc growvars tested grorla gromth groboth
 	
-	la def kstype .u "Unknown" 0 "Any" 1 "Child Care" 2 "Head Start" 		 ///   
-					3 "Home" 4 "Other" 5 "State Funded", modify
+	la def kstype -1 "Unknown" 0 "All Students" 1 "Child Care" 				 ///   
+					2 "Head Start" 3 "Home" 4 "Other" 5 "State Funded", modify
 
 	// Drop any variables ID'd by user before constructing variable list
 	if `"`dropvars'"' != "" cap drop `dropvars'
@@ -32,7 +32,7 @@ prog def kdestandardize
 	{
 	
 	// Define missing value labels for nbr_tested variable
-	la def tested .d "---" .s "***", modify		
+	la def tested .d "Suppressed due to FERPA Concerns" .s "< 10 Students", modify		
 	
 	// Define missing value label for NRT percentiles
 	la def pctiles .s "***", modify
@@ -49,7 +49,7 @@ prog def kdestandardize
 	la def content 	1 "Language Mechanics" 2 "Mathematics" 3 "Reading" 		 ///   
 					4 "Science" 5 "Social Studies" 6 "Writing" 				 ///   
 					7 "Algebra II" 8 "Biology" 9 "English II" 				 ///   
-					10 "U.S. History", modify
+					10 "U.S. History" 11 "Combined Reading and Math", modify
 					
 	// Define value labels for test names				
 	la def testnm 	1 "KPREP" 2 "ACCESS" 3 "ACT" 4 "Explore" 5 "Plan" 		 ///   
@@ -62,7 +62,7 @@ prog def kdestandardize
 				 9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 				 ///   
 				 12 "12th Grade" 98 "Adult Education" 99 "High School" 		 ///   
 				 97 "Magical KDE Undefined Grade" 100 "All Grades" 			 ///   
-				 14 "IDEA" 15 "Another Magical Grade Invented by KDE", modify
+				 14 "IDEA", modify
 
 	// Define value labels for whether or not AMOs are met			 
 	la def amomet 0 "Did not meet AMOs" 1 "Met AMOs", modify
@@ -182,20 +182,20 @@ prog def kdestandardize
 					   6 `"Percentage of Teacher Turnover"'                  ///
 					   7 `"School Leadership Composite"', modify
 
-	   // Define EQ_LABEL
-	   la def eqlabel 1 `"Exemplary/Accomplished"'                           ///
+		// Define EQ_LABEL
+		la def eqlabel 1 `"Exemplary/Accomplished"'                          ///
 					  2 `"High/Expected"'                                    ///
 					  3 `"School-Level"'                                     ///
 					  4 `"Strongly Agree/Agree"', modify
-					  
-	   // Define PROGRAM_TYPE
-	   la def progtype 1 `"English Language Learners (ELL)"'                 ///
+			
+		// Define PROGRAM_TYPE
+		la def progtype 1 `"English Learners"'        				         ///
 					 2 `"Migrant"'                                           ///
 					 3 `"Special Education"'                                 ///
 					 4 `"Gifted and Talented"', modify
 					 
-	   // Define RPT_HEADER
-	   la def rpthdr 1 `"Behavior Events"'                                   ///
+		// Define RPT_HEADER
+		la def rpthdr 1 `"Behavior Events"'                                  ///
 					 2 `"Behavior Events by Context"'						 ///
 					 3 `"Behavior Events by Grade Level"'                    ///
 					 4 `"Behavior Events by Location"' 						 ///
@@ -205,8 +205,8 @@ prog def kdestandardize
 					 8 `"Legal Sanctions"', modify
 					 
 					 
-	   // Define TEACHING_METHOD
-	   la def pedagogy 1 `"Credit Recovery - Digital Learning Povider"'      ///
+		// Define TEACHING_METHOD
+		la def pedagogy 1 `"Credit Recovery - Digital Learning Povider"'     ///
 					 2 `"Credit Recovery - Direct Instruction"'				 ///
 					 3 `"Digital Learning Provider"'						 ///
 					 4 `"Direct Instruction"'								 ///
@@ -218,14 +218,15 @@ prog def kdestandardize
 					 10 `"Third Pary Contract"'								 ///
 					 11 `"Transitional Course - KDE Curriculum"', modify
 					 
-	   // Define FINANCE_TYPE
-	   la def fintype 1 `"FINANCIAL SUMMARY"'								 ///
-					  2 `"SALARIES"'										 ///
-					  3 `"SEEK"'											 ///
-					  4 `"TAX"', modify
+		// Define FINANCE_TYPE
+		la def fintype 1 `"Financial Summary"'								 ///
+					  2 `"Salaries"'										 ///
+					  3 `"Seek"'											 ///
+					  4 `"Tax"'												 ///   
+					  5 `"Revenues & Expenditures"', modify
 					  
-	   // Define CAREER_PATHWAY_DESC
-	   la def path 1 `"ADMINISTRATION SUPPORT"'         					 ///
+		// Define CAREER_PATHWAY_DESC
+		la def path 1 `"ADMINISTRATION SUPPORT"'         					 ///
 				   2 `"AGRIBIOTECHNOLOGY"'									 ///
 				   3 `"ANIMAL SYSTEMS"'						 			     ///
 				   4 `"BUSINESS TECHNOLOGY"'								 ///
@@ -238,28 +239,28 @@ prog def kdestandardize
 				   
 		la def coop 0 "CKEC" 1 "GRREC" 2 "JEFF CO" 3 "KEDC" 4 "KVEC" 		 ///   
 					5 "NKCES" 6 "OVEC" 7 "SESC" 8 "WKEC", modify
-				   
-	   // Define PERFORMANCE_TYPE
-	   la def ptype 0 `"Points"'											 ///
-				    1 `"NAPD Calculation"', modify
+			
+		// Define PERFORMANCE_TYPE
+		la def ptype 0 `"Points"' 1 `"NAPD Calculation"', modify
 					
-	   // Define ASSESSMENT_LEVEL
-	   la def assesslvl 0 `"Kentucky"'										 ///
-						1 `"Nation"', modify
+		// Define ASSESSMENT_LEVEL
+		la def assesslvl 0 `"Kentucky"' 1 `"Nation"', modify
+					
+		// Value label for the acct_type variable			
+		la def accttype 0 "GAP" 1 "Non-Duplicated Gap Group", modify				
 						
 		// Define PERFORMANCE_MEASURE
-	   la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       		 ///
+		la def pmsr 1 `"Academic Attainment - Mathematics - 1S2"'       	 ///
 				   2 `"Academic Attainment - Reading - 1S1"'				 ///
 				   3 `"Non-Traditional Completion - 6S2"'	 			     ///
 				   4 `"Non-Traditional Participation - 6S1"'				 ///
 				   5 `"Secondary Placement - 5S1"'							 ///
-				   6 `"Secondary School Completion - 3S1"'					  ///
+				   6 `"Secondary School Completion - 3S1"'					 ///
 				   7 `"Student Graduation Rate - 4S1"'						 ///
 				   8 `"Technical Skill Attainment - 2S1"', modify
 				   
 	   // Define COHORT_TYPE
-	   la def cohort 0 `"FIVE YEAR"'										 ///
-					 1 `"FOUR YEAR"', modify
+	   la def cohort 2 `"FIVE YEAR"' 1 `"FOUR YEAR"', modify
 
 	}  // End of value label definitions
 	
@@ -353,6 +354,8 @@ prog def kdestandardize
 		
 		la val amogroup amogroup
 		la var amogroup "Federally Required AMO Reporting Subgroups"
+		
+		qui: drop disagg_label
 	
 	}
 	
@@ -424,7 +427,8 @@ prog def kdestandardize
 									cond(`ct' == "Writing", "6",			 ///   
 									cond(`ct' == "Algebra II", "7",			 ///   
 									cond(`ct' == "Biology", "8",			 ///   
-									cond(`ct' == "English II", "9", "10")))))))))
+									cond(`ct' == "English II", "9", 		 ///   
+									cond(`ct' == "Combined Reading and Math", "11", "10"))))))))))
 									
 		// Renames the variable							
 		qui: rename content_type content
@@ -448,7 +452,8 @@ prog def kdestandardize
 
 		// Recodes different missing value codes
 		qui: replace nbr_tested = cond(nbr_tested == "---", ".d", 			 ///   
-								  cond(nbr_tested == "***", ".s", nbr_tested))
+								  cond(nbr_tested == "***", ".s", 			 ///   
+								  cond(nbr_tested == "N/A", ".n", nbr_tested)))
 								  
 		// Recasts the variable to numeric type						  
 		qui: destring nbr_tested, replace ignore("*,-R %$")
@@ -463,7 +468,7 @@ prog def kdestandardize
 	
 	// Handles instances of the grade variable
 	if `: list posof "grade" in x' != 0 {
-		qui: replace grade = "15" if grade == "EO"
+		qui: replace grade = "99" if grade == "EO"
 		qui: replace grade = ustrregexra(grade, "[gG][rR][aA][dD][eE] ", "")
 		qui: replace grade = cond(grade == "K", "0", cond(grade == "00", "97", grade))
 		qui: destring grade, replace ignore("*,-R %$")
@@ -475,6 +480,10 @@ prog def kdestandardize
 	
 	// Handles instances of the grade_level variable
 	if `: list posof "grade_level" in x' != 0 {
+		qui: replace grade_level = "15" if grade_level == "EO"
+		qui: replace grade_level = ustrregexra(grade_level, "[gG][rR][aA][dD][eE] ", "")
+		qui: replace grade_level = 	cond(grade_level == "K", "0", 			 ///   
+									cond(grade_level == "00", "97", grade_level))
 		qui: destring grade_level, replace ignore("*,-R %$")
 		qui: rename grade_level grade
 		la val grade grade
@@ -527,19 +536,10 @@ prog def kdestandardize
 
 	} // End handling of reward_recognition variable
 	
-	// Handles instances of the amo_met variable
-	if `: list posof "amo_met" in x' != 0 {
-		qui: replace amo_met = 	cond(amo_met == "No", "0", 					 ///   
-								cond(amo_met == "Yes", "1", ""))
-		qui: destring amo_met, replace ignore("*,-R %$")
-		qui: rename amo_met amomet
-		la val amomet amomet
-		la var amomet "AMO Status Indicator"
-	} // End of handling of the amo_met variable
-	
 	// Handles instances of the  variable
 	if `: list posof "pct_novice" in x' != 0 {
 		qui: rename pct_novice novice
+		qui: replace novice = ".n" if novice == "N/A"
 		qui: destring novice, replace ignore("*,-R %$")
 		la var novice "% of Students Scoring Novice"
 
@@ -548,6 +548,7 @@ prog def kdestandardize
 	// Handles instances of the  variable
 	if `: list posof "pct_apprentice" in x' != 0 {
 		qui: rename pct_apprentice apprentice
+		qui: replace apprentice = ".n" if apprentice == "N/A"
 		qui: destring apprentice, replace ignore("*,-R %$")
 		la var apprentice "% of Students Scoring Apprentice"
 	} // End of handling of the  variable
@@ -555,6 +556,7 @@ prog def kdestandardize
 	// Handles instances of the  variable
 	if `: list posof "pct_proficient" in x' != 0 {
 		qui: rename pct_proficient proficient
+		qui: replace proficient = ".n" if proficient == "N/A"
 		qui: destring proficient, replace ignore("*,-R %$")
 		la var proficient "% of Students Scoring Proficient"
 	} // End of handling of the  variable
@@ -562,12 +564,14 @@ prog def kdestandardize
 	// Handles instances of the  variable
 	if `: list posof "pct_distinguished" in x' != 0 {
 		qui: rename pct_distinguished distinguished
+		qui: replace distinguished = ".n" if distinguished == "N/A"
 		qui: destring distinguished, replace ignore("*,-R %$")
 		la var distinguished "% of Students Scoring Distinguished"
 	} // End of handling of the  variable
 	
 	if `: list posof "pct_proficient_distinguished" in x' != 0 {
 		qui: rename pct_proficient_distinguished profdist
+		qui: replace profdist = ".n" if profdist == "N/A"
 		qui: destring profdist, replace ignore("*,-R %$")
 		la var profdist "% of Students Scoring Proficient or Distinguished"
 	} // End of handling of the  variable
@@ -591,6 +595,7 @@ prog def kdestandardize
 		
 		// Short hand reference for the variable
 		loc pny participation_next_yr
+		qui: replace `pny' = ".n" if `pny' == "N/A"
 		
 		// Use numeric encodings for participation rate field
 		qui: replace `pny' = cond(`pny' == "No", "0", cond(`pny' == "Yes", "1", ""))
@@ -693,6 +698,7 @@ prog def kdestandardize
 	if `: list posof "gain_needed" in x' != 0 {
 		qui: destring gain_needed, replace ignore("*,-R %$")
 		qui: rename gain_needed amogain
+		qui: replace amogain = real(amo_goal) - baseline if mi(amogain) & !mi(real(amo_goal)) & !mi(baseline)
 		la var amogain "Gain Needed to meet AMOs"
 	} // End of handling of the gain_needed variable
 	
@@ -700,8 +706,22 @@ prog def kdestandardize
 	if `: list posof "amo_goal" in x' != 0 {
 		qui: destring amo_goal, replace ignore("*,-R %$")
 		qui: rename amo_goal amogoal 
+		qui: replace amogoal = baseline + amogain if mi(amogoal) & !mi(baseline) & !mi(amogain)
 		la var amogoal "Annual Measureable Objectives Goal"
-	} // End of handling of the amo_goal variable
+	} // End of handling of the amo_goal variable	
+	
+	// Handles instances of the amo_met variable
+	if `: list posof "amo_met" in x' != 0 {
+		qui: replace amo_met = 	cond(amo_met == "No", "0", 					 ///   
+								cond(amo_met == "Yes", "1", ""))
+		qui: destring amo_met, replace ignore("*,-R %$")
+		qui: rename amo_met amomet
+		qui: replace amomet = cond(mi(amogoal), .,							 ///   
+							  cond(mi(amomet) & overall >= amogoal, 1,		 ///   
+							  cond(mi(amomet) & overall < amogoal, 0, amomet)))
+		la val amomet amomet
+		la var amomet "AMO Status Indicator"
+	} // End of handling of the amo_met variable
 	
 	// Handles instances of the distnm variable
 	if `: list posof "dist_name" in x' != 0 {
@@ -715,7 +735,8 @@ prog def kdestandardize
 		gsort schid - schyr
 		
 		// Replace other names with most recent name if school had multiple names
-		qui: replace distnm = distnm[_n - 1] if undistnms > 1 & distnm[_n - 1] != distnm
+		qui: replace distnm = distnm[_n - 1] if undistnms > 1 &				 ///   
+		distnm[_n - 1] != distnm & schid[_n - 1] == schid
 		
 		drop undistnms
 		
@@ -843,6 +864,7 @@ prog def kdestandardize
 	
 	// Handles instances of the napd_calculation variable
 	if `: list posof "napd_calculation" in x' != 0 {
+		qui: replace napd_calculation = ".n" if napd_calculation == "N/A"
 		qui: destring napd_calculation, replace ignore("*,-R %$")
 		qui: rename napd_calculation napd	
 		la var napd "Novice * 0 + Apprentice + 0.5 + Proficient + Distinguished"
@@ -1058,7 +1080,8 @@ prog def kdestandardize
 		qui: rename stdnt_tested_cnt tested
 		
 		qui: replace tested = 	cond(tested == "---", ".d", 				 ///   
-								cond(tested == "***", ".s", tested))
+								cond(tested == "***", ".s", 				 ///   
+								cond(tested == "N/A", ".n", tested)))
 		
 		// Recast to numeric value
 		qui: destring tested, replace ignore("*,-R %$")
@@ -1174,11 +1197,13 @@ prog def kdestandardize
 	// Handles instances of the number_enrolled variable
 	if `: list posof "number_enrolled" in x' != 0 {
 		qui: rename number_enrolled membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "# of Students Enrolled"
 	} // End of handling of the  variable
 
 	if `: list posof "membership" in x' != 0 {
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "# of Students Enrolled"
 	} // End of handling of the  variable
@@ -1187,6 +1212,7 @@ prog def kdestandardize
 	// Handles instances of the number_tested variable
 	if `: list posof "number_tested" in x' != 0 {
 		qui: rename number_tested tested 
+		qui: replace tested = ".n" if tested == "N/A"
 		qui: destring tested, replace ignore("*,-R %$")
 		la var tested "# of Students Tested"
 	} // End of handling of the number_tested variable
@@ -1194,6 +1220,7 @@ prog def kdestandardize
 	// Handles instances of the participation_rate variable
 	if `: list posof "participation_rate" in x' != 0 {
 		qui: rename participation_rate partic 
+		qui: replace partic = ".n" if partic == "N/A"
 		qui: destring partic, replace ignore("*,-R %$")
 		la var partic "Participation Rate"
 	} // End of handling of the participation_rate variable
@@ -1201,6 +1228,7 @@ prog def kdestandardize
 	// Handles instances of the particip_rate variable
 	if `: list posof "particip_rate" in x' != 0 {
 		qui: rename particip_rate partic 
+		qui: replace partic = ".n" if partic == "N/A"
 		qui: destring partic, replace ignore("*,-R %$")
 		la var partic "Participation Rate"
 	} // End of handling of the particip_rate variable
@@ -1475,12 +1503,14 @@ prog def kdestandardize
 
 	if `: list posof "total_enrollment" in x' != 0 {
 		qui: rename total_enrollment membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total # of Students Enrolled"
 	}	
 
 	if `: list posof "enrollment" in x' != 0 {
 		qui: rename enrollment membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total # of Students Enrolled"
 	}	
@@ -1516,9 +1546,9 @@ prog def kdestandardize
 		qui: rename target_label target
 		qui: replace target = 	cond(target == "Actual Score", "1",			 ///    
 								cond(inlist(target, "Target", "Delivery Target"), "2", ///   
-								cond(target == "Numerator", "3",			 ///   
-								cond(target == "Denominator", "4",			 ///   
-								cond(target == "Met Target", "5", ""))))) 
+								cond(ustrregexm(target, ".*numerator.*", 1) == 1, "3",		 ///   
+								cond(ustrregexm(target, ".*denominator.*", 1) == 1, "4",	 ///   
+								cond(target == "Met Target", "5", "")))))  
 		qui: destring target, replace ignore("*,-R %$")
 		la val target target
 		la var target "Accountability Component Targets"
@@ -1528,14 +1558,14 @@ prog def kdestandardize
 			
 	if `: list posof "prior_setting" in x' != 0 {
 		qui: rename prior_setting kstype
-		qui: replace kstype = 	cond(kstype == "Unknown", ".u",				 ///   
-								cond(kstype == "Any", "0",					 ///   
+		qui: replace kstype = 	cond(kstype == "Unknown", "-1",				 ///   
+						cond(inlist(kstype, "All Students", "Any"), "0",	 ///   
 								cond(kstype == "Child Care", "1",			 ///   
 								cond(kstype == "Head Start", "2",			 ///   
 								cond(kstype == "Home", "3",					 ///   
 								cond(kstype == "Other", "4",				 ///   
 								cond(kstype == "State Funded", "5", "")))))))
-		qui: destring kstype, replace ignore("*,-R %$")
+		qui: destring kstype, replace ignore("*,R %$")
 		la val kstype kstype
 		la var kstype "Kindergarten Screening Prior Setting Type"
 	}
@@ -1579,7 +1609,22 @@ prog def kdestandardize
 		
 	}
 
-
+	if ustrregexm(`"`x'"', "yr_[0-9]{4}") == 1 {
+		rename yr_# yr#
+		foreach v of var yr???? {
+			loc yr "`= substr("`v'", -4, 4)'"
+			qui: replace `v' = 	cond(`v' == "Yes", "1", 					 ///   
+								cond(`v' == "No", "0", 						 ///   
+								cond(`v' == "N/A", ".n", `v')))
+			qui: destring `v', replace ignore("*,-R %$")
+			la var `v' "Delivery Target for `yr'"
+		}
+		qui: egen nullrecord = rowmiss(yr*)
+		qui: ds yr*
+		qui: drop if nullrecord == `: word count `r(varlist)''
+		qui: drop nullrecord
+	
+	}
 	
 	if ustrregexm(`"`x'"', "ccr_[0-9]{4}") == 1 {
 		rename ccr_# ccr#
@@ -1598,56 +1643,83 @@ prog def kdestandardize
 
 	}
 	
-
-	
-	
-	
-	// Handles instances of the  variable EQUITY_MEASURE
-	if `: list posof "equity_measure" in x' != 0 {
-	//Recodes equity measure variable with numeric values
-		qui: replace equity_measure=cond(equity_measure == "Community Support and Involvement Composite", "1", ///
-									cond(equity_measure == "Managing Student Conduct Composite", "2",  ///
-									cond(equity_measure == "Overall Effectiveness of School Teachers and Leaders", "3",  ///
-									cond(equity_measure == "Overall Student Growth Rating of Teachers and Leaders", "4", ///
-									cond(equity_measure == "Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers", "5", ///
-									cond(equity_measure == "Percentage of Teacher Turnover", "6", ///
-									cond(equity_measure == "School Leadership Composite", "7", ""))))))) ///
-	//Rename Equity_Measure variable
-	qui: rename equity_measure eqmeasure
-	//Recasts the values to numeric types
-	qui: destring eqmeasure,replace ignore("*,-R %$")
-	//Applies value labels to the variable
-	la val eqmeasure eqmeasure
-	//Applies variable label to the variable
-	la var eqmeasure "Equity Measure"
-									
-	} // End of handling of the Equity_Measure  variable
-	
-	// Handles instances of the EQ_LABEL variable
-	if `: list posof "EQ_LABEL" in x' != 0 {
-		qui: replace eq_label=cond(`rx'(eq_label, "Exemplary/ Accomplished.*", 1), "1", ///
-							  cond(eq_label == "High/Expect.*", "2",         ///
-							  cond(eq_label == "School-Level.*", "3",        ///
-							  cond(eq_label == "Strongly Agree/Agree.*", "4")))) 
-		qui: rename eq_label eqlabel
-		qui: destring eqlabel, replace ignore("*,-R %$")
-		la val eqlabel eqlabel
-		la var eqlabel "Equity Label"
-	} // End of handling of the EQ_LABEL variable
-	
 	// Handles instances of the EQ_PCT variable
 	if `: list posof "eq_pct" in x' != 0 {
-	qui: rename eq_pct eqpct
+		qui: rename eq_pct eqpct
+		qui: replace eqpct = ".n" if eqpct == "N/A"
 		qui: destring eqpct, replace ignore("*,-R %$")
 		la var eqpct "Equity Percent"
 	} // End of handling of the EQ_PCT variable
 	
+	// Handles instances of the  variable EQUITY_MEASURE
+	if `: list posof "equity_measure" in x' != 0 {
+		
+		//Recodes equity measure variable with numeric values
+		qui: replace equity_measure = ///   
+		cond(equity_measure == `"Community Support and Involvment Composite"', "1", ///
+		cond(equity_measure == `"Managing Student Conduct Composite"', "2",  ///
+		cond(equity_measure == `"Overall Effectiveness of School Teachers and Leaders"', "3",  ///
+		cond(equity_measure == `"Overall Student Growth Rating of Teachers and Leaders"', "4", ///
+		cond(equity_measure == `"Percentage of new and Kentucky Teacher Internship Program (KTIP) teachers"', "5", ///
+		cond(equity_measure == `"Percentage of teacher turnover"', "6", ///
+		cond(equity_measure == `"School Leadership Composite"', "7", "")))))))
+		
+		//Rename Equity_Measure variable
+		qui: rename equity_measure eqm
+
+		//Recasts the values to numeric types
+		qui: destring eqm, replace ignore("*,-R %$")
+		
+		//Applies value labels to the variable
+		la val eqm eqmeasure
+		
+		//Applies variable label to the variable
+		la var eqm "Equity Measure"
+									
+	} // End of handling of the Equity_Measure  variable
+
+	// Handles instances of the EQ_LABEL variable
+	if `: list posof "eq_label" in x' != 0 {
+		qui: replace eq_label = cond(eq_label == "Exemplary/ Accomplished", "1", ///
+								cond(eq_label == "High/Expected", "2",       ///
+								cond(eq_label == "School-Level", "3",    	 ///
+								cond(eq_label == "Strongly Agree/Agree", "4", "5")))) 
+		qui: rename eq_label eqlabel
+		qui: destring eqlabel, replace ignore("*,-R %$")
+		
+		qui: reshape wide eqpct, i(fileid schyr schid eqlabel) j(eqm)
+		qui: reshape wide eqpct?, i(fileid schyr schid ) j(eqlabel)
+		qui: count
+		loc x `= `r(N)''
+		foreach v of var eqpct* {
+			qui: count if mi(`v')
+			if `r(N)' == `x' drop `v'
+		}
+		qui: rename (eqpct14 eqpct24 eqpct31 eqpct42 eqpct55 eqpct63 eqpct74) ///   
+		(csnicomp stdconduct effectivestaff staffsgp pctnewtch pctchurn ldrship)
+		
+		la var csnicomp "% Agree/Strongly Agree - Community Support/Involvement"
+		la var stdconduct "% Agree/Strongly Agree - Managing Student Conduct"
+		la var effectivestaff "% Exemplary/Accomplished - Overall Effectiveness"
+		la var staffsgp "% Exemplary/Accomplished - Overall Student Growth Rating"
+		la var pctnewtch "% New/KTIP Educators"
+		la var pctchurn "% School-Level Educator Churn" 
+		la var ldrship "% Agree/Strongly Agree - School Leadership Composite"
+				
+	} // End of handling of the EQ_LABEL variable
+	
+	if `: list posof "program_label" in x' != 0 {
+		qui: encode program_label, gen(proggroup)
+		qui: drop program_label
+		la var proggroup "Program Student Subgroups"	
+	}
+	
 	// Handles instances of the PROGRAM_TYPE variable
 	if `: list posof "program_type" in x' != 0 {
 		qui: replace program_type=cond(program_type == "English Language Learners (ELL)", "1", ///
-								  cond(program_type == "Migrant","2",            ///
-								  cond(program_type == "Special Education","3",  ///
-								  cond(program_type == "Gifted and Talented","4")))) 
+								  cond(program_type == "Migrant", "2",            ///
+								  cond(program_type == "Special Education", "3",  ///
+								  cond(program_type == "Gifted and Talented", "4", "")))) 
 		qui: rename program_type progtype
 		qui: destring progtype,replace ignore("*,-R %$")
 		la val progtype progtype
@@ -1657,6 +1729,7 @@ prog def kdestandardize
 	// Handles instances of the TOTAL_CNT variable
 	if `: list posof "total_cnt" in x' != 0 {
 		qui: rename total_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Student Membership"
 	} // End of handling of the TOTAL_CNT variable
@@ -1698,9 +1771,9 @@ prog def kdestandardize
 	
 	//Handles instances of the AIAN_CNT variable
 	if `: list posof "aian_cnt" in x' != 0 {
-		qui: rename aian_cnt nnatam
-		qui: destring nnatam, replace ignore("*,-R %$")
-		la var nnatam "# of American Indian/Alaskan Native Students"
+		qui: rename aian_cnt naian
+		qui: destring naian, replace ignore("*,-R %$")
+		la var naian "# of American Indian/Alaskan Native Students"
 	} // End of handling of the AIAN_CNT variable
 	
 	//Handles instances of the HAWAIIAN_CNT variable
@@ -1734,6 +1807,7 @@ prog def kdestandardize
 	//Handles instances of the TOTAL_STDNT_CNT variable
 	if `: list posof "total_stdnt_cnt" in x' != 0 {
 		qui: rename total_stdnt_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Membership"
 	} // End of handling of the TOTAL_STDNT_CNT variable
@@ -1747,6 +1821,7 @@ prog def kdestandardize
 	
 	//Handles instances of the RPT_HEADER variable
 	if `: list posof "rpt_header" in x' != 0 {
+		/*
 		qui: replace rpt_header = cond(rpt_header == "Behavior Events", "1", ///
 			  cond(rpt_header == "Behavior Events by Context", "2",       	 ///
 			  cond(rpt_header == "Behavior Events by Grade Level", "3",   	 ///
@@ -1755,9 +1830,10 @@ prog def kdestandardize
 			  cond(rpt_header == "Discipline Resolutions", "6",           	 ///
 			  cond(rpt_header == "Discipline-Resolutions", "7",           	 ///
 			  cond(rpt_header == "Legal Sanctions", "8", ""))))))))		  
+		*/	  
 		qui: rename rpt_header rpthdr
-		qui: destring rpthdr,replace ignore("*,-R %$")
-		la val rpthdr rpthdr
+		// qui: destring rpthdr,replace ignore("*,-R %$")
+		// la val rpthdr rpthdr
 		la var rpthdr "Report Header"
 	} // End of handling of the RPT_HEADER variable
 	
@@ -1792,6 +1868,7 @@ prog def kdestandardize
 	//Handles instance of the MEMBERSHIP_TOTAL variable
 	if `: list posof "membership_total" in x' != 0 {
 		qui: rename membership_total membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore("*,-R %$")
 		la var membership "Total Student Membership"
 	} // End of handling of the MEMBERSHIP_TOTAL variable
@@ -1882,8 +1959,9 @@ prog def kdestandardize
 	
 	//Handles instance of the MEMBERSHIP_AIAN_CNT variable
 	if `: list posof "membership_aian_cnt" in x' != 0 {
-		qui: rename membership_aian_cnt naian
-		qui: destring naian, replace ignore("*,-R %$")
+		cap confirm var naian
+		if _rc == 0 qui: replace naian = real(membership_aiain_cnt) if mi(naian)
+		else qui: destring membership_aian_cnt, ignore("*,-R %$") gen(naian)
 		la var naian "# of American Indian/Alaskan Native Students"
 	} // End of handling of the MEMBERSHIP_AIAN_CNT variable
 	
@@ -2069,7 +2147,7 @@ prog def kdestandardize
 	// Handles instances of the TEACHING_METHOD variable
 	if `: list posof "teaching_method" in x' != 0 {
 		qui: rename teaching_method pedagogy
-		qui: replace method = cond(pedagogy == `"Credit Recovery - Digital Learning Provider"', "1", 	 ///
+		qui: replace pedagogy = cond(pedagogy == `"Credit Recovery - Digital Learning Provider"', "1", 	 ///
 				cond(pedagogy == `"Credit Recovery - Direct Instruction"', "2",    ///
 				cond(pedagogy == `"Digital Learning Provider"', "3", 				 ///
 				cond(pedagogy == `"Direct Instruction"', "4", 	 				 ///
@@ -2087,30 +2165,30 @@ prog def kdestandardize
 	
 	//Handles instance of the ONSITE_CLASSROOM_CNT variable
 	if `: list posof "onsite_classroom_cnt" in x' !=0 {
-		qui: rename onsite_classroom_cnt nonstcls
-		qui: destring numoncls, replace ignore ("*-R %")
-		la var numoncls "# of Onsite Classrooms"
+		qui: rename onsite_classroom_cnt nonsitecls
+		qui: destring nonsitecls, replace ignore ("*-R %")
+		la var nonsitecls "# of Onsite Classrooms"
 	} //End of handling of the ONSITE_CLASSROOM_CNT variable
 	
 	//Handles instance of the OFFSITE_CTE_CNT variable
 	if `: list posof "offsite_cte_cnt" in x' !=0 {
-		qui: rename offsite_cte_cnt cteoffsite
-		qui: destring cteoffsite, replace ignore ("*-R %")
-		la var cteoffsite "# of Offsite Career/Technical Education Classes"
+		qui: rename offsite_cte_cnt noffsitecte
+		qui: destring noffsitecte, replace ignore ("*-R %")
+		la var noffsitecte "# of Offsite Career/Technical Education Classes"
 	} //End of handling of the OFFSITE_CTE_CNT variable
 	
 	//Handles instance of the OFFSITE_COLLEGE_CNT variable
 	if `: list posof "offsite_college_cnt" in x' !=0 {
-		qui: rename offsite_college_cnt noffstcol
-		qui: destring noffstcol, replace ignore ("*-R %")
-		la var noffstcol "# of Offsite College Classes"
+		qui: rename offsite_college_cnt noffsitecol
+		qui: destring noffsitecol, replace ignore ("*-R %")
+		la var noffsitecol "# of Offsite College Classes"
 	} //End of handling of the OFFSITE_COLLEGE_CNT variable
 	
 	//Handles instance of the HOME_HOSPITAL_CNT variable
-	if `: list posof "home_hospital_count" in x' !=0 {
-		qui: rename home_hospital_count nhosp
-		qui: destring nhosp, replace ignore ("*-R %")
-		la var nhosp "# of Home Hospital Classes"
+	if `: list posof "home_hospital_cnt" in x' !=0 {
+		qui: rename home_hospital_cnt nhomehosp
+		qui: destring nhomehosp, replace ignore ("*-R %")
+		la var nhomehosp "# of Home Hospital Classes"
 	} //End of handling of the HOME_HOSPITAL_CNT variable
 	
 	//Handles instance of the ONLINE_CNT varialbe
@@ -2123,10 +2201,11 @@ prog def kdestandardize
 	//Handles instance of the FINANACE_TYPE variable
 	if `: list posof "finance_type" in x' !=0 {
 		qui: rename finance_type fintype
-		qui: replace fintype = cond(fintype == "FINANCIAL SUMMARY", "1",		 ///
-							   cond(fintype == "SALARIES", "2",					 ///
-							   cond(fintype == "SEEK", "3",						 ///
-							   cond(fintype == "TAX", "4", ""))))				 ///
+		qui: replace fintype = cond(fintype == "FINANCIAL SUMMARY", "1",	 ///
+							   cond(fintype == "SALARIES", "2",				 ///
+							   cond(fintype == "SEEK", "3",					 ///
+							   cond(fintype == "TAX", "4", 					 ///   
+							   cond(fintype == "REVENUES AND EXPENDITURES", "5", "")))))
 		qui: destring fintype, replace ignore ("*-R %")
 		la val fintype fintype
 		la var fintype "Finance Type"
@@ -2136,7 +2215,7 @@ prog def kdestandardize
 	if `: list posof "finance_label" in x' !=0 {
 		qui: rename finance_label finlabel
 		qui: destring finlabel, replace ignore ("*-R %")
-		la var fintype "Finance Lable"
+		la var finlabel "Finance Line Items"
 	} //End of handling of the FINANCE_LABEL variable
 	
 	//Handles instance of the FINANACE_VALUE variable
@@ -2156,6 +2235,7 @@ prog def kdestandardize
 	//Handles instance of the ENROLLMENT_CNT variable
 	if `: list posof "enrollment_cnt" in x' !=0 {
 		qui: rename enrollment_cnt membership
+		qui: replace membership = ".n" if membership == "N/A"
 		qui: destring membership, replace ignore ("*-R %")
 		la var membership "Total # of Students Enrolled"
 	} //End of handling of the ENROLLMENT_CNT variable
@@ -2185,8 +2265,8 @@ prog def kdestandardize
 		// This is used to make the county names and IDs consistent across years
 		preserve
 			keep `district' cntyid cntynm
-			drop if mi(cntyid) | mi(cntynm)
-			duplicates drop
+			qui: drop if mi(cntyid) | mi(cntynm)
+			qui: duplicates drop
 			tempfile cnty
 			qui: save `cnty'.dta, replace
 		restore
@@ -2195,8 +2275,8 @@ prog def kdestandardize
 		// This is used to make the coop names and IDs consistent across years
 		preserve
 			keep `district' coopid coop
-			drop if mi(coopid, coop)
-			duplicates drop
+			qui: drop if mi(coopid, coop)
+			qui: duplicates drop
 			tempfile coop
 			qui: save `coop'.dta, replace
 		restore
@@ -2243,7 +2323,16 @@ prog def kdestandardize
 	// Handler for the  variable
 	if `: list posof "contact_name" in x' != 0 {
 		qui: rename contact_name poc
+		
+		// Sort by school id in ascending order and school year in descending order
+		gsort schid - schyr
+		qui: egen pcs = nvals(poc), by(schid)
+		// Replace other names with most recent name if school had multiple names
+		qui: replace poc = poc[_n - 1] if pcs > 1 & poc[_n - 1] != poc &	 ///   
+		schid[_n - 1] == schid
+		drop pcs
 		la var poc "Point of Contact"
+		
 	} // End of handling of the  variable
 
 	// Handler for the  variable
@@ -2276,17 +2365,15 @@ prog def kdestandardize
 	//Handles instance of the COHORT_TYPE variable
 	if `: list posof "cohort_type" in x' !=0 {
 		qui: rename cohort_type targettype
-		qui: replace targettype = cond(targettype == "FIVE YEAR", "1",		 ///
-							  cond(targettype == "FOUR YEAR", "0", ""))
+		qui: replace targettype = cond(targettype == "FIVE YEAR", "2",		 ///
+							  cond(targettype == "FOUR YEAR", "1", ""))
 		qui: destring targettype, replace ignore ("*-R %")
-		qui: replace targettype = 0 if mi(targettype) & schyr <= 2013
+		qui: replace targettype = 1 if mi(targettype) & schyr <= 2013
 	} //End of handling of the COHORT_TYPE variable
 	
 	//Handles instances of the RPT_LINE variable
 	if `: list posof "rpt_line" in x' != 0 {
 		qui: rename rpt_line rptln
-		qui: desting rptln,replace ignore("*,-R %$")
-		la val rptln rptln
 		la var rptln "Report Line"
 	} // End of handling of the RPT_LINE variable
 	
@@ -2756,12 +2843,178 @@ prog def kdestandardize
 		drop two_or_more_race_total
 	}
 
+	// Handles Growth Score types
+	if 	`: list posof "growth_level" in x' != 0 {
+		qui: g growid = cond(growth_level == "Student Growth Percentage" | 	 ///   
+							mi(growth_level) & schyr <= 2015, 1,			 ///   
+							cond(growth_level == "Categorical Growth", 2, .g))
+		drop growth_level
+		qui: reshape wide tested grorla gromth groboth, i(schyr schid level  ///   
+		fileid) j(growid)
+		rename (tested1 grorla1 gromth1 groboth1 tested2 grorla2 gromth2 	 ///   
+		groboth2)(sgptested sgprla sgpmth sgpboth cattested catrla catmth 	 ///   
+		catboth)
+		la var sgptested "Student Growth Percentile - # of Students Tested" 
+		la var sgprla "Student Growth Percentile - Reading" 
+		la var sgpmth "Student Growth Percentile - Mathematics" 
+		la var sgpboth "Student Growth Percentile - Reading & Mathematics" 
+		la var cattested "Categorical Growth - # of Students Tested" 
+		la var catrla "Categorical Growth - Reading" 
+		la var catmth "Categorical Growth - Mathematics" 
+		la var catboth "Categorical Growth - Reading & Mathematics"
+		qui: egen x = rowmiss(sgptested sgprla sgpmth sgpboth cattested 	 ///   
+		catrla catmth catboth)
+		qui: drop if x == 8
+		drop x
+							
+	}
+		
+	if `: list posof "comp_and_domain_enrollment" in x' != 0 {
+		qui: rename comp_and_domain_enrollment cndenr
+		qui: destring cndenr, replace ignore("*,-R %$")
+		la var cndenr "# Enrolled - Composite & Domain"
+	}
+
+	if `: list posof "comp_and_domain_numtested" in x' != 0 {
+		qui: rename comp_and_domain_numtested cndtested
+		qui: destring cndtested, replace ignore("*,-R %$")
+		la var cndtested "# Tested - Composite & Domain"
+	}
+
+	if `: list posof "comp_and_domain_partciprate" in x' != 0 {
+		qui: rename comp_and_domain_partciprate cndpartic
+		qui: replace cndpartic = ".n" if cndpartic == "N/A"
+		qui: destring cndpartic, replace ignore("*,-R %$")
+		la var cndpartic "Participation Rate - Composite & Domain"
+	}
+
+	if `: list posof "shse_enrollment" in x' != 0 {
+		qui: rename shse_enrollment shseenr
+		qui: destring shseenr, replace ignore("*,-R %$")
+		la var shseenr "# Enrolled - Self-Help & Social-Emotional"
+	}
+
+	if `: list posof "shse_numtested" in x' != 0 {
+		qui: rename shse_numtested shsetested
+		qui: destring shsetested, replace ignore("*,-R %$")
+		la var shsetested "# Tested - Self-Help & Social-Emotional"
+	}
+
+	if `: list posof "shse_participrate" in x' != 0 {
+		qui: rename shse_participrate shsepartic
+		qui: replace shsepartic = ".n" if shsepartic == "N/A"
+		qui: destring shsepartic, replace ignore("*,-R %$")
+		la var shsepartic "Participation Rate - Self-Help & Social-Emotional"
+	}
+
+	if `: list posof "kr_not_ready" in x' != 0 {
+		qui: rename kr_not_ready knotready
+		qui: destring knotready, replace ignore("*,-R %$")
+		la var knotready "# Students Not Ready for Kindergarten"
+	}
+
+	if `: list posof "kr_kindergartenready" in x' != 0 {
+		qui: rename kr_kindergartenready kready
+		qui: destring kready, replace ignore("*,-R %$")
+		la var kready "# Students Ready for Kindergarten"
+	}
+
+	if `: list posof "cog_below_avg" in x' != 0 {
+		qui: rename cog_below_avg cogblw
+		qui: destring cogblw, replace ignore("*,-R %$")
+		la var cogblw "% of Below Average on Cognitive Measures"
+	}
+
+	if `: list posof "cog_avg" in x' != 0 {
+		qui: rename cog_avg cogavg
+		qui: destring cogavg, replace ignore("*,-R %$")
+		la var cogavg "% of Average on Cognitive Measures"
+	}
+
+	if `: list posof "cog_above_avg" in x' != 0 {
+		qui: rename cog_above_avg cogabv
+		qui: destring cogabv, replace ignore("*,-R %$")
+		la var cogabv "% of Above Average on Cognitive Measures"
+	}
+
+	if `: list posof "lang_below_avg" in x' != 0 {
+		qui: rename lang_below_avg lanblw
+		qui: destring lanblw, replace ignore("*,-R %$")
+		la var lanblw "% of Below Average on Language Measures"
+	}
+
+	if `: list posof "lang_avg" in x' != 0 {
+		qui: rename lang_avg lanavg
+		qui: destring lanavg, replace ignore("*,-R %$")
+		la var lanavg "% of Average on Language Measures"
+	}
+
+	if `: list posof "lang_above_avg" in x' != 0 {
+		qui: rename lang_above_avg lanabv
+		qui: destring lanabv, replace ignore("*,-R %$")
+		la var lanabv "% of Above Average on Language Measures"
+	}
+
+	if `: list posof "phydev_below_avg" in x' != 0 {
+		qui: rename phydev_below_avg phyblw
+		qui: destring phyblw, replace ignore("*,-R %$")
+		la var phyblw "% of Below Average on Physical Development Measures"
+	}
+
+	if `: list posof "phydev_avg" in x' != 0 {
+		qui: rename phydev_avg phyavg
+		qui: destring phyavg, replace ignore("*,-R %$")
+		la var phyavg "% of Average on Physical Development Measures"
+	}
+
+	if `: list posof "phydev_above_avg" in x' != 0 {
+		qui: rename phydev_above_avg phyabv
+		qui: destring phyabv, replace ignore("*,-R %$")
+		la var phyabv "% of Above Average on Physical Development Measures"
+	}
+
+	if `: list posof "selfhelp_below_avg" in x' != 0 {
+		qui: rename selfhelp_below_avg slfblw
+		qui: destring slfblw, replace ignore("*,-R %$")
+		la var slfblw "% of Below Average on Self-Help Measures"
+	}
+
+	if `: list posof "selfhelp_avg" in x' != 0 {
+		qui: rename selfhelp_avg slfavg
+		qui: destring slfavg, replace ignore("*,-R %$")
+		la var slfavg "% of Average on Self-Help Measures"
+	}
+
+	if `: list posof "selfhelp_above_avg" in x' != 0 {
+		qui: rename selfhelp_above_avg slfabv
+		qui: destring slfabv, replace ignore("*,-R %$")
+		la var slfabv "% of Above Average on Self-Help Measures"
+	}
+
+	if `: list posof "social_emo_below_avg" in x' != 0 {
+		qui: rename social_emo_below_avg selblw
+		qui: destring selblw, replace ignore("*,-R %$")
+		la var selblw "% of Below Average on Socio-Emotional Measures"
+	}
+
+	if `: list posof "social_emo_avg" in x' != 0 {
+		qui: rename social_emo_avg selavg
+		qui: destring selavg, replace ignore("*,-R %$")
+		la var selavg "% of Average on Socio-Emotional Measures"
+	}
+
+	if `: list posof "social_emo_above_avg" in x' != 0 {
+		qui: rename social_emo_above_avg selabv
+		qui: destring selabv, replace ignore("*,-R %$")
+		la var selabv "% of Above Average on Socio-Emotional Measures"
+	}
+
 	if 	`: list posof "coop_cd" in x' != 0 {
 		qui: rename coop_cd coopid 
 		la var coopid "Cooperative ID Number"
 	}
 	
-		if ustrregexm(`"`x'"', "cohort_[0-9]{4}") == 1 {
+	if ustrregexm(`"`x'"', "cohort_[0-9]{4}") == 1 {
 		rename cohort_# cohort#
 		foreach v of var cohort???? {
 			qui: replace `v' = 	cond(upper(`v') == "YES", "1", 				 ///   
@@ -2775,9 +3028,136 @@ prog def kdestandardize
 		qui: ds cohort*
 		qui: drop if nullrecord == `: word count `r(varlist)''
 		drop nullrecord		
-		deltargets, st(cohort) pk(fileid schid schyr amogroup) tar(targettype)
+		// deltargets, st(cohort) pk(fileid schid schyr amogroup) tar(targettype)
 	}	
 	
+	if `: list posof "test_takers_cnt" in x' != 0 {
+		qui: rename test_takers_cnt ntested
+		qui: destring ntested, replace ignore("*,-R %$")
+		la var ntested "# of Students Taking AP Exams"
+	}
+
+	if `: list posof "test_takers_pct" in x' != 0 {
+		qui: rename test_takers_pct pcttested
+		qui: destring pcttested, replace ignore("*,-R %$")
+		la var pcttested "% of Students Taking AP Exams"
+	}
+
+	if `: list posof "exam_taken_cnt" in x' != 0 {
+		qui: rename exam_taken_cnt nexams
+		qui: destring nexams, replace ignore("*,-R %$")
+		la var nexams "# of AP Exams Administered"
+	}
+
+	if `: list posof "exam_taken_grade3to5_cnt" in x' != 0 {
+		qui: rename exam_taken_grade3to5_cnt ncredit
+		qui: destring ncredit, replace ignore("*,-R %$")
+		la var ncredit "# of Exams with College Credit Bearing Scores"
+	}
+
+	if `: list posof "exam_taken_grade3to5_pct" in x' != 0 {
+		qui: rename exam_taken_grade3to5_pct pctcredit
+		qui: destring pctcredit, replace ignore("*,-R %$")
+		la var pctcredit "% of Exams with College Credit Bearing Scores"
+	}
+	
+		if `: list posof "py_novice_pct" in x' != 0 {
+		qui: rename py_novice_pct pnovicepct
+		qui: destring pnovicepct, replace ignore("*,-R %$")
+		la var pnovicepct "Prior Year % Novice"
+	}
+
+	if `: list posof "py_reduction_target_needed" in x' != 0 {
+		qui: rename py_reduction_target_needed pynovicetarget
+		qui: destring pynovicetarget, replace ignore("*,-R %$")
+		la var pynovicetarget "Prior Year Reduction Target"
+	}
+
+	if `: list posof "cy_novice_pct" in x' != 0 {
+		qui: rename cy_novice_pct cnovicepct
+		qui: destring cnovicepct, replace ignore("*,-R %$")
+		la var cnovicepct "Current Year % Novice"
+	}
+
+	if `: list posof "cy_reduction_target_met" in x' != 0 {
+		qui: rename cy_reduction_target_met cnovicemet
+		qui: destring cnovicemet, replace ignore("*,-R %$")
+		la var cnovicemet "Current Year Target Met"
+	}
+
+	if `: list posof "pct_target_met" in x' != 0 {
+		qui: rename pct_target_met pctmet
+		qui: destring pctmet, replace ignore("*,-R %$")
+		la var pctmet "% of Students Meeting Target"
+	}
+
+	if `: list posof "points_by_content_area" in x' != 0 {
+		qui: rename points_by_content_area contentpts
+		qui: destring contentpts, replace ignore("*,-R %$")
+		la var contentpts "Novice Reduction Points by Content Area"
+	}
+
+	if `: list posof "points_by_nr" in x' != 0 {
+		qui: rename points_by_nr nrpts
+		qui: destring nrpts, replace ignore("*,-R %$")
+		la var nrpts "Novice Reduction Points"
+	}
+
+	if `: list posof "reading" in x' != 0 {
+		qui: rename reading rlagap
+		qui: destring rlagap, replace ignore("*,-R %$")
+		la var rlagap "Gap Summary - Reading"
+	}
+
+	if `: list posof "math" in x' != 0 {
+		qui: rename math mthgap
+		qui: destring mthgap, replace ignore("*,-R %$")
+		la var mthgap "Gap Summary - Mathematics"
+	}
+
+	if `: list posof "science" in x' != 0 {
+		qui: rename science scigap
+		qui: destring scigap, replace ignore("*,-R %$")
+		la var scigap "Gap Summary - Science"
+	}
+
+	if `: list posof "social_studies" in x' != 0 {
+		qui: rename social_studies socgap 
+		qui: destring socgap, replace ignore("*,-R %$")
+		la var socgap "Gap Summary - Social Studies"
+	}
+
+	if `: list posof "writing" in x' != 0 {
+		qui: rename writing wrtgap
+		qui: destring wrtgap, replace ignore("*,-R %$")
+		la var wrtgap "Gap Summary - Writing"
+	}
+
+	if `: list posof "language_mechanics" in x' != 0 {
+		qui: rename language_mechanics langap
+		qui: destring langap, replace ignore("*,-R %$")
+		la var langap "Gap Summary - Language Mechanics"
+	}
+
+	if `: list posof "acct_type" in x' != 0 { 
+		qui: rename acct_type accttype
+		qui: replace accttype = cond(accttype == "GAP", "0", "1")
+		qui: destring accttype, replace 
+		la val accttype accttype
+		la var accttype "Accountability Type"						
+	}
+
+	if `: list posof "non_dup_gap" in x' != 0 { 
+		qui: rename non_dup_gap ndg
+		qui: destring ndg, replace ignore("*,-R %$")
+		la var ndg "Non Duplicated Gap Group"
+	}
+
+	if `: list posof "novice_reduction" in x' != 0 { 
+		qui: rename novice_reduction nr
+		qui: destring nr, replace ignore("*,-R %$")
+		la var nr "Novice Reduction Gap"
+	}
 
 	// Handles instances of the sch_name variable
 	if `: list posof "sch_name" in x' != 0 {
@@ -2793,7 +3173,8 @@ prog def kdestandardize
 		gsort schid - schyr
 		
 		// Replace other names with most recent name if school had multiple names
-		qui: replace schnm = schnm[_n - 1] if unschnms > 1 & schnm[_n - 1] != schnm
+		qui: replace schnm = schnm[_n - 1] if unschnms > 1 &				 ///   
+		schnm[_n - 1] != schnm & schid[_n - 1] == schid
 		
 		drop unschnms
 		
@@ -2858,10 +3239,9 @@ prog def deltargets
 		if `"`i3'"' == "" loc i3 `pk' targetyr
 		if `"`j3'"' == "" loc j3 target
 		cap drop ncesid
-
 		qui: reshape long `stub', i(`i1') j(`j1')
 		qui: reshape wide `stub', i(`i2') j(`j2')
-		qui: ds `stub'
+		qui: ds `stub'*
 		loc x `r(varlist)'
 		if `: word count `x'' == 2 {
 			rename (`stub'1 `stub'2)(n pct)
@@ -2916,11 +3296,11 @@ prog def deltargets
 			
 			if `: list posof "pct4" in targets' != 0 {
 				cap {
-					rename n3 nden
+					rename n4 nden
 					la var nden "Denominator # Target"
 				}
 				cap {
-					qui: rename pct3 pctden
+					qui: rename pct4 pctden
 					la var pctden "Denominator % Target"
 				}
 			}
@@ -2933,6 +3313,7 @@ prog def deltargets
 					la var met "Met Target"
 					assert pctactual > pctdelivery if met == 1
 				}
+				cap drop n5
 			}
 			
 		}

@@ -1,3 +1,35 @@
+/*******************************************************************************
+*                                                                              *
+* Title - KDECOMBO                                                             *
+*                                                                              *
+* Description - Program used to combine data set files from the KDE school and *
+*               district report card data sets.  This handles performing the   *
+*               equivalent of a union operation on the data from the files and *
+*               corresponding worksheets.                                      *
+*                                                                              *
+* Dependencies -                                                               *
+*     Internal - fileids.ado                                                   *
+*     External - none                                                          *
+*                                                                              *
+* Parameters -                                                                 *
+*     Required -                                                               *
+*         filenm - String containing the file name containing the data.        *
+*         sheets - The worksheets in which the data are stored.                *
+*         years - The academic year ending used to define subdirectories.      *
+*     Optional -                                                               *
+*         root - The parent directory where annual subdirectories are found.   *
+*                                                                              *
+* Output -                                                                     *
+*     Leaves a data set in memory containing the resulting union of data sets  *
+*     identified by the parameters passed to the command.                      *
+*                                                                              *
+* Usage -                                                                      *
+*     kdecombo CTE_CAREER_PERKINS, sheets(`"`"Sheet 1"' `"Sheet 1"'"')     /// *
+*     y(2014 2015) r(~/Desktop/kentuckyStateReportCards/newdl)                 *
+*                                                                              *
+* Lines - 105                                                                  *
+*                                                                              *
+*******************************************************************************/
 
 // Capture any errors when trying to drop the program from memory
 cap prog drop kdecombo
@@ -10,50 +42,58 @@ prog def kdecombo
 	
 	// Define the syntax used to call the program
 	syntax anything(name=filenm id="Need file name"), SHeets(string) 		 ///   
-	Years(string asis)
+	Years(string asis) [ Root(string asis) ]
 
 	// Load first year of data	
-	qui: import excel using raw/`: word 1 of `years''/`filenm'.xlsx, 		 ///   
+	qui: import excel using `"`root'/`: word 1 of `years''/`filenm'.xlsx"',  ///   
 	first case(l) clear  sheet(`"`: word 1 of `sheets''"') allstring
 	
 	// Defines value label for file ID variable
-	la def fileid 1 `"`: word 1 of `years''/`filenm'.xlsx -- `: word 1 of `sheets''"', modify
+	fileids `filenm', s(`: word 1 of `years'') sheetnu(1)					 ///   
+	sheetna(`"`: word 1 of `sheets''"') 
+
+	loc fileid `r(labdef)'
 	
-	// Creates a file ID variable to verify the number of workbooks & worksheets
-	// loaded into this data set
-	qui: g byte fileid = 1
-	
-	// For values 2 through the total number of values passed to the years parameter
+	// For values 2 through the number of values passed to the years parameter
 	forv y = 2/`: word count `years'' {
 
-		// Adds file name to file ID value labels
-		la def fileid `y' `"`: word `y' of `years''/`filenm'.xlsx -- `: word `y' of `sheets''"', modify
-			
 		// Preserve the current data in memory
 		preserve
 		
 			// Reserve namespace for a temp file
 			tempfile x`y'
 			
+			// Stores the local macro containing the year value
+			loc year `: word `y' of `years''
+			
+			// Stores the local macro containing the sheet name
+			loc sheetname `: word `y' of `sheets''
+			
 			// import the data for the next year headers in the first row, 
 			// make all variable names lower cased, clear data from memory, and 
 			// pull the correct word for this file to identify the worksheet
-			import excel using raw/`: word `y' of `years''/`filenm'.xlsx, 	 ///   
-			first case(l) clear sheet(`"`: word `y' of `sheets''"') allstring
+			import excel using `"`root'/`year'/`filenm'.xlsx"', ///   
+			first case(l) clear sheet(`"`sheetname'"') allstring
 			
-			// Adds a new file ID 
-			qui: g byte fileid = `y'
-			
+			// Defines value label for file ID variable
+			fileids `filenm', s(`year') sheetnu(`y') sheetna(`"`sheetname'"') 
+
+			// Adds the key value pair used to define the value label
+			loc fileid `fileid' `r(labdef)'
+		
 			// Save the data to the tempfile
 			qui: save `x`y''.dta, replace
 			
 		// Restore the data to it's previous state	
 		restore
 		
-		// Add the data from the step above in this loop to the original data set
+		// Unions the most recently processed file with the first file
 		qui: append using `x`y''.dta
 
 	} // Move to the next value
+	
+	// Defines the value labels for the fileid variable
+	la def fileid `fileid', modify
 	
 	// Label the file ID values
 	la val fileid fileid 
