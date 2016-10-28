@@ -224,7 +224,7 @@ qui: save newclean/assessEOC.dta, replace
 // Combines all of the KPREP Grade Level Assessment files/worksheets
 kdecombo ASSESSMENT_KPREP_GRADE, y(2012 2012 2013 2014 2015 2016)			 ///   
 sheets(`"`"Public Alternative Programs"' `"Public Schools"' "' 				 ///   
-`"`"Assessment KPREP Grades"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  		 ///   
+`"`"Assessment KPREP Grades"' `"Sheet1"' `"Sheet1"' `"Sheet 1"'"')  		 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid testnm schyr schid level content grade 	 ///   
