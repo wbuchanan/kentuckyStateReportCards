@@ -350,6 +350,9 @@ prog def kdestandardize
 							 cond(test_type == "PSAT", "8", 				 ///   
 							 cond(test_type == "CCR", "9", 					 ///   
 							 cond(test_type == "CCR EXPLORE", "10", "")))))))))) 
+							 
+		// Handles missing test name in 2011-2012 file
+		qui: replace test_type = "10" if mi(test_type) & ustrregexm(schyr, "2012$")
 		
 		// Renames the test_type variable
 		qui: rename test_type testnm
@@ -3133,6 +3136,9 @@ prog def kdestandardize
 		order `primarykey' `metricvars'
 		
 	} // End IF Block for primary key option
+	
+	// Optimization of storage types/formats
+	qui: compress
 		
 end		
 
@@ -3143,24 +3149,10 @@ prog def testpk, rclass
 	cap isid `varlist'
 	if _rc == 0 di as res "Primary Key: `varlist' confirmed."
 	else if _rc != 0 di as res "Primary Key: `varlist' failed."
-	char define _dta[primaryKey] `"`varlist'"'
+	
+	// Adds string containing primary key definition as a data set characteristic
+	char define _dta[primaryKey] `"`: subinstr loc varlist " " ", ", all'"'
 	ret sca _rc = _rc
-end	
-
-prog def sqltypes
-	syntax varlist
-	foreach v of var `varlist' {
-		loc vtype `: var type `v''
-		if substr(`"`vtype'"', 1, 3) == "str" {
-			char `v'[sqltype] `"`v' VARCHAR(`: subinstr loc vtype "str" "", all')"'
-		}
-		else if `"`vtype'"' == "byte" char `v'[sqltype] `"`v' TINYINT"'
-		else if `"`vtype'"' == "int" char `v'[sqltype] `"`v' SMALLINT"'
-		else if `"`vtype'"' == "long" char `v'[sqltype] `"`v' INT"'
-		else if `"`vtype'"' == "float" char `v'[sqltype] `"`v' DOUBLE PRECISION"'
-		else if `"`vtype'"' == "double" char `v'[sqltype] `"`v' DOUBLE PRECISION"'
-		
-	}
 end	
 
 // Subroutine for handling reshaping the delivery targets data 

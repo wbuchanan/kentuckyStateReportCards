@@ -73,10 +73,10 @@ prog def kdecombo
 			// make all variable names lower cased, clear data from memory, and 
 			// pull the correct word for this file to identify the worksheet
 			import excel using `"`root'/`year'/`filenm'.xlsx"', ///   
-			first case(l) clear sheet(`"`sheetname'"') allstring
+			first case(l) clear sheet("`sheetname'") allstring
 			
 			// Defines value label for file ID variable
-			fileids `filenm', s(`year') sheetnu(`y') sheetna(`"`sheetname'"') 
+			fileids `filenm', s(`year') sheetnu(`y') sheetna("`sheetname'") 
 
 			// Adds the key value pair used to define the value label
 			loc fileid `fileid' `r(labdef)'
