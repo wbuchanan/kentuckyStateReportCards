@@ -1,6 +1,6 @@
 cap prog drop kdestandardize
 
-prog def kdestandardize
+prog def kdestandardize, rclass
 
 	version 14
 	
@@ -3140,66 +3140,159 @@ prog def kdestandardize
 	// Optimization of storage types/formats
 	qui: compress
 		
+	// Get variable names
+	qui: ds
+	
+	// Call sqltypes program
+	sqltypes `r(varlist)'
+	
+	// Store the DDL temporarily
+	loc tmp `r(tabledef)'
+	
+	// Return the result from the call to sqltypes to the end user
+	ret loc tabledef `tmp'
+	
+// End of program	
 end		
 
 
 // Sub process to check for optional primary key definition
 prog def testpk, rclass
+
+	// Defines the calling syntax
 	syntax varlist 
+	
+	// Captures result of call to the isid command
 	cap isid `varlist'
+	
+	// If successful print success message on console
 	if _rc == 0 di as res "Primary Key: `varlist' confirmed."
-	else if _rc != 0 di as res "Primary Key: `varlist' failed."
+	
+	// Otherwise print an error message
+	else di as err "Primary Key: `varlist' failed."
 	
 	// Adds string containing primary key definition as a data set characteristic
 	char define _dta[primaryKey] `"`: subinstr loc varlist " " ", ", all'"'
+	
+	// Return the return code from the program
 	ret sca _rc = _rc
+	
+// End the testpk subroutine	
 end	
 
 // Subroutine for handling reshaping the delivery targets data 
 prog def deltargets
 
+	// Defines calling syntax to subroutine
 	syntax, STub(string asis) Pk(varlist) [ TARgettype(string asis) 		 ///   
 	i1(string asis) i2(string asis) i3(string asis) j1(string asis) 		 ///   
 	j2(string asis) j3(string asis) ]
 	
+		// If no targettype argument is found define default value
 		if `"`targettype'"' == "" loc targettype targettype
+		
+		// Defines default for i1 parameter if no argument passed
 		if `"`i1'"' == "" loc i1 `pk' target `targettype'
+		
+		// Defines default for j1 parameter if no argument is passed
 		if `"`j1'"' == "" loc j1 targetyr
+		
+		// Defines default for i2 parameter if no argument is passed
 		if `"`i2'"' == "" loc i2 `pk' targetyr target
+		
+		// Defines default for j2 parameter if no argument is passed
 		if `"`j2'"' == "" loc j2 `targettype'
+		
+		// Defines default for i3 parameter if no argument is passed
 		if `"`i3'"' == "" loc i3 `pk' targetyr
+		
+		// Defines default for j3 parameter if no argument is passed
 		if `"`j3'"' == "" loc j3 target
+		
+		// Drops the ncesid variable if present in the file and captures error 
+		// code if it doesn't
 		cap drop ncesid
+		
+		// Reshapes the data from wide to long (Normalizes)
 		qui: reshape long `stub', i(`i1') j(`j1')
+		
+		// Reshapes the data from long to wide (Denormalizes)
 		qui: reshape wide `stub', i(`i2') j(`j2')
+		
+		// Gets the variable list for the stub passed to the program
 		qui: ds `stub'*
+		
+		// Stores the variable list in the local macro x
 		loc x `r(varlist)'
+		
+		// If there are two variables only
 		if `: word count `x'' == 2 {
+		
+			// Rename these variables n and pct respectively
 			rename (`stub'1 `stub'2)(n pct)
+			
+			// Then reshape the data from long to wide (Denormalize)
 			qui: reshape wide n pct, i(`i3') j(`j3')
-		}
+			
+		} // End IF Block for two stub variables scenario
+		
+		// Otherwise
 		else {
+		
+			// Rename the stub variables pct
 			rename `stub'* pct
+			
+			// Create a new variable n to standardize reshape call below using 
+			// the smallest sized missing values possible
 			qui: g byte n = .
+			
+			// Reshape the data from long to wide (Denormalize)
 			qui: reshape wide n pct, i(`i3') j(`j3')
+			
+			// Drop the variables that we created in this process that begin 
+			// with n and have a single character afterwards
 			drop n?
-		}
+			
+		} // End ELSE Block
 		
-		
+		// Defines value labels for meeting/not meeting taget goals
 		la def met .n "N/A" 0 "No" 1 "Yes", modify
+		
+		// Defines a variable label for the variable specified in the j1 parameter
 		la var `j1' "Delivery Target Year"
+		
+		// Gets the list of percentage variables
 		qui: ds pct* 
+		
+		// Stores these variable names in the local macro named targets
 		loc targets `r(varlist)'
+		
+		// If pct1 is a variable name in the variable list
 		if `: list posof "pct1" in targets' != 0 {
+		
+			// Will capture any errors associated with number value targets
 			cap {
+			
+				// Renames the variable to nactual
 				rename n1 nactual
+				
+				// Applies a variable label
 				la var nactual "Actual Score # Target"
-			}
+				
+			} // End of first capture block
+			
+			// Captures any errors related to percentage variables
 			cap {
+			
+				// Renames to pctactual
 				qui: rename pct1 pctactual
+				
+				// Applies a variable label to the variable
 				la var pctactual "Actual Score % Target"
-			}
-		}	
+				
+			} // End of capture block
+			
+		} // End of Block handling the pct1 variable name in the variable list
 		
 		if `: list posof "pct2" in targets' != 0 {
 			cap {

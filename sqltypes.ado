@@ -1,31 +1,37 @@
 /*******************************************************************************
 *                                                                              *
-* Title - FILEIDS                                                              *
+* Title - SQLTYPES                                                             *
 *                                                                              *
-* Description - Program used to generate unique fileid values for KY school    *
-*               and district report card data sets that do not overlap over    *
-*               file types.                                                    *
+* Description - Program used to map Stata types to SQL data types.  Dates and  *
+*               Datetimes are still treated as numeric values to ensure the    *
+*               data can be imported back into Stata consistently and without  *
+*               any loss of information. Program also returns the DDL for a    *
+*               table in a local macro.  This will not work in cases where     *
+*               there are many variables and handlers for that case will be    *
+*               added at a future date.                                        * 
 *                                                                              *
 * Dependencies -                                                               *
 *     Internal - none                                                          *
-*     External - should only be called by the kdecombo program                 *
+*     External - none                                                          *
 *                                                                              *
 * Parameters -                                                                 *
 *     Required -                                                               *
-*         filenm - String containing the file name containing the data.        *
-*         sheetname - The worksheet in which the data are located.             *
-*         schyr - The academic year ending used to define subdirectories.      *
-*         sheetnumber - An iterator used to identify unique files/years/sheets *
+*         varlist - variables to map.                                          *
 *     Optional -                                                               *
+*         nodestring - option to prevent attempts to remove dataset            *
+*                      characteristics related to destring command from varlist*
 *                                                                              *
 * Output -                                                                     *
-*     Returns a local macro in r(labdef) containing the key/value pair used to *
-*     define the value label associated with this specific instance.           *
+*     Returns a local macro in r(tabledef) containing the DDL used to define a *
+*     table in an RDBMS.                                                       *
 *                                                                              *
 * Usage -                                                                      *
-*     called internally by kdecombo only                                       *
+*     Typically/recommended usage would follow a call to the -ds- command      *
+*     Example:                                                                 *
+*               qui: ds                                                        *
+*               sqltypes `r(varlist)'                                          *
 *                                                                              *
-* Lines - 344                                                                  *
+* Lines - 108                                                                  *
 *                                                                              *
 *******************************************************************************/
 
@@ -77,7 +83,7 @@ prog def sqltypes, rclass
 		} // End ELSE IF Block for floating point values	
 
 		// Handles destring option
-		if `"`destring'"' != "" {
+		if `"`destring'"' == "" {
 
 			// Removes characteristics related to destringing variables
 			qui: char `v'[destring] 
