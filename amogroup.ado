@@ -159,7 +159,7 @@ prog def amogroup
 	
 	// Drops cases where the demographic label is one of the missing values 
 	// specified above
-	qui: drop if `laname' == .d
+	qui: drop if mi(`laname')
 	
 	// Drops the old variable from the data set
 	qui: drop `labels'

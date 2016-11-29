@@ -14,7 +14,7 @@ prog def kdestandardize, rclass
 	loc testlevs tested novice apprentice proficient distinguished
 	
 	// Defines local macro used to remove records with no data from ccr files
-	loc ccrhs diplomas collready caracad cartech cartot nregular pctwobonus pctwbonus
+	loc ccrhs diplomas collready caracad cartech cartot pctwobonus pctwbonus
 	
 	// Defines local macro to test for middle school CCR bench mark null records
 	loc ccrms tested msbnchmrkeng msbnchmrkrla msbnchmrkmth msbnchmrksci totmsccrpts

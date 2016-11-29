@@ -62,7 +62,7 @@ sheets(`"`"Accountability CCR High School"' "'								 ///
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(diplomas 	 ///   
-collready caracad cartech cartot nregular pctwobonus pctwbonus)
+collready caracad cartech cartot nccr pctwobonus pctwbonus)
 
 qui: save newclean/ccrHighSchool.dta, replace
 
@@ -239,7 +239,7 @@ qui: save newclean/assessKPREPgr.dta, replace
 // Combines all of the KPREP Educational Level Assessment files/worksheets
 kdecombo ASSESSMENT_KPREP_LEVEL, y(2012 2012 2013 2014 2015 2016)			 ///    
 sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
-`"`"Assessment KPREP Level"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"')  		 ///   
+`"`"Assessment KPREP Level"' `"Sheet1"' `"Sheet 1"' `"Sheet 1"'"')  		 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid testnm schyr schid level content amogroup  ///   
