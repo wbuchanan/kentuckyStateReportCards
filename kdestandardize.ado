@@ -2749,7 +2749,7 @@ prog def kdestandardize, rclass
 	// Handles Growth Score types
 	if 	`: list posof "growth_level" in x' != 0 {
 		qui: g growid = cond(growth_level == "Student Growth Percentage" | 	 ///   
-							mi(growth_level) & schyr <= 2015, 1,			 ///   
+							mi(growth_level) & schyr <= "2015", 1,			 ///   
 							cond(growth_level == "Categorical Growth", 2, .g))
 		drop growth_level
 		qui: reshape wide tested grorla gromth groboth, i(schyr schid level  ///   
@@ -2769,6 +2769,12 @@ prog def kdestandardize, rclass
 		catrla catmth catboth)
 		qui: drop if x == 8
 		drop x
+		loc torecast : subinstr loc torecast "tested" "", all
+		loc torecast : subinstr loc torecast "grorla" "", all
+		loc torecast : subinstr loc torecast "gromth" "", all
+		loc torecast : subinstr loc torecast "groboth" "", all
+		loc torecast `torecast' sgptested cattested sgprla sgpmth sgpboth 	 ///   
+		catrla catmth catboth
 							
 	}
 		

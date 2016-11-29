@@ -72,7 +72,7 @@ qui: save newclean/ccrHighSchool.dta, replace
 kdecombo ACCOUNTABILITY_CCR_MIDDLESCHOOL, y(2012 2013 2014 2015) 			 ///   
 sheets(`"`"Accountability CCR Explore"' `"ACCOUNTABILITY CCR EXPLORE MS"' "' ///   
 `"`"Sheet 1"' `"Sheet 1"'"')												 ///   
-r(~/Desktop/kentuckyStateReportCards/newdl)
+r(/Users/billy/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid testnm amogroup) m(tested 	 ///   
 totpts actengpct actrlapct actmthpct actscipct)
