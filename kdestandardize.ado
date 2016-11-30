@@ -192,7 +192,8 @@ prog def kdestandardize, rclass
 		la def progtype 1 `"English Learners"'        				         ///
 					 2 `"Migrant"'                                           ///
 					 3 `"Special Education"'                                 ///
-					 4 `"Gifted and Talented"', modify
+					 4 `"Gifted and Talented"'								 ///   
+					 5 `"Homeless"', modify
 					 
 		// Define RPT_HEADER
 		la def rpthdr 1 `"Behavior Events"'                                  ///
@@ -419,7 +420,7 @@ prog def kdestandardize, rclass
 		qui: replace grade = "99" if grade == "EO"
 		qui: replace grade = ustrregexra(grade, "[gG][rR][aA][dD][eE] ", "")
 		qui: replace grade = cond(grade == "K", "0", cond(grade == "00", "97", grade))
-		qui: replace grade = "100" if mi(grade) & inlist(schyr, 2012, 2013) & ///   
+		qui: replace grade = "100" if mi(grade) & inlist(schyr, "2012", "2013") & ///   
 		`: list posof "two_or_more_race_male_cnt" in x' != 0
 		loc torecast `torecast' grade
 		la var grade "Grade Level" 
@@ -1506,6 +1507,7 @@ prog def kdestandardize, rclass
 		qui: drop nullrecord
 		deltargets, st(progrev) pk(fileid schid schyr) tar(targettype)
 		la val met met
+		loc torecast `: subinstr loc torecast "target" "", all'
 		
 	}
 
@@ -1540,6 +1542,7 @@ prog def kdestandardize, rclass
 		qui: drop nullrecord
 		qui: g targettype = 2
 		deltargets, st(ccr) pk(fileid schid schyr) tar(targettype)
+		loc torecast `: subinstr loc torecast "target" "", all'
 
 	}
 	
@@ -1547,7 +1550,6 @@ prog def kdestandardize, rclass
 	if `: list posof "eq_pct" in x' != 0 {
 		qui: rename eq_pct eqpct
 		qui: replace eqpct = ".n" if eqpct == "N/A"
-		loc torecast `torecast' eqpct
 		la var eqpct "Equity Percent"
 	} // End of handling of the EQ_PCT variable
 	
@@ -1567,7 +1569,7 @@ prog def kdestandardize, rclass
 		//Rename Equity_Measure variable
 		qui: rename equity_measure eqm
 
-		loc torecast `torecast' eqm
+		// loc torecast `torecast' eqm
 		
 		//Applies variable label to the variable
 		la var eqm "Equity Measure"
@@ -1583,7 +1585,7 @@ prog def kdestandardize, rclass
 		qui: rename eq_label eqlabel
 		qui: destring eqlabel, replace ignore("*,-R %$")
 		
-		qui: reshape wide eqpct, i(fileid schyr schid eqlabel) j(eqm)
+		qui: reshape wide eqpct, i(fileid schyr schid eqlabel) j(eqm) string
 		qui: reshape wide eqpct?, i(fileid schyr schid ) j(eqlabel)
 		qui: count
 		loc x `= `r(N)''
@@ -1593,7 +1595,7 @@ prog def kdestandardize, rclass
 		}
 		qui: rename (eqpct14 eqpct24 eqpct31 eqpct42 eqpct55 eqpct63 eqpct74) ///   
 		(csnicomp stdconduct effectivestaff staffsgp pctnewtch pctchurn ldrship)
-		
+		loc torecast `torecast' csnicomp stdconduct effectivestaff staffsgp pctnewtch pctchurn ldrship
 		la var csnicomp "% Agree/Strongly Agree - Community Support/Involvement"
 		la var stdconduct "% Agree/Strongly Agree - Managing Student Conduct"
 		la var effectivestaff "% Exemplary/Accomplished - Overall Effectiveness"
@@ -1605,16 +1607,17 @@ prog def kdestandardize, rclass
 	} // End of handling of the EQ_LABEL variable
 	
 	if `: list posof "program_label" in x' != 0 {
-		amogroup, la(program_label) laname(amogroup)
-		qui: drop program_label
+		amogroup, la(program_label) laname(proggroup)
 	}
 	
 	// Handles instances of the PROGRAM_TYPE variable
 	if `: list posof "program_type" in x' != 0 {
-		qui: replace program_type=cond(program_type == "English Language Learners (ELL)", "1", ///
+		qui: replace program_type=cond( ///   
+		inlist(program_type, "English Language Learners (ELL)", "English Learners"), "1", ///
 								  cond(program_type == "Migrant", "2",            ///
 								  cond(program_type == "Special Education", "3",  ///
-								  cond(program_type == "Gifted and Talented", "4", "")))) 
+								  cond(program_type == "Gifted and Talented", "4", ///   
+								  cond(program_type == "Homeless", "5", ""))))) 
 		qui: rename program_type progtype
 		loc torecast `torecast' progtype
 		la var progtype "Program Type"
@@ -1858,8 +1861,9 @@ prog def kdestandardize, rclass
 	//Handles instance of the MEMBERSHIP_AIAN_CNT variable
 	if `: list posof "membership_aian_cnt" in x' != 0 {
 		cap confirm var naian
-		if _rc == 0 qui: replace naian = real(membership_aiain_cnt) if mi(naian)
-		else qui: destring membership_aian_cnt, ignore("*,-R %$") gen(naian)
+		if _rc == 0 qui: replace naian = membership_aiain_cnt if mi(naian)
+		else qui: rename membership_aian_cnt naian
+		loc torecast `torecast' naian
 		la var naian "# of American Indian/Alaskan Native Students"
 	} // End of handling of the MEMBERSHIP_AIAN_CNT variable
 	
@@ -1942,25 +1946,25 @@ prog def kdestandardize, rclass
 		
 	if 	`: list posof "membership_other_cnt" in x' != 0 {
 		cap confirm var nmulti
-		if _rc == 0 qui: replace nmulti = real(membership_other_cnt) if	 	 ///   
-					mi(nmulti) & !mi(membership_other_cnt)
-		else qui: g nmulti = real(membership_other_cnt)
-		drop membership_other_cnt
+		if _rc == 0 qui: replace nmulti = membership_other_cnt if mi(nmulti) ///   
+											& !mi(membership_other_cnt)
+		else qui: rename membership_other_cnt nmulti
+		loc torecast `torecast' nmulti
 		la var nmulti "# of Multi-Racial Students"
 	} 
 
 	if 	`: list posof "membership_other_pct" in x' != 0 {
 		cap confirm var pctmulti
-		if _rc == 0 qui: replace pctmulti = real(membership_other_pct) if 	 ///   
+		if _rc == 0 qui: replace pctmulti = membership_other_pct if 		 ///   
 						 mi(pctmulti) & !mi(membership_other_pct)
-		else qui: g pctmulti = real(membership_other_pct)				 
-		drop membership_other_pct
+		else qui: rename membership_other_pct pctmulti	 
+		loc torecast `torecast' pctmulti
 		la var pctmulti "% of Multi-Racial Students"
 	} 
 
 	if 	`: list posof "membership_free_lunch_cnt" in x' != 0 {
 		qui: rename membership_free_lunch_cnt memfreelnch
-		loc torecast `torecast' memfreelnch
+		loc torecast `torecast' nfreelnch
 		qui: replace nfreelnch = memfreelnch if mi(nfreelnch)
 		drop memfreelnch
 	}
@@ -2261,7 +2265,7 @@ prog def kdestandardize, rclass
 		qui: rename cohort_type targettype
 		qui: replace targettype = cond(targettype == "FIVE YEAR", "2",		 ///
 							  cond(targettype == "FOUR YEAR", "1", ""))
-		qui: replace targettype = "1" if mi(targettype) & schyr <= 2013					  
+		qui: replace targettype = "1" if mi(targettype) & real(schyr) <= 2013					  
 		loc torecast `torecast' targettype
 	} //End of handling of the COHORT_TYPE variable
 	
@@ -2506,102 +2510,102 @@ prog def kdestandardize, rclass
 	}
 	
 	if 	`: list posof "enrollment_total" in x' != 0 {
-		qui: replace membership = real(enrollment_total) if mi(membership) & !mi(enrollment_total) 
+		qui: replace membership = enrollment_total if mi(membership) & !mi(enrollment_total) 
 		drop enrollment_total
 	}
 
 	if 	`: list posof "enrollment_male_cnt" in x' != 0 {
-		qui: replace nmale = real(enrollment_male_cnt) if mi(nmale) & !mi(enrollment_male_cnt) 
+		qui: replace nmale = enrollment_male_cnt if mi(nmale) & !mi(enrollment_male_cnt) 
 		drop enrollment_male_cnt
 	}
 
 	if 	`: list posof "enrollment_male_pct" in x' != 0 {
-		qui: replace pctmale = real(enrollment_male_pct) if mi(pctmale) & !mi(enrollment_male_pct) 
+		qui: replace pctmale = enrollment_male_pct if mi(pctmale) & !mi(enrollment_male_pct) 
 		drop enrollment_male_pct
 	}
 
 	if 	`: list posof "enrollment_female_cnt" in x' != 0 {
-		qui: replace nfemale = real(enrollment_female_cnt) if mi(nfemale) & !mi(enrollment_female_cnt) 
+		qui: replace nfemale = enrollment_female_cnt if mi(nfemale) & !mi(enrollment_female_cnt) 
 		drop enrollment_female_cnt
 	}
 
 	if 	`: list posof "enrollment_female_pct" in x' != 0 {
-		qui: replace pctfemale = real(enrollment_female_pct) if mi(pctfemale) & !mi(enrollment_female_pct) 
+		qui: replace pctfemale = enrollment_female_pct if mi(pctfemale) & !mi(enrollment_female_pct) 
 		drop enrollment_female_pct
 	}
 
 	if 	`: list posof "enrollment_white_cnt" in x' != 0 {
-		qui: replace nwhite = real(enrollment_white_cnt) if mi(nwhite) & !mi(enrollment_white_cnt) 
+		qui: replace nwhite = enrollment_white_cnt if mi(nwhite) & !mi(enrollment_white_cnt) 
 		drop enrollment_white_cnt
 	}
 
 	if 	`: list posof "enrollment_white_pct" in x' != 0 {
-		qui: replace pctwhite = real(enrollment_white_pct) if mi(pctwhite) & !mi(enrollment_white_pct) 
+		qui: replace pctwhite = enrollment_white_pct if mi(pctwhite) & !mi(enrollment_white_pct) 
 		drop enrollment_white_pct
 	}
 
 	if 	`: list posof "enrollment_black_cnt" in x' != 0 {
-		qui: replace nblack = real(enrollment_black_cnt) if mi(nblack) & !mi(enrollment_black_cnt) 
+		qui: replace nblack = enrollment_black_cnt if mi(nblack) & !mi(enrollment_black_cnt) 
 		drop enrollment_black_cnt
 	}
 
 	if 	`: list posof "enrollment_black_pct" in x' != 0 {
-		qui: replace pctblack = real(enrollment_black_pct) if mi(pctblack) & !mi(enrollment_black_pct) 
+		qui: replace pctblack = enrollment_black_pct if mi(pctblack) & !mi(enrollment_black_pct) 
 		drop enrollment_black_pct
 	}
 
 	if 	`: list posof "enrollment_hispanic_cnt" in x' != 0 {
-		qui: replace nhisp = real(enrollment_hispanic_cnt) if mi(nhisp) & !mi(enrollment_hispanic_cnt) 
+		qui: replace nhisp = enrollment_hispanic_cnt if mi(nhisp) & !mi(enrollment_hispanic_cnt) 
 		drop enrollment_hispanic_cnt
 	}
 
 	if 	`: list posof "enrollment_hispanic_pct" in x' != 0 {
-		qui: replace pcthisp = real(enrollment_hispanic_pct) if mi(pcthisp) & !mi(enrollment_hispanic_pct) 
+		qui: replace pcthisp = enrollment_hispanic_pct if mi(pcthisp) & !mi(enrollment_hispanic_pct) 
 		drop enrollment_hispanic_pct
 	}
 
 	if 	`: list posof "enrollment_asian_cnt" in x' != 0 {
-		qui: replace nasian = real(enrollment_asian_cnt) if mi(nasian) & !mi(enrollment_asian_cnt) 
+		qui: replace nasian = enrollment_asian_cnt if mi(nasian) & !mi(enrollment_asian_cnt) 
 		drop enrollment_asian_cnt
 	}
 
 	if 	`: list posof "enrollment_asian_pct" in x' != 0 {
-		qui: replace pctasian = real(enrollment_asian_pct) if mi(pctasian) & !mi(enrollment_asian_pct) 
+		qui: replace pctasian = enrollment_asian_pct if mi(pctasian) & !mi(enrollment_asian_pct) 
 		drop enrollment_asian_pct
 	}
 
 	if 	`: list posof "enrollment_aian_cnt" in x' != 0 {
-		qui: replace naian = real(enrollment_aian_cnt) if mi(naian) & !mi(enrollment_aian_cnt) 
+		qui: replace naian = enrollment_aian_cnt if mi(naian) & !mi(enrollment_aian_cnt) 
 		drop enrollment_aian_cnt
 	}
 
 	if 	`: list posof "enrollment_aian_pct" in x' != 0 {
-		qui: replace pctaian = real(enrollment_aian_pct) if mi(pctaian) & !mi(enrollment_aian_pct) 
+		qui: replace pctaian = enrollment_aian_pct if mi(pctaian) & !mi(enrollment_aian_pct) 
 		drop enrollment_aian_pct
 	}
 
 	if 	`: list posof "enrollment_hawaiian_cnt" in x' != 0 {
-		qui: replace npacisl = real(enrollment_hawaiian_cnt) if mi(npacisl) & !mi(enrollment_hawaiian_cnt) 
+		qui: replace npacisl = enrollment_hawaiian_cnt if mi(npacisl) & !mi(enrollment_hawaiian_cnt) 
 		drop enrollment_hawaiian_cnt
 	}
 
 	if 	`: list posof "enrollment_hawaiian_pct" in x' != 0 {
-		qui: replace pctpacisl = real(enrollment_hawaiian_pct) if mi(pctpacisl) & !mi(enrollment_hawaiian_pct) 
+		qui: replace pctpacisl = enrollment_hawaiian_pct if mi(pctpacisl) & !mi(enrollment_hawaiian_pct) 
 		drop enrollment_hawaiian_pct
 	}
 
 	if 	`: list posof "enrollment_other_cnt" in x' != 0 {
-		qui: replace nmulti = real(enrollment_other_cnt) if mi(nmulti) & !mi(enrollment_other_cnt) 
+		qui: replace nmulti = enrollment_other_cnt if mi(nmulti) & !mi(enrollment_other_cnt) 
 		drop enrollment_other_cnt
 	}
 
 	if 	`: list posof "enrollment_other_pct" in x' != 0 {
-		qui: replace pctmulti = real(enrollment_other_pct) if mi(pctmulti) & !mi(enrollment_other_pct) 
+		qui: replace pctmulti = enrollment_other_pct if mi(pctmulti) & !mi(enrollment_other_pct) 
 		drop enrollment_other_pct
 	}
 
 	if 	`: list posof "fte_tch_total" in x' != 0 {
-		qui: replace nfte = real(fte_tch_total) if mi(nfte) & !mi(fte_tch_total) 
+		qui: replace nfte = fte_tch_total if mi(nfte) & !mi(fte_tch_total) 
 		drop fte_tch_total
 	}
 
@@ -2618,12 +2622,12 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "male_total" in x' != 0 {
-		qui: replace nmale = real(male_total) if mi(nmale) & !mi(male_total) 
+		qui: replace nmale = male_total if mi(nmale) & !mi(male_total) 
 		drop male_total
 	}
 
 	if 	`: list posof "female_total" in x' != 0 {
-		qui: replace nfemale = real(female_total) if mi(nfemale) & !mi(female_total) 
+		qui: replace nfemale = female_total if mi(nfemale) & !mi(female_total) 
 		drop female_total
 	}
 
@@ -2640,7 +2644,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "white_total" in x' != 0 {
-		qui: replace nwhite = real(white_total) if mi(nwhite) & !mi(white_total) 
+		qui: replace nwhite = white_total if mi(nwhite) & !mi(white_total) 
 		drop white_total
 	}
 
@@ -2657,7 +2661,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "black_total" in x' != 0 {
-		qui: replace nblack = real(black_total) if mi(nblack) & !mi(black_total) 
+		qui: replace nblack = black_total if mi(nblack) & !mi(black_total) 
 		drop black_total
 	}
 
@@ -2674,7 +2678,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "hispanic_total" in x' != 0 {
-		qui: replace nhisp = real(hispanic_total) if mi(nhisp) & !mi(hispanic_total) 
+		qui: replace nhisp = hispanic_total if mi(nhisp) & !mi(hispanic_total) 
 		drop hispanic_total
 	}
 
@@ -2691,7 +2695,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "asian_total" in x' != 0 {
-		qui: replace nasian = real(asian_total) if mi(nasian) & !mi(asian_total) 
+		qui: replace nasian = asian_total if mi(nasian) & !mi(asian_total) 
 		drop asian_total
 	}
 
@@ -2708,7 +2712,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "aian_total" in x' != 0 {
-		qui: replace naian = real(aian_total) if mi(naian) & !mi(aian_total) 
+		qui: replace naian = aian_total if mi(naian) & !mi(aian_total) 
 		drop aian_total
 	}
 
@@ -2725,7 +2729,7 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "hawaiian_total" in x' != 0 {
-		qui: replace npacisl = real(hawaiian_total) if mi(npacisl) & !mi(hawaiian_total) 
+		qui: replace npacisl = hawaiian_total if mi(npacisl) & !mi(hawaiian_total) 
 		drop hawaiian_total
 	}
 
@@ -2742,14 +2746,14 @@ prog def kdestandardize, rclass
 	}
 
 	if 	`: list posof "two_or_more_race_total" in x' != 0 {
-		qui: replace nmulti = real(two_or_more_race_total) if mi(nmulti) & !mi(two_or_more_race_total) 
+		qui: replace nmulti = two_or_more_race_total if mi(nmulti) & !mi(two_or_more_race_total) 
 		drop two_or_more_race_total
 	}
 
 	// Handles Growth Score types
 	if 	`: list posof "growth_level" in x' != 0 {
 		qui: g growid = cond(growth_level == "Student Growth Percentage" | 	 ///   
-							mi(growth_level) & schyr <= "2015", 1,			 ///   
+							mi(growth_level) & real(schyr) <= 2015, 1,			 ///   
 							cond(growth_level == "Categorical Growth", 2, .g))
 		drop growth_level
 		qui: reshape wide tested grorla gromth groboth, i(schyr schid level  ///   
@@ -2925,6 +2929,8 @@ prog def kdestandardize, rclass
 	
 	if ustrregexm(`"`x'"', "cohort_[0-9]{4}") == 1 {
 		rename cohort_# cohort#
+		cap drop reportyear_2014
+		cap rename reportyear_# cohort#
 		foreach v of var cohort???? {
 			qui: replace `v' = 	cond(upper(`v') == "YES", "1", 				 ///   
 								cond(upper(`v') == "NO", "0", 				 ///   
@@ -3196,6 +3202,13 @@ prog def deltargets
 	
 		// If no targettype argument is found define default value
 		if `"`targettype'"' == "" loc targettype targettype
+
+		// Tests whether or not the target type variable is a string
+		// If so sets a local to specify the string option for the reshape command
+		if substr(`"`: type `targettype''"', 1, 3) == "str" loc stringy string
+		
+		// Or sets a null macro
+		else loc stringy 
 		
 		// Defines default for i1 parameter if no argument passed
 		if `"`i1'"' == "" loc i1 `pk' target `targettype'
@@ -3220,7 +3233,7 @@ prog def deltargets
 		cap drop ncesid
 		
 		// Reshapes the data from wide to long (Normalizes)
-		qui: reshape long `stub', i(`i1') j(`j1')
+		qui: reshape long `stub', i(`i1') j(`j1') `stringy'
 		
 		// Reshapes the data from long to wide (Denormalizes)
 		qui: reshape wide `stub', i(`i2') j(`j2')
@@ -3230,6 +3243,13 @@ prog def deltargets
 		
 		// Stores the variable list in the local macro x
 		loc x `r(varlist)'
+
+		// Tests whether or not the target type variable is a string
+		// If so sets a local to specify the string option for the reshape command
+		if substr(`"`: type `j3''"', 1, 3) == "str" loc stringy string
+		
+		// Or sets a null macro
+		else loc stringy 
 		
 		// If there are two variables only
 		if `: word count `x'' == 2 {
@@ -3238,7 +3258,7 @@ prog def deltargets
 			rename (`stub'1 `stub'2)(n pct)
 			
 			// Then reshape the data from long to wide (Denormalize)
-			qui: reshape wide n pct, i(`i3') j(`j3')
+			qui: reshape wide n pct, i(`i3') j(`j3') `stringy'
 			
 		} // End IF Block for two stub variables scenario
 		
@@ -3253,7 +3273,7 @@ prog def deltargets
 			qui: g byte n = .
 			
 			// Reshape the data from long to wide (Denormalize)
-			qui: reshape wide n pct, i(`i3') j(`j3')
+			qui: reshape wide n pct, i(`i3') j(`j3') `stringy'
 			
 			// Drop the variables that we created in this process that begin 
 			// with n and have a single character afterwards

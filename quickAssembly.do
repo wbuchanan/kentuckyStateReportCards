@@ -239,7 +239,7 @@ qui: save newclean/assessKPREPgr.dta, replace
 // Combines all of the KPREP Educational Level Assessment files/worksheets
 kdecombo ASSESSMENT_KPREP_LEVEL, y(2012 2012 2013 2014 2015 2016)			 ///    
 sheets(`"`"Public Alternative Programs"' `"Public Schools"' "'				 ///   
-`"`"Assessment KPREP Level"' `"Sheet1"' `"Sheet 1"' `"Sheet 1"'"')  		 ///   
+`"`"Assessment KPREP Level"' `"Sheet1"' `"Sheet1"' `"Sheet 1"'"')  			 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid testnm schyr schid level content amogroup  ///   
@@ -284,11 +284,11 @@ qui: save newclean/assessNRT.dta, replace
 /*******************************************************************************
  * Career/Technical Ed - College/Career Readiness Data  					   *
  ******************************************************************************/
-kdecombo CTE_CAREER_CCR, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015)	 ///   
-r(~/Desktop/kentuckyStateReportCards/newdl)
+kdecombo CTE_CAREER_CCR, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') 	 ///   
+y(2014 2015 2016) r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid grade) m(totenrsrs prepenrsrs  ///   
-collrdy actwrkkeys asvab industrycert kossa carrdy ccrn ccrpct) grade(99)
+collready actwrkkeys asvab industrycert kossa cartot nccr pctccr) grade(99)
 
 qui: save newclean/cteCCR.dta, replace
 
@@ -307,8 +307,8 @@ qui: save newclean/ctePathway.dta, replace
 /*******************************************************************************
  * Career/Technical Ed - Perkins Program Data			 					   *
  ******************************************************************************/
-kdecombo CTE_CAREER_PERKINS, sheets(`"`"Sheet 1"' `"Sheet 1"'"') y(2014 2015) ///   
-r(~/Desktop/kentuckyStateReportCards/newdl)
+kdecombo CTE_CAREER_PERKINS, sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') ///   
+y(2014 2015 2016) r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid prknsmeasure) m(membership 	 ///   
 bnchmrkprkns prknsgoal)
@@ -346,7 +346,7 @@ qui: save newclean/targetGradRate.dta, replace
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_PROFICIENCY_GAP, y(2012 2013 2014 2015 2016) 		 ///   
 sheets(`"`"Delivery Target ProficiencyGap"' "'								 ///   
-`"`"Delivery Target Proficiency Gap"' `"Sheet 1"' `"Sheet 1"' `"Sheet 1"'"') ///   
+`"`"Delivery Target Proficiency Gap"' `"Sheet1"' `"Sheet1"' `"Sheet 1"'"')   ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 drop target_type dist_name sch_name category cntyno cntyname dist_number 	 ///   
@@ -360,8 +360,8 @@ qui: save newclean/targetProfGap.dta, replace
 /*******************************************************************************
  * Financial Data		 													   *
  ******************************************************************************/
-kdecombo FINANCE, y(2015 2015 2015 2015 2016) sheets(`"`"2011-2012"' "'		 ///   
-`"`"2012-2013"' `"2013-2014"' `"2014-2015"' `"Sheet 1"'"')					 ///   
+kdecombo FINANCE, y(2014 2014 2014 2015 2016) sheets(`"`"2011-2012"' "'		 ///   
+`"`"2012-2013"' `"2013-2014"' `"Sheet 1"' `"Sheet 1"'"')					 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid fintype finlabel) m(finvalue finrank)
@@ -391,7 +391,7 @@ qui: save newclean/finance.dta, replace
  * Delivery Targets - Kindergarten Readiness Screening  					   *
  ******************************************************************************/
 kdecombo DELIVERY_TARGET_KSCREEN, y(2014 2015 2016) 						 ///   
-sheets(`"`"Sheet 1"' `"Sheet 1"' `"Sheet1"'"')								 ///   
+sheets(`"`"Sheet1"' `"Sheet1"' `"Sheet1"'"')								 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid kstype target amogroup)		 ///   
@@ -416,7 +416,7 @@ qui: save newclean/targetProgramReview.dta, replace
  ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_STUDENTS-TEACHERS, y(2012 2013 2014 2015 2016) ///   
 sheets(`"`"Sheet1"' `"Sheet1"' `"Student-Teacher Detail"' "'				 ///   
-`"`"Student-Teacher Detail"' `"Student - Teacher Detail"'"')				 ///   
+`"`"Student - Teacher Detail"' `"Student-Teacher Detail"'"')				 ///   
 r(~/Desktop/kentuckyStateReportCards/newdl)
 
 kdestandardize, primarykey(fileid schyr schid grade) m(membership ppe ada 	 ///   
@@ -463,11 +463,12 @@ qui: save newclean/envSafety.dta, replace
  * Learning Environment - Special Programs Data	  							   *
  ******************************************************************************/
 kdecombo LEARNING_ENVIRONMENT_PROGRAMS, y(2013 2013 2013 2013 2014 2014 2014 ///   
-2014 2015 2015 2015 2015 2016) sheets(`"`"Gifted and Talented"' "'			 ///   
-`"`"Migrant"' `"English Language Learners (ELL)"' `"Special Education"' "'   ///   
-`"`"Gifted"' `"Migrant"' `"ELL"' `"Special Ed"' `"Gifted"' `"Migrant"' "'	 ///   
-`"`"ELL"' `"Special Ed"' `"Sheet 1"'"')										 ///   
-r(~/Desktop/kentuckyStateReportCards/newdl)
+2014 2015 2015 2015 2015 2016 2016 2016 2016 2016)							 ///   
+sheets(`"`"Gifted and Talented"' `"Migrant"' "'								 ///   
+`"`"English Language Learners (ELL)"' `"Special Education"' `"Gifted"' "' 	 ///   
+`"`"Migrant"' `"ELL"' `"Special Ed"' `"Gifted"' `"Migrant"' `"ELL"' "' 		 ///   
+`"`"Special Ed"' `"EL"' `"Gifted & Talented"' `"Homeless"' `"Migrant"' "'	 ///   
+`"`"Special_Education"'"') r(~/Desktop/kentuckyStateReportCards/newdl)
 
 rename disagg_label program_label
 kdestandardize, primarykey(fileid schyr schid progtype proggroup) m(membership totpct)
