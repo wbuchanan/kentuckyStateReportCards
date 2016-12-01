@@ -5,7 +5,11 @@ prog def kdestandardize, rclass
 	version 14
 	
 	syntax [, 	DROPVars(string asis) GRade(integer 0) SCHYRLab(integer 0) 	 ///   
-				PRIMARYKey(string asis) Metricvars(string asis) ]
+				PRIMARYKey(string asis) Metricvars(string asis) 			 ///   
+				TABlename(passthru) ]
+	
+	// Check for required dependencies
+	checkdep egenmore
 	
 	// Defines local macro to use to shorten command lengths
 	loc rx ustrregexm
@@ -22,15 +26,15 @@ prog def kdestandardize, rclass
 	// Defines local macro to test for growth null records
 	loc growvars tested grorla gromth groboth
 	
-	la def kstype -1 "Unknown" 0 "All Students" 1 "Child Care" 				 ///   
-					2 "Head Start" 3 "Home" 4 "Other" 5 "State Funded", modify
-
 	// Drop any variables ID'd by user before constructing variable list
 	if `"`dropvars'"' != "" cap drop `dropvars'
 
 	// Define value labels that can be applied across files
 	{
 	
+	la def kstype -1 "Unknown" 0 "All Students" 1 "Child Care" 				 ///   
+					2 "Head Start" 3 "Home" 4 "Other" 5 "State Funded", modify
+
 	// Define missing value labels for nbr_tested variable
 	la def tested .d "Suppressed due to FERPA Concerns" .s "< 10 Students", modify		
 	
@@ -646,6 +650,8 @@ prog def kdestandardize, rclass
 		qui: replace amomet = 	cond(amomet == "No", "0", 					 ///   
 								cond(amomet == "Yes", "1", ""))
 		qui: destring amomet, replace ignore("*,-R %$")
+		cap char amomet[destring] ""
+		cap char amomet[destring_cmd] ""
 		qui: replace amomet = cond(mi(amogoal), .,							 ///   
 							  cond(mi(amomet) & overall >= amogoal, 1,		 ///   
 							  cond(mi(amomet) & overall < amogoal, 0, amomet)))
@@ -1492,6 +1498,8 @@ prog def kdestandardize, rclass
 		qui: replace targettype = cond(targettype == "NUMBER_PD", "1",		 ///   
 									cond(targettype == "PERCENT_PD", "2", ""))
 		qui: destring targettype, replace ignore("*,-R %$")
+		cap char targettype[destring] ""
+		cap char targettype[destring_cmd] ""
 		la val targettype targettype
 		la var targettype "Program Review Delivery Target Type"
 		qui: rename pr_# progrev#
@@ -1499,6 +1507,8 @@ prog def kdestandardize, rclass
 			loc yr "`= substr("`v'", -4, 4)'"
 			qui: replace `v' = cond(`v' == "No", "0", cond(`v' == "Yes", "1", `v'))
 			qui: destring `v', replace ignore("*,-R %$")
+			cap char `v'[destring] ""
+			cap char `v'[destring_cmd] ""
 			la var `v' "Program Review Target for `yr'"
 		}	
 		qui: egen nullrecord = rowmiss(progrev*)
@@ -1535,6 +1545,8 @@ prog def kdestandardize, rclass
 								cond(`v' == "No", "0", 						 ///   
 								cond(`v' == "N/A", ".n", `v')))
 			qui: destring `v', replace ignore("*,-R %$")
+			cap char `v'[destring] ""
+			cap char `v'[destring_cmd] ""			
 		}
 		qui: egen nullrecord = rowmiss(ccr*)
 		qui: ds ccr*
@@ -1584,7 +1596,8 @@ prog def kdestandardize, rclass
 								cond(eq_label == "Strongly Agree/Agree", "4", "5")))) 
 		qui: rename eq_label eqlabel
 		qui: destring eqlabel, replace ignore("*,-R %$")
-		
+		cap char eqlabel[destring] ""
+		cap char eqlabel[destring_cmd] ""
 		qui: reshape wide eqpct, i(fileid schyr schid eqlabel) j(eqm) string
 		qui: reshape wide eqpct?, i(fileid schyr schid ) j(eqlabel)
 		qui: count
@@ -3075,10 +3088,17 @@ prog def kdestandardize, rclass
 
 	// Handles instances of the sch_name variable
 	if `: list posof "sch_name" in x' != 0 {
+		
+		// Renames the school name variable
 		qui: rename sch_name schnm 
+		
+		// Replaces instances of State with the name of the state
 		qui: replace schnm = "Kentucky" if ustrregexm(schnm, "state", 1)
-		qui: replace schnm = distnm + " School District" if schid != "999999" & ///   
-		substr(schid, -3, 3) == "999"
+		
+		// Add School District to the end of the school name for cases where 
+		// the school name is not the state and references a school district
+		qui: replace schnm = distnm + " School District" if					 ///   
+		schid != "999999" & substr(schid, -3, 3) == "999"
 		
 		// Checks if the same school has multiple names
 		qui: egen unschnms = nvals(schnm), by(schid)
@@ -3090,6 +3110,8 @@ prog def kdestandardize, rclass
 		qui: replace schnm = schnm[_n - 1] if unschnms > 1 &				 ///   
 		schnm[_n - 1] != schnm & schid[_n - 1] == schid
 		
+		// Drops the variable used to count the number of unique values in the 
+		// school name variable
 		drop unschnms
 		
 		// Assigns variable label to the variable
@@ -3117,20 +3139,27 @@ prog def kdestandardize, rclass
 		else {
 			cap la val `v' `v'
 		}
+		cap char `v'[destring] ""
+		cap char `v'[destring_cmd] ""
 	} // End Loop	
 		
 	// If metric variable list is passed this will check for empty records.
 	if `"`metricvars'"' != "" {
-	
+		
+		// Gets the number of metric variables
 		loc mvars `: word count `metricvars''
 		
+		// Creates a new variable with the number of missing values across the 
+		// list of metric variables
 		qui: egen nullrow = rowmiss(`metricvars')
 		
+		// Drops records where all metric variables are missing
 		qui: drop if nullrow == `mvars'
 		
+		// Drops the nullrow variable
 		qui: drop nullrow
 		
-	}	
+	} // End IF BLOCK for handling metricvars arguments
 	
 	// Check for primary key if user passed values to the parameter
 	if `"`primarykey'"' != "" { 
@@ -3156,7 +3185,7 @@ prog def kdestandardize, rclass
 	qui: ds
 	
 	// Call sqltypes program
-	sqltypes `r(varlist)'
+	sqltypes `r(varlist)', `tablename'
 	
 	// Store the DDL temporarily
 	loc tmp `r(tabledef)'
@@ -3172,7 +3201,7 @@ end
 prog def testpk, rclass
 
 	// Defines the calling syntax
-	syntax varlist 
+	syntax varlist [, TABlename(string asis) ]
 	
 	// Captures result of call to the isid command
 	cap isid `varlist'
@@ -3379,4 +3408,24 @@ prog def deltargets
 		}
 		
 end
+
+// Defines subroutine to check for dependencies		
+prog def checkdep
+
+	// Defines calling syntax
+	syntax anything(name = deps id = "Package dependencies")
+	
+	// Loop over the dependencies
+	foreach v of loc deps {
+	
+		// Capture/handle any errors
+		cap which `v'
 		
+		// If not installed install from ssc
+		if _rc != 0 cap ssc inst `v', replace
+	
+	} // End Loop over the dependencies
+	
+// End of subroutine definition
+end
+	

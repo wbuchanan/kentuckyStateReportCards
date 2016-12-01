@@ -20,6 +20,8 @@
 *     Optional -                                                               *
 *         nodestring - option to prevent attempts to remove dataset            *
 *                      characteristics related to destring command from varlist*
+*         tablename  - option to specify table name to use to generate DDL to  *
+*                      define the table that would be loaded into an RDBMS.    *
 *                                                                              *
 * Output -                                                                     *
 *     Returns a local macro in r(tabledef) containing the DDL used to define a *
@@ -31,7 +33,7 @@
 *               qui: ds                                                        *
 *               sqltypes `r(varlist)'                                          *
 *                                                                              *
-* Lines - 108                                                                  *
+* Lines - 130                                                                  *
 *                                                                              *
 *******************************************************************************/
 
@@ -43,10 +45,18 @@ cap prog drop sqltypes
 prog def sqltypes, rclass
 
 	// Defines the syntax used to call the program
-	syntax varlist [, noDEString ]
+	syntax varlist [, noDEString TABlename(string asis) ]
 	
 	// Define string scalar used to store the table definition
-	sca mktable = ""
+	if `"`tablename'"' == "" sca mktable = ""
+	
+	else sca mktable = `"CREATE TABLE `tablename' ("'
+	
+	// Get number of variables in variable list
+	loc nvars `: word count `varlist''
+	
+	// Get the last variable in the variable list
+	loc lastvar `: word `nvars' of `varlist''
 	
 	// Loops over the variable list
 	foreach v of var `varlist' {
@@ -94,12 +104,24 @@ prog def sqltypes, rclass
 		} // End IF Block for destring option	
 		
 		// Adds variable's sqltype definition to the string scalar
-		sca mktable = mktable + `"`: char `v'[sqltype]', "'
+		if `"`v'"' != "`lastvar'" sca mktable = mktable + `"`: char `v'[sqltype]', "'
+		
+		// If this is the last variable in the list
+		else sca mktable = mktable + `"`: char `v'[sqltype]'"'
 		
 	} // Ends Loop over the variable list
 	
-	// Removes trailing comma
-	sca mktable = substr(mktable, 1, length(mktable) - 1)
+	// Checks for a data set characteristic named primaryKey
+	if `"`: char _dta[primaryKey]'"' != "" {
+	
+		// Adds the primary key constraint to the table DDL
+		sca mktable = mktable + `", CONSTRAINT pk_`tablename' PRIMARY KEY"'  ///   
+							  +	`" (`: char _dta[primaryKey]')"'
+
+	} // End IF Block for valid primary key characteristic
+	
+	// Adds closing parentheses when a table name is passed
+	if `"`tablename'"' != "" sca mktable = mktable + ")"
 	
 	// Returns the string scalar
 	ret loc tabledef = mktable
