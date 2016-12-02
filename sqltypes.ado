@@ -33,7 +33,7 @@
 *               qui: ds                                                        *
 *               sqltypes `r(varlist)'                                          *
 *                                                                              *
-* Lines - 130                                                                  *
+* Lines - 133                                                                  *
 *                                                                              *
 *******************************************************************************/
 
@@ -122,6 +122,9 @@ prog def sqltypes, rclass
 	
 	// Adds closing parentheses when a table name is passed
 	if `"`tablename'"' != "" sca mktable = mktable + ")"
+	
+	// Stores the DDL in a dataset characteristic
+	char _dta[ddl] `"`= mktable'"'
 	
 	// Returns the string scalar
 	ret loc tabledef = mktable

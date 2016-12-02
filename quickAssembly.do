@@ -385,6 +385,18 @@ foreach v of var finvalue* {
 	qui: destring `v', replace ignore ("*,R %$")
 }
 
+loc chngs ReS_Xij_n ReS_Xij_long1 ReS_Xij_long2 ReS_Xij_wide1 ReS_Xij_wide2 ///   
+ReS_i ReS_ver ReS_j ReS_str ReS_Xij __JValLabName __JValLab __JVarLab ///   
+__XijVarLabfinvalue __XijVarLabfinrank
+foreach v of loc chngs {
+	char _dta[`v'] ""
+}
+char li
+
+char _dta[primaryKey] "schyr, schid, fintype"
+qui: ds
+sqltypes `r(varlist)', tab(finance)
+
 qui: save newclean/finance.dta, replace
 
 /*******************************************************************************

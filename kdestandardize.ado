@@ -3165,7 +3165,7 @@ prog def kdestandardize, rclass
 	if `"`primarykey'"' != "" { 
 		
 		// Tests the primary key constraint
-		testpk `primarykey'
+		testpk `: subinstr loc primarykey "fileid" "", all'
 		
 		// Sort the data based on the values passed to the primary key parameter
 		qui: sort `primarykey'
