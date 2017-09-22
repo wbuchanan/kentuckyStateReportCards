@@ -8,8 +8,10 @@ clean/*
 newclean/*
 updates/*
 updates.zip
-
-
+Data/*
+tableau/*
+*.twb
+*.twbx
 
 
 
