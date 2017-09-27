@@ -63,13 +63,58 @@ prog def kdestandardize, rclass
 					6 "NRT" 7 "PPSAT" 8 "PSAT" 9 "CCR" 10 "CCR Explore", modify	
 
 	// Define value labels for grade levels				
-	la def grade -2 "Early Childhood" -1 "Pre-K" 0 "Kindergarten" 			 ///   
-				 1 "1st Grade" 2 "2nd Grade"  3 "3rd Grade" 4 "4th Grade" 	 ///   
-				 5 "5th Grade" 6 "6th Grade" 7 "7th Grade" 8 "8th Grade" 	 ///   
-				 9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 				 ///   
-				 12 "12th Grade" 98 "Adult Education" 99 "High School" 		 ///   
-				 97 "Magical KDE Undefined Grade" 100 "All Grades" 			 ///   
-				 14 "IDEA", modify
+	la def grade 	-2 "Early Childhood" -1 "Pre-K" 0 "Kindergarten" 		 ///   
+					1 "1st Grade" 2 "2nd Grade"  3 "3rd Grade" 4 "4th Grade" ///   
+					5 "5th Grade" 6 "6th Grade" 7 "7th Grade" 8 "8th Grade"  ///   
+					9 "9th Grade" 10 "10th Grade" 11 "11th Grade" 			 ///   
+					12 "12th Grade" 14 "IDEA" 15 "Kindergarten - 1st Grade"	 ///   
+					16 "Kindergarten - 2nd Grade"							 ///   
+					17 "Kindergarten - 3rd Grade"							 ///   
+					18 "Kindergarten - 4th Grade"							 ///   
+					19 "Kindergarten - 5th Grade"							 ///   
+					20 "Kindergarten - 6th Grade"							 ///   
+					21 "Kindergarten - 7th Grade"							 ///   
+					22 "Kindergarten - 8th Grade"							 ///   
+					23 "Kindergarten - 9th Grade"							 ///   
+					24 "Kindergarten - 10th Grade"							 ///   
+					25 "Kindergarten - 11th Grade"							 ///   
+					26 "Kindergarten - 12th Grade"							 ///   
+					27 "1st - 2nd Grade" 28 "1st - 3rd Grade"				 ///   
+					29 "1st - 4th Grade" 30 "1st - 5th Grade"				 ///   
+					31 "1st - 6th Grade" 32 "1st - 7th Grade"				 ///   
+					33 "1st - 8th Grade" 34 "1st - 9th Grade"				 ///   
+					35 "1st - 10th Grade" 36 "1st - 11th Grade"				 ///   
+					37 "1st - 12th Grade" 38 "2nd - 3rd Grade"				 ///   
+					39 "2nd - 4th Grade" 40 "2nd - 5th Grade"				 ///   
+					41 "2nd - 6th Grade" 42 "2nd - 7th Grade"				 ///   
+					43 "2nd - 8th Grade" 44 "2nd - 9th Grade"				 ///   
+					45 "2nd - 10th Grade" 46 "2nd - 11th Grade"				 ///   
+					47 "2nd - 12th Grade" 48 "3rd - 4th Grade"				 ///   
+					49 "3rd - 5th Grade" 50 "3rd - 6th Grade"				 ///   
+					51 "3rd - 7th Grade" 52 "3rd - 8th Grade"				 ///   
+					53 "3rd - 9th Grade" 54 "3rd - 10th Grade"				 ///   
+					55 "3rd - 11th Grade" 56 "3rd - 12th Grade"				 ///   
+					57 "4th - 5th Grade" 58 "4th - 6th Grade"				 ///   
+					59 "4th - 7th Grade" 60 "4th - 8th Grade"				 ///   
+					61 "4th - 9th Grade" 62 "4th - 10th Grade"				 ///   
+					63 "4th - 11th Grade" 64 "4th - 12th Grade"				 ///   
+					65 "5th - 6th Grade" 66 "5th - 7th Grade"				 ///   
+					67 "5th - 8th Grade" 68 "5th - 9th Grade"				 ///   
+					69 "5th - 10th Grade" 70 "5th - 11th Grade"				 ///   
+					71 "5th - 12th Grade" 72 "6th - 7th Grade"				 ///   
+					73 "6th - 8th Grade" 74 "6th - 9th Grade"				 ///   
+					75 "6th - 10th Grade" 76 "6th - 11th Grade"				 ///   
+					77 "6th - 12th Grade" 78 "7th - 8th Grade"				 ///   
+					79 "7th - 9th Grade" 80 "7th - 10th Grade"				 ///   
+					81 "7th - 11th Grade" 82 "7th - 12th Grade"				 ///   
+					83 "8th - 9th Grade" 84 "8th - 10th Grade"				 ///   
+					85 "8th - 11th Grade" 86 "8th - 12th Grade"				 ///   
+					87 "9th - 10th Grade" 88 "9th - 11th Grade"				 ///   
+					89 "9th - 12th Grade" 90 "10th - 11th Grade"			 ///   
+					91 "10th - 12th Grade" 92 "11th - 12th Grade"			 ///   
+					93 "Elementary School" 94 "Middle School"				 /// 
+					97 "Magical KDE Undefined Grade" 98 "Adult Education" 	 ///   
+					99 "High School" 100 "All Grades", modify
 
 	// Define value labels for whether or not AMOs are met			 
 	la def amomet 0 "Did not meet AMOs" 1 "Met AMOs", modify
@@ -5297,8 +5342,19 @@ prog def kdestandardize, rclass
 	// Get variable names
 	qui: ds
 	
+	// Store variable list
+	loc vars `r(varlist)'
+	
 	// Call sqltypes program
-	sqltypes `r(varlist)', `tablename'
+	sqltypes `vars', `tablename'
+	
+	// Test for level and grade variable in same file
+	if `: list posof "level" in vars' != 0 & `: list posof "grade" in vars' != 0 {
+	
+		// Impute missing level values with the grade value as needed
+		qui: levimpute level, fr(grade)
+	
+	} // End IF Block to handle missing educational level values
 	
 	// Store the DDL temporarily
 	loc tmp `r(tabledef)'
@@ -5576,3 +5632,18 @@ prog def checkdep
 // End of subroutine definition
 end
 	
+// Replaces level variable if missing and grade indicates level
+prog def levimpute
+
+	// Defines calling syntax
+	syntax anything(name = impvar id ="Variable to impute values for"), 	 ///   
+	FRom(varname num)
+
+	// Replaces the values of the level variable impvar with the correct mapping 
+	// if the grade variable or values in the grade variable are passed as the 
+	// from variable
+	qui: replace `impvar' = cond(mi(`impvar') & `from' == 93, 1,			 ///   
+							cond(mi(`impvar') & `from' == 94, 2,			 ///   
+							cond(mi(`impvar') & `from' == 99, 3, `impvar')))	
+// End subroutine	
+end
