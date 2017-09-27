@@ -3267,7 +3267,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename retention_rate retrate
-		qui: replace retrate = ustrregexra(retrate, "\D", "")
+		qui: replace retrate = ustrregexra(retrate, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' retrate
@@ -3282,7 +3282,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename dropout_rate droprate
-		qui: replace droprate = ustrregexra(droprate, "\D", "")
+		qui: replace droprate = ustrregexra(droprate, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' droprate
@@ -3297,7 +3297,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename graduation_rate gradrate
-		qui: replace gradrate = ustrregexra(gradrate, "\D", "")
+		qui: replace gradrate = ustrregexra(gradrate, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' gradrate
@@ -3312,7 +3312,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_inout_cnt ncollege
-		qui: replace ncollege = ustrregexra(ncollege, "\D", "")
+		qui: replace ncollege = ustrregexra(ncollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' ncollege
@@ -3327,7 +3327,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_inout_pct pctcollege
-		qui: replace pctcollege = ustrregexra(pctcollege, "\D", "")
+		qui: replace pctcollege = ustrregexra(pctcollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctcollege
@@ -3342,7 +3342,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_in_cnt nincollege
-		qui: replace nincollege = ustrregexra(nincollege, "\D", "")
+		qui: replace nincollege = ustrregexra(nincollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nincollege
@@ -3357,7 +3357,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_in_pct pctincollege
-		qui: replace pctincollege = ustrregexra(pctincollege, "\D", "")
+		qui: replace pctincollege = ustrregexra(pctincollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctincollege
@@ -3372,7 +3372,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_out_cnt noutcollege
-		qui: replace noutcollege = ustrregexra(noutcollege, "\D", "")
+		qui: replace noutcollege = ustrregexra(noutcollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' noutcollege
@@ -3387,7 +3387,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_college_out_pct pctoutcollege
-		qui: replace pctoutcollege = ustrregexra(pctoutcollege, "\D", "")
+		qui: replace pctoutcollege = ustrregexra(pctoutcollege, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctoutcollege
@@ -3863,7 +3863,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_parttime_cnt nparttime
-		qui: replace nparttime = ustrregexra(nparttime, "\D", "")
+		qui: replace nparttime = ustrregexra(nparttime, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nparttime
@@ -3877,7 +3877,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_parttime_pct pctparttime
-		qui: replace pctparttime = ustrregexra(pctparttime, "\D", "")
+		qui: replace pctparttime = ustrregexra(pctparttime, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctparttime
@@ -3891,7 +3891,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_workforce_cnt nworkforce
-		qui: replace nworkforce = ustrregexra(nworkforce, "\D", "")
+		qui: replace nworkforce = ustrregexra(nworkforce, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nworkforce
@@ -3905,7 +3905,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_workforce_pct pctworkforce
-		qui: replace pctworkforce = ustrregexra(pctworkforce, "\D", "")
+		qui: replace pctworkforce = ustrregexra(pctworkforce, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctworkforce
@@ -3919,7 +3919,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_vocational_cnt nvocational
-		qui: replace nvocational = ustrregexra(nvocational, "\D", "")
+		qui: replace nvocational = ustrregexra(nvocational, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nvocational
@@ -3933,7 +3933,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_vocational_pct pctvocational
-		qui: replace pctvocational = ustrregexra(pctvocational, "\D", "")
+		qui: replace pctvocational = ustrregexra(pctvocational, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctvocational
@@ -3947,7 +3947,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_failure_cnt nfailure
-		qui: replace nfailure = ustrregexra(nfailure, "\D", "")
+		qui: replace nfailure = ustrregexra(nfailure, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nfailure
@@ -3961,7 +3961,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_failure_pct pctfailure
-		qui: replace pctfailure = ustrregexra(pctfailure, "\D", "")
+		qui: replace pctfailure = ustrregexra(pctfailure, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctfailure
@@ -3975,7 +3975,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_military_cnt nmilitary
-		qui: replace nmilitary = ustrregexra(nmilitary, "\D", "")
+		qui: replace nmilitary = ustrregexra(nmilitary, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' nmilitary
@@ -3989,7 +3989,7 @@ prog def kdestandardize, rclass
 
 		// Renames the variable to standardized name 
 		qui: rename transition_military_pct pctmilitary
-		qui: replace pctmilitary = ustrregexra(pctmilitary, "\D", "")
+		qui: replace pctmilitary = ustrregexra(pctmilitary, "[^\.\d]", "")
 
 		// Adds to list of variables that need to be recast as numeric 
 		loc torecast `torecast' pctmilitary
